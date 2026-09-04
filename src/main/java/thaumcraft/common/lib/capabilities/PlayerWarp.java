@@ -13,25 +13,6 @@ import thaumcraft.common.lib.network.playerdata.PacketSyncWarp;
 
 public class PlayerWarp implements IPlayerWarp {
 
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<IPlayerWarp>> WARP_ATTACHMENT = PlayerKnowledge.ATTACHMENT_TYPES.register(
-            "warp",
-            () -> AttachmentType.builder(() -> (IPlayerWarp) new PlayerWarp())
-                    .serialize(new net.neoforged.neoforge.attachment.IAttachmentSerializer<IPlayerWarp>() {
-                        @Override
-                        public IPlayerWarp read(net.neoforged.neoforge.attachment.IAttachmentHolder holder, net.minecraft.world.level.storage.ValueInput input) {
-                            PlayerWarp w = new PlayerWarp();
-                            input.read("data", CompoundTag.CODEC).ifPresent(w::deserializeNBT);
-                            return w;
-                        }
-                        @Override
-                        public boolean write(IPlayerWarp attachment, net.minecraft.world.level.storage.ValueOutput output) {
-                            output.store("data", CompoundTag.CODEC, attachment.serializeNBT());
-                            return true;
-                        }
-                    })
-                    .copyOnDeath().build()
-    );
-
     private int[] warp;
     private int counter;
     
