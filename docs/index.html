@@ -547,6 +547,64 @@
       transform: translateY(-1px);
     }
 
+    /* Privacy Scrubber & Guard */
+    .privacy-banner {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.78rem;
+    }
+
+    .privacy-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #cbd5e1;
+    }
+
+    .privacy-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      flex-shrink: 0;
+    }
+
+    .privacy-tools {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-tool {
+      background: rgba(157, 78, 221, 0.15);
+      border: 1px solid rgba(157, 78, 221, 0.35);
+      color: var(--text-bright);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.2s;
+    }
+
+    .btn-tool:hover {
+      background: rgba(157, 78, 221, 0.3);
+      border-color: var(--primary);
+    }
+
+    .scrub-alert {
+      color: var(--accent-green);
+      font-weight: 500;
+    }
+
     /* Modal for Token */
     .modal-overlay {
       display: none;
@@ -717,6 +775,22 @@
               <button class="composer-tab" data-mode="priority">System Priority Vote</button>
             </div>
 
+            <!-- Privacy Scrubber Bar -->
+            <div class="privacy-banner" id="privacyBanner">
+              <div class="privacy-indicator">
+                <span class="privacy-dot"></span>
+                <span id="privacyStatusText"><strong>Privacy Guard Active:</strong> System usernames, local paths, IPs & session tokens are auto-scrubbed before sending.</span>
+              </div>
+              <div class="privacy-tools">
+                <button type="button" class="btn-tool" id="btnScrubPII" title="Manually scrub local usernames, user paths, IPs, and tokens from current input">
+                  🛡️ Scrub PII Now
+                </button>
+                <button type="button" class="btn-tool" id="btnExtractTrace" title="Extract only the Java exception and stack trace lines, stripping 400+ lines of system telemetry">
+                  ⚡ Extract Trace Only
+                </button>
+              </div>
+            </div>
+
             <textarea 
               id="messageInput" 
               class="composer-textarea" 
@@ -880,9 +954,112 @@
       chatTimeline.scrollTop = chatTimeline.scrollHeight;
     }
 
+    function sanitizePII(text) {
+      if (!text) return { text: '', count: 0 };
+      let sanitized = text;
+      let count = 0;
+
+      // 1. Windows user directories: C:\Users\<Username>\ or C:\Documents and Settings\<Username>\
+      sanitized = sanitized.replace(/([a-zA-Z]:\\(?:Users|Documents and Settings)\\[^\s\\\/]+)/gi, (match) => {
+        count++;
+        const drive = match.split(':')[0];
+        return `${drive}:\\Users\\[USER]`;
+      });
+      sanitized = sanitized.replace(/(file:\/\/\/[a-zA-Z]:\/(?:Users|Documents and Settings)\/[^\s\/]+)/gi, (match) => {
+        count++;
+        const drive = match.split(':')[0];
+        return `${drive}:/Users/[USER]`;
+      });
+
+      // 2. Linux & macOS user directories: /home/<username> or /Users/<username>
+      sanitized = sanitized.replace(/(\/(?:home|Users)\/)([a-zA-Z0-9_\.\-]+)/g, (match, prefix, user) => {
+        count++;
+        return `${prefix}[USER]`;
+      });
+
+      // 3. Minecraft Player UUIDs
+      sanitized = sanitized.replace(/\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b/g, () => {
+        count++;
+        return '[REDACTED_UUID]';
+      });
+
+      // 4. Session tokens, access tokens, client credentials
+      sanitized = sanitized.replace(/(--accessToken\s+)[^\s]+/gi, (m, p) => { count++; return `${p}[REDACTED_TOKEN]`; });
+      sanitized = sanitized.replace(/(--uuid\s+)[^\s]+/gi, (m, p) => { count++; return `${p}[REDACTED_UUID]`; });
+      sanitized = sanitized.replace(/(--username\s+)[^\s]+/gi, (m, p) => { count++; return `${p}[REDACTED_PLAYER]`; });
+      sanitized = sanitized.replace(/\b(session:[a-f0-9_\-]+)\b/gi, () => { count++; return 'session:[REDACTED]'; });
+      sanitized = sanitized.replace(/\b(sessionId\s*=\s*['"]?)[a-f0-9_\-]+(['"]?)/gi, (m, p, s) => { count++; return `${p}[REDACTED]${s}`; });
+      sanitized = sanitized.replace(/\b(token\s*[:=]\s*['"]?)[A-Za-z0-9_\-\.]{16,}(['"]?)/gi, (m, p, s) => { count++; return `${p}[REDACTED_TOKEN]${s}`; });
+
+      // 5. Discord Webhooks
+      sanitized = sanitized.replace(/https?:\/\/discord(?:app)?\.com\/api\/webhooks\/[0-9]+\/[A-Za-z0-9_\-]+/gi, () => {
+        count++;
+        return '[REDACTED_WEBHOOK]';
+      });
+
+      // 6. Email addresses
+      sanitized = sanitized.replace(/[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+/gi, () => {
+        count++;
+        return '[REDACTED_EMAIL]';
+      });
+
+      // 7. IPv4 addresses (excluding version numbers like 1.20.4 or 1.21.0 or 6.1.26)
+      sanitized = sanitized.replace(/\b(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?::\d{1,5})?\b/g, (match) => {
+        if (match.startsWith('1.20.') || match.startsWith('1.21.') || match.startsWith('6.1.')) return match;
+        count++;
+        return '[REDACTED_IP]';
+      });
+
+      return { text: sanitized, count };
+    }
+
+    function extractRelevantStackTrace(text) {
+      if (!text) return text;
+
+      // Handle full Minecraft Crash Reports
+      if (text.includes('---- Minecraft Crash Report ----') || text.includes('Description:') || text.includes('-- System Details --')) {
+        let lines = text.split('\n');
+        let out = [];
+
+        for (let line of lines) {
+          if (line.includes('-- System Details --') || line.includes('A detailed walkthrough of the error, its code path')) {
+            out.push('\n[...System hardware specifications and telemetry stripped for privacy...]');
+            break;
+          }
+          out.push(line);
+        }
+        return out.join('\n');
+      }
+
+      // Handle raw console logs with exception
+      const excIndex = text.search(/(?:Exception|Error):\s+/i);
+      if (excIndex !== -1) {
+        const preceding = text.slice(Math.max(0, excIndex - 120), excIndex);
+        const precedingLine = preceding.split('\n').pop();
+        const afterExc = text.slice(excIndex);
+        const stackLines = afterExc.split('\n').slice(0, 35);
+        return (precedingLine ? precedingLine + '\n' : '') + stackLines.join('\n');
+      }
+
+      return text;
+    }
+
     async function sendMessage() {
-      const text = messageInput.value.trim();
-      if (!text) return;
+      const rawText = messageInput.value.trim();
+      if (!rawText) return;
+
+      // Pre-flight client-side PII scrubbing
+      const { text: cleanText, count: piiCount } = sanitizePII(rawText);
+      const text = cleanText;
+
+      if (piiCount > 0) {
+        messageInput.value = text;
+        const privacyStatus = document.getElementById('privacyStatusText');
+        privacyStatus.innerHTML = `<span class="scrub-alert">🛡️ Scrubbed ${piiCount} sensitive item(s) (usernames/paths/tokens/IPs) before sending.</span>`;
+        setTimeout(() => {
+          privacyStatus.innerHTML = '<strong>Privacy Guard Active:</strong> System usernames, local paths, IPs & session tokens are auto-scrubbed before sending.';
+        }, 5000);
+      }
 
       const token = localStorage.getItem(STORAGE_TOKEN_KEY);
 
@@ -909,7 +1086,7 @@
           messageInput.value = '';
           await loadChatMessages();
         } catch (err) {
-          alert('Could not post directly: ' + err.message + '\nOpening GitHub issue comment thread.');
+          alert('Could not post directly: ' + err.message + '\nOpening GitHub issue comment thread with sanitized text.');
           openGitHubComment(text);
         } finally {
           btnSendMessage.disabled = false;
@@ -921,14 +1098,47 @@
     }
 
     function openGitHubComment(text) {
+      const { text: safeText } = sanitizePII(text);
       const url = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/${FEEDBACK_ISSUE_ID}#issuecomment-new`;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Message copied to clipboard! Opening GitHub Issue #11 to submit comment...');
+      navigator.clipboard.writeText(safeText).then(() => {
+        alert('Sanitized message copied to clipboard! Opening GitHub Issue #11 to submit comment...');
         window.open(url, '_blank');
       }).catch(() => {
         window.open(url, '_blank');
       });
     }
+
+    const btnScrubPII = document.getElementById('btnScrubPII');
+    const btnExtractTrace = document.getElementById('btnExtractTrace');
+
+    btnScrubPII.addEventListener('click', () => {
+      const current = messageInput.value;
+      if (!current.trim()) return;
+      const { text: scrubbed, count } = sanitizePII(current);
+      messageInput.value = scrubbed;
+      const privacyStatus = document.getElementById('privacyStatusText');
+      if (count > 0) {
+        privacyStatus.innerHTML = `<span class="scrub-alert">🛡️ Cleaned ${count} sensitive PII item(s) from input.</span>`;
+      } else {
+        privacyStatus.innerHTML = `<span class="scrub-alert">✓ No sensitive PII patterns detected in text.</span>`;
+      }
+      setTimeout(() => {
+        privacyStatus.innerHTML = '<strong>Privacy Guard Active:</strong> System usernames, local paths, IPs & session tokens are auto-scrubbed before sending.';
+      }, 4000);
+    });
+
+    btnExtractTrace.addEventListener('click', () => {
+      const current = messageInput.value;
+      if (!current.trim()) return;
+      const extracted = extractRelevantStackTrace(current);
+      const { text: scrubbed } = sanitizePII(extracted);
+      messageInput.value = scrubbed;
+      const privacyStatus = document.getElementById('privacyStatusText');
+      privacyStatus.innerHTML = `<span class="scrub-alert">⚡ Extracted core exception stack trace & stripped system telemetry.</span>`;
+      setTimeout(() => {
+        privacyStatus.innerHTML = '<strong>Privacy Guard Active:</strong> System usernames, local paths, IPs & session tokens are auto-scrubbed before sending.';
+      }, 4000);
+    });
 
     composerTabs.forEach(tab => {
       tab.addEventListener('click', () => {
@@ -937,7 +1147,7 @@
         currentComposerMode = tab.dataset.mode;
 
         if (currentComposerMode === 'bug') {
-          messageInput.value = `### 🐛 In-Game Bug Report\n- **NeoForge Version**: \n- **Minecraft Version**: 1.20.4\n- **Observed Behavior**: \n- **Expected Behavior**: \n\n<details><summary>Crash Log / Console Stack Trace</summary>\n\n\`\`\`\n[paste log here]\n\`\`\`\n</details>`;
+          messageInput.value = `### 🐛 In-Game Bug Report\n- **NeoForge Version**: \n- **Minecraft Version**: 1.20.4\n- **Observed Behavior**: \n- **Expected Behavior**: \n\n<details><summary>Sanitized Stack Trace (Exception Only)</summary>\n\n\`\`\`\n[paste exception stack trace here or use 'Extract Trace Only' button]\n\`\`\`\n</details>`;
         } else if (currentComposerMode === 'priority') {
           messageInput.value = `### ⚡ System Priority Vote\nI would like Jules & Scribe to prioritize the following system next:\n- [ ] Arcane Workbench Crafting & Wand Mechanics\n- [ ] Crucible Boiling & Alchemical Transmutation\n- [ ] Infusion Altar Multi-Block & Runic Matrix\n- [ ] Golemancy & Seal AI Automation\n\n**Reason / Context**: `;
         } else {
