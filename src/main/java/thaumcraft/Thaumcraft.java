@@ -40,9 +40,9 @@ public class Thaumcraft {
     public static final DeferredBlock<Block> AMBER_BLOCK = BLOCKS.registerSimpleBlock("amber_block", p -> p.mapColor(MapColor.STONE));
     public static final DeferredItem<BlockItem> AMBER_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("amber_block", AMBER_BLOCK);
     
-    public static final DeferredItem<Item> AMBER = ITEMS.registerSimpleItem("amber", p -> p);
-    public static final DeferredItem<Item> SALIS_MUNDUS = ITEMS.registerSimpleItem("salis_mundus", p -> p);
-    public static final DeferredItem<Item> THAUMONOMICON = ITEMS.registerItem("thaumonomicon", thaumcraft.common.items.curios.ItemThaumonomicon::new, p -> p.stacksTo(1));
+    public static final DeferredItem<Item> AMBER = thaumcraft.api.items.ThaumcraftItems.amber;
+    public static final DeferredItem<Item> SALIS_MUNDUS = thaumcraft.api.items.ThaumcraftItems.salisMundus;
+    public static final DeferredItem<Item> THAUMONOMICON = thaumcraft.api.items.ThaumcraftItems.thaumonomicon;
 
 
     public Thaumcraft(IEventBus modEventBus, ModContainer modContainer) {
@@ -51,6 +51,7 @@ public class Thaumcraft {
         NeoForge.EVENT_BUS.register(this);
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
+        thaumcraft.api.items.ThaumcraftItems.ITEMS.register(modEventBus);
         thaumcraft.common.lib.CreativeTabThaumcraft.CREATIVE_MODE_TABS.register(modEventBus);
         thaumcraft.common.lib.SoundsTC.SOUNDS.register(modEventBus);
         thaumcraft.api.capabilities.ThaumcraftCapabilities.ATTACHMENT_TYPES.register(modEventBus);
@@ -66,6 +67,7 @@ public class Thaumcraft {
     private void commonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("Thaumcraft 6 port is initializing common setup!");
         event.enqueueWork(() -> {
+            thaumcraft.api.items.ThaumcraftItems.populateItemsTC();
             thaumcraft.common.lib.SoundsTC.registerSoundTypes();
             thaumcraft.common.config.ConfigResearch.init();
             thaumcraft.common.config.ConfigResearch.postInit();

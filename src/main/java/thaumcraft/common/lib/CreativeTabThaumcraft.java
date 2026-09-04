@@ -17,9 +17,11 @@ public class CreativeTabThaumcraft {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> Thaumcraft.SALIS_MUNDUS.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(Thaumcraft.THAUMONOMICON.get());
-                output.accept(Thaumcraft.AMBER.get());
-                output.accept(Thaumcraft.SALIS_MUNDUS.get());
                 output.accept(Thaumcraft.AMBER_BLOCK_ITEM.get());
+                thaumcraft.api.items.ThaumcraftItems.ITEMS.getEntries().forEach(item -> {
+                    try {
+                        output.accept(item.get());
+                    } catch (Exception ignored) {}
+                });
             }).build());
 }
