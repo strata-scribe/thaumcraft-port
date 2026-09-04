@@ -26,27 +26,6 @@ import thaumcraft.common.lib.network.PacketHandler;
 import thaumcraft.common.lib.network.playerdata.PacketSyncKnowledge;
 
 public class PlayerKnowledge implements IPlayerKnowledge {
-    
-    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Thaumcraft.MODID);
-    
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<IPlayerKnowledge>> KNOWLEDGE_ATTACHMENT = ATTACHMENT_TYPES.register(
-            "knowledge",
-            () -> AttachmentType.builder(() -> (IPlayerKnowledge) new PlayerKnowledge())
-                    .serialize(new net.neoforged.neoforge.attachment.IAttachmentSerializer<IPlayerKnowledge>() {
-                        @Override
-                        public IPlayerKnowledge read(net.neoforged.neoforge.attachment.IAttachmentHolder holder, net.minecraft.world.level.storage.ValueInput input) {
-                            PlayerKnowledge k = new PlayerKnowledge();
-                            input.read("data", CompoundTag.CODEC).ifPresent(k::deserializeNBT);
-                            return k;
-                        }
-                        @Override
-                        public boolean write(IPlayerKnowledge attachment, net.minecraft.world.level.storage.ValueOutput output) {
-                            output.store("data", CompoundTag.CODEC, attachment.serializeNBT());
-                            return true;
-                        }
-                    })
-                    .copyOnDeath().build()
-    );
 
     private HashSet<String> research;
     private Map<String, Integer> stages;
