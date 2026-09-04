@@ -12,7 +12,8 @@ def extract_methods(jar_path, class_name):
         return str(e)
 
 import glob
-jars = glob.glob("/home/frost/.gradle/caches/transforms-4/*/transformed/*mapped_official_1.21.4.jar")
+import os
+jars = glob.glob(os.path.expanduser("~/.gradle/caches/transforms-4/*/transformed/*mapped_official_1.21.4.jar"))
 if jars:
     print(extract_methods(jars[0], 'net/minecraft/client/gui/GuiGraphicsExtractor.class'))
 else:
