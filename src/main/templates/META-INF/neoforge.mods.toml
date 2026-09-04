@@ -35,12 +35,11 @@ displayName="${mod_name}" #mandatory
 # A text field displayed in the mod UI
 #credits="" #optional
 
-# The authors of the mod, displayed in the mod UI (optional)
-#authors=""
+authors="Azanor, Community Contributors"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Example mod description.
+Thaumcraft 6 port to Minecraft 26.1.2. Thaumaturgy is the capability of a magician to work miracles. A practitioner of thaumaturgy is a thaumaturgist, thaumaturge or miracle-worker.
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.

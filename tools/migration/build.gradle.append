@@ -1,0 +1,9 @@
+task printScreenMethods {
+    doLast {
+        def cl = new URLClassLoader(sourceSets.main.compileClasspath.collect { it.toURI().toURL() } as URL[], null)
+        def screenClass = cl.loadClass("net.minecraft.client.gui.screens.Screen")
+        screenClass.methods.findAll { it.name.toLowerCase().contains("tooltip") }.each { println it }
+        def guiGraphicsClass = cl.loadClass("net.minecraft.client.gui.GuiGraphicsExtractor")
+        guiGraphicsClass.methods.findAll { it.name.toLowerCase().contains("tooltip") }.each { println it }
+    }
+}
