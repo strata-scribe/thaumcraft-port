@@ -1,4 +1,9 @@
 package thaumcraft.api.research;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
+
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.resources.Identifier;
@@ -9,6 +14,18 @@ import thaumcraft.api.aspects.AspectList;
 
 
 public class ResearchCategory {
+
+	public static final Codec<ResearchCategory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			Codec.STRING.fieldOf("key").forGetter(c -> c.key),
+			Codec.STRING.optionalFieldOf("researchKey", "").forGetter(c -> c.researchKey != null ? c.researchKey : ""),
+			AspectList.CODEC.fieldOf("formula").forGetter(c -> c.formula),
+			Identifier.CODEC.fieldOf("icon").forGetter(c -> c.icon),
+			Identifier.CODEC.fieldOf("background").forGetter(c -> c.background),
+			Identifier.CODEC.optionalFieldOf("background2").forGetter(c -> Optional.ofNullable(c.background2))
+	).apply(instance, (key, researchKey, formula, icon, background, background2) -> {
+		return new ResearchCategory(key, researchKey.isEmpty() ? null : researchKey, formula, icon, background, background2.orElse(null));
+	}));
+
 	
 	/** Is the smallest column used on the GUI. */
     public int minDisplayColumn;

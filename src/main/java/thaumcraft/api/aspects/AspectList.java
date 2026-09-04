@@ -1,4 +1,9 @@
 package thaumcraft.api.aspects;
+
+import com.mojang.serialization.Codec;
+import java.util.Map;
+import java.util.LinkedHashMap;
+
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import net.minecraft.world.item.ItemStack;
@@ -8,6 +13,29 @@ import net.minecraft.nbt.ListTag;
 
 
 public class AspectList implements Serializable {
+
+	public static final Codec<AspectList> CODEC = Codec.unboundedMap(Codec.STRING, Codec.INT).xmap(
+			map -> {
+				AspectList list = new AspectList();
+				map.forEach((k, v) -> {
+					Aspect aspect = Aspect.getAspect(k);
+					if (aspect != null) list.add(aspect, v);
+				});
+				return list;
+			},
+			list -> {
+				Map<String, Integer> map = new LinkedHashMap<>();
+				if (list != null && list.getAspects() != null) {
+					for (Aspect a : list.getAspects()) {
+						if (a != null) {
+							map.put(a.getTag(), list.getAmount(a));
+						}
+					}
+				}
+				return map;
+			}
+	);
+
 	
 	public LinkedHashMap<Aspect,Integer> aspects = new LinkedHashMap<Aspect,Integer>();//aspects associated with this object
 
