@@ -40,22 +40,6 @@ public class AspectList implements Serializable {
 	
 	public LinkedHashMap<Aspect,Integer> aspects = new LinkedHashMap<Aspect,Integer>();//aspects associated with this object
 
-	public static final Codec<AspectList> CODEC = Codec.unboundedMap(Codec.STRING, Codec.INT).xmap(
-			map -> {
-				AspectList list = new AspectList();
-				map.forEach((k, v) -> {
-					Aspect a = Aspect.getAspect(k);
-					if (a != null) list.add(a, v);
-				});
-				return list;
-			},
-			list -> {
-				java.util.LinkedHashMap<String, Integer> map = new java.util.LinkedHashMap<>();
-				list.aspects.forEach((k, v) -> map.put(k.getTag(), v));
-				return map;
-			}
-	);
-
 	
 	/**
 	 * this creates a new aspect list with preloaded values based off the aspects of the given item.
