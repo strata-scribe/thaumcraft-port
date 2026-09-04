@@ -40,8 +40,7 @@ public class CasterTriggerRegistry {
 	 * A manager class needs to be created that implements ICasterTriggerManager.
 	 * @param manager
 	 * @param event a logical number that you can use to differentiate different events or actions
-	 * @param blockState
-	 * @param meta send -1 as a wildcard value for all possible meta values
+	 * @param state
 	 * @param modid a unique identifier. It is best to register your own triggers using your mod id to avoid conflicts with mods that register triggers for the same block
 	 */
 	public static void registerWandBlockTrigger(ICasterTriggerManager manager, int event, BlockState state, String modid) {
@@ -65,8 +64,7 @@ public class CasterTriggerRegistry {
 	
 	/**
 	 * Checks all trigger registries if one exists for the given block and meta
-	 * @param blockState
-	 * @param meta
+	 * @param state
 	 * @return
 	 */
 	public static boolean hasTrigger(BlockState state) {
@@ -89,17 +87,14 @@ public class CasterTriggerRegistry {
 	
 	
 	/**
-	 * This is called by the onItemUseFirst function in casters. 
-	 * Parameters and return value functions like you would expect for that function.
+	 * This is typically called by the NeoForge PlayerInteractEvent.RightClickBlock event.
+	 * Used to handle block interaction before default behavior.
 	 * @param world
 	 * @param casterStack
 	 * @param player
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param pos
 	 * @param side
-	 * @param blockState
-	 * @param meta
+	 * @param state
 	 * @return
 	 */
 	public static boolean performTrigger(Level world, ItemStack casterStack, Player player, 
