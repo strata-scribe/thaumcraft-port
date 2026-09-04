@@ -1,0 +1,392 @@
+{
+    "zap": {
+        "category": "master",
+        "sounds": [
+            "zap"
+        ]
+    },
+    "heartbeat": {
+        "category": "master",
+        "sounds": [
+            "heartbeat"
+        ]
+    },
+    "spill": {
+        "category": "master",
+        "sounds": [
+            "spill"
+        ]
+    },
+    "bubble": {
+        "category": "master",
+        "sounds": [
+            "bubble"
+        ]
+    },
+    "creak": {
+        "category": "master",
+        "sounds": [
+            "creak"
+        ]
+    },
+    "squeek": {
+        "category": "master",
+        "sounds": [
+            "squeek"
+        ]
+    },
+    "jar": {
+        "category": "master",
+        "sounds": [
+            "jar"
+        ]
+    },
+    "swarm": {
+        "category": "master",
+        "sounds": [
+            "swarm"
+        ]
+    },
+    "swarmattack": {
+        "category": "master",
+        "sounds": [
+            "swarmattack"
+        ]
+    },
+    "fly": {
+        "category": "master",
+        "sounds": [
+            "fly"
+        ]
+    },
+    "key": {
+        "category": "master",
+        "sounds": [
+            "key"
+        ]
+    },
+    "ticks": {
+        "category": "master",
+        "sounds": [
+            "ticks"
+        ]
+    },
+    "clack": {
+        "category": "master",
+        "sounds": [
+            "clack"
+        ]
+    },
+    "pump": {
+        "category": "master",
+        "sounds": [
+            "pump"
+        ]
+    },
+    "poof": {
+        "category": "master",
+        "sounds": [
+            "poof"
+        ]
+    },
+    "page": {
+        "category": "master",
+        "sounds": [
+            "page"
+        ]
+    },
+    "pageturn": {
+        "category": "master",
+        "sounds": [
+            "pageturn"
+        ]
+    },
+    "learn": {
+        "category": "master",
+        "sounds": [
+            "learn"
+        ]
+    },
+    "write": {
+        "category": "master",
+        "sounds": [
+            "write"
+        ]
+    },
+    "erase": {
+        "category": "master",
+        "sounds": [
+            "erase"
+        ]
+    },
+    "brain": {
+        "category": "master",
+        "sounds": [
+            "brain"
+        ]
+    },
+    "crystal": {
+        "category": "master",
+        "sounds": [
+            "crystal"
+        ]
+    },
+    "wispdead": {
+        "category": "master",
+        "sounds": [
+            "wispdead"
+        ]
+    },
+    "wisplive": {
+        "category": "master",
+        "sounds": [
+            "wisplive"
+        ]
+    },
+    "wand": {
+        "category": "master",
+        "sounds": [
+            "wand"
+        ]
+    },
+    "wandfail": {
+        "category": "master",
+        "sounds": [
+            "wandfail"
+        ]
+    },
+    "rumble": {
+        "category": "master",
+        "sounds": [
+            "rumble"
+        ]
+    },
+    "ice": {
+        "category": "master",
+        "sounds": [
+            "ice"
+        ]
+    },
+    "jacobs": {
+        "category": "master",
+        "sounds": [
+            "jacobs"
+        ]
+    },
+    "hhoff": {
+        "category": "master",
+        "sounds": [
+            "hhoff"
+        ]
+    },
+    "hhon": {
+        "category": "master",
+        "sounds": [
+            "hhon"
+        ]
+    },
+    "pech_idle": {
+        "category": "master",
+        "sounds": [
+            "pech_idle"
+        ]
+    },
+    "pech_trade": {
+        "category": "master",
+        "sounds": [
+            "pech_trade"
+        ]
+    },
+    "pech_dice": {
+        "category": "master",
+        "sounds": [
+            "pech_dice"
+        ]
+    },
+    "pech_hit": {
+        "category": "master",
+        "sounds": [
+            "pech_hit"
+        ]
+    },
+    "pech_death": {
+        "category": "master",
+        "sounds": [
+            "pech_death"
+        ]
+    },
+    "pech_charge": {
+        "category": "master",
+        "sounds": [
+            "pech_charge"
+        ]
+    },
+    "shock": {
+        "category": "master",
+        "sounds": [
+            "shock"
+        ]
+    },
+    "craftfail": {
+        "category": "master",
+        "sounds": [
+            "craftfail"
+        ]
+    },
+    "scan": {
+        "category": "master",
+        "sounds": [
+            "scan"
+        ]
+    },
+    "craftstart": {
+        "category": "master",
+        "sounds": [
+            "craftstart"
+        ]
+    },
+    "runicshieldeffect": {
+        "category": "master",
+        "sounds": [
+            "runicshieldeffect"
+        ]
+    },
+    "runicshieldcharge": {
+        "category": "master",
+        "sounds": [
+            "runicshieldcharge"
+        ]
+    },
+    "wind": {
+        "category": "master",
+        "sounds": [
+            "wind"
+        ]
+    },
+    "tool": {
+        "category": "master",
+        "sounds": [
+            "tool"
+        ]
+    },
+    "gore": {
+        "category": "master",
+        "sounds": [
+            "gore"
+        ]
+    },
+    "tentacle": {
+        "category": "master",
+        "sounds": [
+            "tentacle"
+        ]
+    },
+    "upgrade": {
+        "category": "master",
+        "sounds": [
+            "upgrade"
+        ]
+    },
+    "whispers": {
+        "category": "master",
+        "sounds": [
+            "whispers"
+        ]
+    },
+    "monolith": {
+        "category": "master",
+        "sounds": [
+            "monolith"
+        ]
+    },
+    "infuser": {
+        "category": "master",
+        "sounds": [
+            "infuser"
+        ]
+    },
+    "infuserstart": {
+        "category": "master",
+        "sounds": [
+            "infuserstart"
+        ]
+    },
+    "egidle": {
+        "category": "master",
+        "sounds": [
+            "egidle"
+        ]
+    },
+    "egattack": {
+        "category": "master",
+        "sounds": [
+            "egattack"
+        ]
+    },
+    "egdeath": {
+        "category": "master",
+        "sounds": [
+            "egdeath"
+        ]
+    },
+    "egscreech": {
+        "category": "master",
+        "sounds": [
+            "egscreech"
+        ]
+    },
+    "crabclaw": {
+        "category": "master",
+        "sounds": [
+            "crabclaw"
+        ]
+    },
+    "crabdeath": {
+        "category": "master",
+        "sounds": [
+            "crabdeath"
+        ]
+    },
+    "crabtalk": {
+        "category": "master",
+        "sounds": [
+            "crabtalk"
+        ]
+    },
+    "chant": {
+        "category": "master",
+        "sounds": [
+            "chant"
+        ]
+    },
+    "coins": {
+        "category": "master",
+        "sounds": [
+            "coins"
+        ]
+    },
+    "urnbreak": {
+        "category": "master",
+        "sounds": [
+            "urnbreak"
+        ]
+    },
+    "evilportal": {
+        "category": "master",
+        "sounds": [
+            "evilportal"
+        ]
+    },
+    "grind": {
+        "category": "master",
+        "sounds": [
+            "grind"
+        ]
+    },
+    "dust": {
+        "category": "master",
+        "sounds": [
+            "dust"
+        ]
+    }
+}
