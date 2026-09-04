@@ -1,4 +1,10 @@
 package thaumcraft.api.research;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Arrays;
+import java.util.List;
+
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.Identifier;
 import net.minecraft.client.resources.language.I18n;
@@ -6,6 +12,59 @@ import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
 
 
 public class ResearchStage {
+
+	public static final Codec<ResearchStage> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		Codec.STRING.fieldOf("text").forGetter(ResearchStage::getText),
+		Identifier.CODEC.listOf().optionalFieldOf("recipes", List.of()).forGetter(s -> s.getRecipes() == null ? List.of() : Arrays.asList(s.getRecipes())),
+		Codec.STRING.listOf().optionalFieldOf("required_item", List.of()).forGetter(s -> List.of()),
+		Codec.STRING.listOf().optionalFieldOf("required_craft", List.of()).forGetter(s -> List.of()),
+		Knowledge.CODEC.listOf().optionalFieldOf("required_knowledge", List.of()).forGetter(s -> s.getKnow() == null ? List.of() : Arrays.asList(s.getKnow())),
+		Codec.STRING.listOf().optionalFieldOf("required_research", List.of()).forGetter(s -> s.getResearch() == null ? List.of() : Arrays.asList(s.getResearch())),
+		Codec.INT.optionalFieldOf("warp", 0).forGetter(ResearchStage::getWarp)
+	).apply(instance, (text, recipes, reqItem, reqCraft, reqKnow, reqRes, warp) -> {
+		ResearchStage stage = new ResearchStage();
+		stage.setText(text);
+		if (!recipes.isEmpty()) stage.setRecipes(recipes.toArray(new Identifier[0]));
+
+		if (!reqItem.isEmpty()) stage.setObtain(thaumcraft.api.research.ResearchEntry.parseJsonOreList("", reqItem.toArray(new String[0])));
+
+		if (!reqCraft.isEmpty()) {
+			Object[] craftArr = thaumcraft.api.research.ResearchEntry.parseJsonOreList("", reqCraft.toArray(new String[0]));
+			stage.setCraft(craftArr);
+			if (craftArr != null && craftArr.length > 0) {
+				int[] refs = new int[craftArr.length];
+				int q = 0;
+				for (Object stack2 : craftArr) {
+					int code = (stack2 instanceof net.minecraft.world.item.ItemStack) ? thaumcraft.api.research.ResearchEntry.createItemStackHash((net.minecraft.world.item.ItemStack)stack2) : ("oredict:" + stack2).hashCode();
+					refs[q++] = code;
+				}
+				stage.setCraftReference(refs);
+			}
+		}
+
+		if (!reqKnow.isEmpty()) stage.setKnow(reqKnow.toArray(new Knowledge[0]));
+
+		if (!reqRes.isEmpty()) {
+			String[] arr = reqRes.toArray(new String[0]);
+			String[] rKey = new String[arr.length];
+			String[] rIcn = new String[arr.length];
+			for (int a = 0; a < arr.length; ++a) {
+				String[] ss = arr[a].split(";");
+				rKey[a] = ss[0];
+				if (ss.length > 1) {
+					rIcn[a] = ss[1];
+				} else {
+					rIcn[a] = null;
+				}
+			}
+			stage.setResearch(rKey);
+			stage.setResearchIcon(rIcn);
+		}
+
+		stage.setWarp(warp);
+		return stage;
+	}));
+
 	String text;
 	Identifier[] recipes;
 	Object[] obtain;
@@ -133,6 +192,14 @@ public class ResearchStage {
 	}
 		
 	public static class Knowledge {
+		public static final Codec<Knowledge> CODEC = Codec.STRING.xmap(Knowledge::parse, k -> {
+			if (k.category == null) {
+				return k.type.name() + ";" + k.amount;
+			} else {
+				return k.type.name() + ";" + k.category.key + ";" + k.amount;
+			}
+		});
+
 		public EnumKnowledgeType type;
     	public ResearchCategory category; 
     	public int amount = 0;
