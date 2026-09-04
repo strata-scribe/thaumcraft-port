@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import thaumcraft.api.aspects.Aspect;
-import thaumcraft.api.blocks.BlocksTC;
+import thaumcraft.api.blocks.ThaumcraftBlocks;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.research.theorycraft.ResearchTableData;
 import thaumcraft.api.research.theorycraft.TheorycraftCard;
