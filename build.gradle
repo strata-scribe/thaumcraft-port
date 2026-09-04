@@ -111,6 +111,9 @@ configurations {
 }
 
 dependencies {
+    testImplementation "org.junit.platform:junit-platform-launcher:1.9.2"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.9.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.9.2"
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
@@ -182,3 +185,4 @@ idea {
         downloadJavadoc = true
     }
 }
+tasks.withType(Test) { useJUnitPlatform() }
