@@ -53,7 +53,7 @@ public class Thaumcraft {
         ITEMS.register(modEventBus);
         thaumcraft.common.lib.CreativeTabThaumcraft.CREATIVE_MODE_TABS.register(modEventBus);
         thaumcraft.common.lib.SoundsTC.SOUNDS.register(modEventBus);
-        thaumcraft.common.lib.capabilities.PlayerKnowledge.ATTACHMENT_TYPES.register(modEventBus);
+        thaumcraft.api.capabilities.ThaumcraftCapabilities.ATTACHMENT_TYPES.register(modEventBus);
         modEventBus.addListener(thaumcraft.common.lib.network.PacketHandler::register);
 
         NeoForge.EVENT_BUS.register(this);
