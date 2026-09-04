@@ -12,7 +12,7 @@ public class PacketHandler {
 
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(Thaumcraft.MODID);
+        final PayloadRegistrar registrar = event.registrar(Thaumcraft.MODID).versioned("1.0");
         
         // Player Data Sync
         registrar.playToClient(
