@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import com.mojang.serialization.Codec;
 
 
 
@@ -38,6 +39,22 @@ public class AspectList implements Serializable {
 
 	
 	public LinkedHashMap<Aspect,Integer> aspects = new LinkedHashMap<Aspect,Integer>();//aspects associated with this object
+
+	public static final Codec<AspectList> CODEC = Codec.unboundedMap(Codec.STRING, Codec.INT).xmap(
+			map -> {
+				AspectList list = new AspectList();
+				map.forEach((k, v) -> {
+					Aspect a = Aspect.getAspect(k);
+					if (a != null) list.add(a, v);
+				});
+				return list;
+			},
+			list -> {
+				java.util.LinkedHashMap<String, Integer> map = new java.util.LinkedHashMap<>();
+				list.aspects.forEach((k, v) -> map.put(k.getTag(), v));
+				return map;
+			}
+	);
 
 	
 	/**
@@ -119,6 +136,30 @@ public class AspectList implements Serializable {
 		}
 	}
 	
+
+	public Aspect[] getAspectsSortedByPrimalAspectHierarchy() {
+		try {
+			Aspect[] out = aspects.keySet().toArray(new Aspect[]{});
+			boolean change = false;
+			do {
+				change = false;
+				for (int a = 0; a < out.length - 1; a++) {
+					Aspect e1 = out[a];
+					Aspect e2 = out[a+1];
+					if (e1 != null && e2 != null && !e1.isPrimal() && e2.isPrimal()) {
+						out[a] = e2;
+						out[a+1] = e1;
+						change = true;
+						break;
+					}
+				}
+			} while (change);
+			return out;
+		} catch (Exception e) {
+			return getAspects();
+		}
+	}
+
 	/**
 	 * @return an array of all the aspects in this collection sorted by amount
 	 */
