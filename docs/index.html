@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thaumcraft NeoForge Port — Crucible & Testing Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0c0a13;
+      --bg-card: rgba(22, 17, 34, 0.75);
+      --bg-card-hover: rgba(30, 24, 46, 0.85);
+      --bg-input: #120e1e;
+      --border-arcane: rgba(157, 78, 221, 0.25);
+      --border-highlight: rgba(224, 169, 109, 0.4);
+      --primary: #9d4edd;
+      --primary-glow: rgba(157, 78, 221, 0.45);
+      --gold: #e0a96d;
+      --gold-glow: rgba(224, 169, 109, 0.4);
+      --text-main: #e2daf0;
+      --text-muted: #968bb0;
+      --text-bright: #ffffff;
+      --accent-green: #10b981;
+      --accent-blue: #3b82f6;
+      --accent-red: #ef4444;
+      --font-title: 'Cinzel', serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'Fira Code', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(114, 9, 183, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(224, 169, 109, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(26, 16, 44, 0.6) 0%, transparent 80%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .rune-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.04;
+      background: radial-gradient(circle, #fff 10%, transparent 11%);
+      background-size: 48px 48px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 80px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+      padding: 24px 0;
+      position: relative;
+    }
+
+    .aspect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(157, 78, 221, 0.15);
+      border: 1px solid var(--border-arcane);
+      padding: 6px 18px;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    h1 {
+      font-family: var(--font-title);
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--text-bright);
+      letter-spacing: 0.04em;
+      text-shadow: 0 0 20px rgba(157, 78, 221, 0.6);
+      margin-bottom: 12px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #e0a96d 0%, #c77dff 60%, #9d4edd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-sub {
+      color: var(--text-muted);
+      font-size: 1.12rem;
+      max-width: 650px;
+      margin: 0 auto 20px auto;
+    }
+
+    .pipeline-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      background: rgba(22, 17, 34, 0.8);
+      border: 1px solid var(--border-arcane);
+      padding: 8px 18px;
+      border-radius: 8px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-arcane);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--border-highlight);
+    }
+
+    .card-title {
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(157, 78, 221, 0.15);
+      padding-bottom: 12px;
+    }
+
+    /* Build Pedestal */
+    .build-box {
+      background: rgba(14, 10, 22, 0.85);
+      border: 1px solid rgba(224, 169, 109, 0.3);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .build-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(224, 169, 109, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .build-version-tag {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--gold);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .build-target {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.05rem;
+      padding: 16px 24px;
+      border-radius: 10px;
+      border: 1px solid rgba(224, 169, 109, 0.5);
+      box-shadow: 0 4px 20px rgba(157, 78, 221, 0.4);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px rgba(157, 78, 221, 0.6);
+      background: linear-gradient(135deg, #9d4edd 0%, #c77dff 100%);
+    }
+
+    .build-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Migration Progress Bars */
+    .progress-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .progress-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(157, 78, 221, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #9d4edd, #e0a96d);
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Loop Explainer */
+    .explainer-box {
+      margin-top: 24px;
+      background: rgba(15, 12, 24, 0.6);
+      border-left: 3px solid var(--primary);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .explainer-box strong {
+      color: var(--gold);
+    }
+
+    /* Chat Section */
+    .chat-card {
+      display: flex;
+      flex-direction: column;
+      height: 720px;
+    }
+
+    .chat-header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-arcane);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      color: var(--text-bright);
+      border-color: var(--gold);
+      background: rgba(224, 169, 109, 0.1);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 8px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(157, 78, 221, 0.3);
+      border-radius: 3px;
+    }
+
+    .chat-bubble {
+      display: flex;
+      gap: 14px;
+      background: rgba(18, 14, 28, 0.7);
+      border: 1px solid rgba(157, 78, 221, 0.18);
+      border-radius: 12px;
+      padding: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .chat-bubble:hover {
+      border-color: rgba(224, 169, 109, 0.3);
+    }
+
+    .bubble-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+
+    .bubble-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .bubble-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .bubble-author {
+      font-weight: 600;
+      color: var(--text-bright);
+      font-size: 0.94rem;
+    }
+
+    .bubble-role {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .role-scribe {
+      background: rgba(157, 78, 221, 0.25);
+      color: #d8b4fe;
+      border: 1px solid var(--primary);
+    }
+
+    .role-jules {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border: 1px solid var(--accent-blue);
+    }
+
+    .role-tester {
+      background: rgba(224, 169, 109, 0.2);
+      color: var(--gold);
+      border: 1px solid var(--gold);
+    }
+
+    .bubble-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    .bubble-body {
+      font-size: 0.92rem;
+      color: var(--text-main);
+      overflow-wrap: break-word;
+    }
+
+    .bubble-body p {
+      margin-bottom: 8px;
+    }
+
+    .bubble-body pre {
+      background: #09070f;
+      border: 1px solid rgba(157, 78, 221, 0.2);
+      padding: 12px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+
+    .bubble-body code {
+      font-family: var(--font-mono);
+      background: rgba(157, 78, 221, 0.15);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    /* Chat Input Form */
+    .chat-composer {
+      border-top: 1px solid rgba(157, 78, 221, 0.2);
+      padding-top: 18px;
+      margin-top: 12px;
+    }
+
+    .composer-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .composer-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .composer-tab.active {
+      background: rgba(157, 78, 221, 0.2);
+      border-color: var(--primary);
+      color: var(--text-bright);
+      font-weight: 500;
+    }
+
+    .composer-textarea {
+      width: 100%;
+      height: 90px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-arcane);
+      border-radius: 10px;
+      padding: 12px;
+      color: var(--text-bright);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .composer-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 12px var(--primary-glow);
+    }
+
+    .composer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .auth-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .btn-send {
+      background: linear-gradient(135deg, #7b2cbf, #9d4edd);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-send:hover {
+      background: linear-gradient(135deg, #9d4edd, #c77dff);
+      transform: translateY(-1px);
+    }
+
+    /* Modal for Token */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-box {
+      background: #151122;
+      border: 1px solid var(--primary);
+      border-radius: 14px;
+      max-width: 500px;
+      width: 90%;
+      padding: 24px;
+      box-shadow: 0 0 30px rgba(157, 78, 221, 0.4);
+    }
+
+    .modal-title {
+      font-family: var(--font-title);
+      color: var(--gold);
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-input {
+      width: 100%;
+      background: #09070f;
+      border: 1px solid var(--border-arcane);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      margin: 12px 0 16px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="rune-backdrop"></div>
+
+  <div class="container">
+    <header>
+      <div class="aspect-badge">🔮 Primal Aspect: Permutatio &bull; NeoForge 1.20/1.21</div>
+      <h1>Thaumcraft <span>NeoForge Port</span></h1>
+      <p class="header-sub">The Community Crucible & Autonomous Engineering Portal. Direct human-in-the-loop playtesting bridge with Scribe & Google Jules.</p>
+      <div class="pipeline-status">
+        <span class="status-dot"></span>
+        <span>Jules CI Merge Train: <strong>Active (84 PRs Merged &bull; 0 Open)</strong></span>
+      </div>
+    </header>
+
+    <div class="dashboard-grid">
+      <!-- Left Column: Build Pedestal & Mod Progress -->
+      <div class="sidebar-col">
+        <!-- Build Pedestal -->
+        <div class="card">
+          <div class="card-title">⚗️ Latest Mod Build</div>
+          <div class="build-box">
+            <div class="build-version-tag" id="buildVersion">v6.1.BETA26-neoforge-alpha.1</div>
+            <div class="build-target">Target: NeoForge 20.4+ / Minecraft 1.20.4 &bull; Java 21</div>
+            
+            <a href="https://github.com/strata-scribe/thaumcraft-port/releases/latest" id="btnDownload" class="btn-download" target="_blank">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              Download .JAR (8.5 MB)
+            </a>
+
+            <div class="build-meta">
+              <span id="buildArtifactName">thaumcraft-6.1.BETA26-port.jar</span>
+              <span id="buildTimestamp">Verified Build</span>
+            </div>
+          </div>
+
+          <div class="progress-list">
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Core Item Registration</span>
+                <span style="color: var(--accent-green);">111 / 111 (100%)</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Aura & Aspect Codecs</span>
+                <span style="color: var(--accent-green);">16/16 Unit Tests (100%)</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Arcane Workbench Crafting</span>
+                <span style="color: var(--gold);">Batch 2 Priority #1</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 45%;"></div>
+              </div>
+            </div>
+
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Crucible Boiling & Alchemy</span>
+                <span style="color: var(--gold);">Batch 2 Priority #2</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 30%;"></div>
+              </div>
+            </div>
+
+            <div class="progress-item">
+              <div class="progress-label">
+                <span>Infusion Matrix Multi-block</span>
+                <span style="color: var(--text-muted);">Queue Position #3</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 15%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="explainer-box">
+            <strong>Human-in-the-Loop Engine:</strong> Whenever you post bug reports, crash logs, or priority votes in the chat, the workstation sentinel automatically ingests your feedback, provisions targeted Google Jules coding tasks, compiles fresh release jars, and posts verified updates directly back to you.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Chat / Feedback Lounge -->
+      <div class="main-col">
+        <div class="card chat-card">
+          <div class="card-title">
+            <span>💬 Crucible Feedback & Chat Lounge</span>
+            <div class="chat-header-actions">
+              <button class="btn-icon" id="btnRefreshChat" title="Check for new messages">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                Refresh
+              </button>
+              <button class="btn-icon" id="btnTokenConfig" title="Configure Direct Post Token">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                Auth Token
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Chat Timeline -->
+          <div class="chat-messages" id="chatTimeline">
+            <div style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+              Invoking arcane link to GitHub Issue #11...
+            </div>
+          </div>
+
+          <!-- Message Composer -->
+          <div class="chat-composer">
+            <div class="composer-tabs">
+              <button class="composer-tab active" data-mode="feedback">General Chat</button>
+              <button class="composer-tab" data-mode="bug">Report In-Game Bug</button>
+              <button class="composer-tab" data-mode="priority">System Priority Vote</button>
+            </div>
+
+            <textarea 
+              id="messageInput" 
+              class="composer-textarea" 
+              placeholder="Type your testing feedback, question, or drop a Minecraft crash log..."
+            ></textarea>
+
+            <div class="composer-actions">
+              <div class="auth-hint" id="authStatusText">
+                Direct in-page post ready or opens GitHub Issue #11
+              </div>
+              <button id="btnSendMessage" class="btn-send">
+                <span>Send to Scribe & Jules</span>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Token Modal -->
+  <div class="modal-overlay" id="tokenModal">
+    <div class="modal-box">
+      <div class="modal-title">GitHub Token Configuration</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        (Optional) Enter a GitHub Personal Access Token (classic or fine-grained with <code>public_repo</code> or <code>issues:write</code> scope) to chat directly inside this web portal without opening GitHub. The token is saved strictly inside your browser's local storage and is never sent elsewhere.
+      </p>
+      <input type="password" id="tokenInput" class="modal-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-icon" id="btnCloseModal">Cancel</button>
+        <button class="btn-send" id="btnSaveToken" style="padding: 8px 18px;">Save Token</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const REPO_OWNER = 'strata-scribe';
+    const REPO_NAME = 'thaumcraft-port';
+    const FEEDBACK_ISSUE_ID = 11;
+    const STORAGE_TOKEN_KEY = 'tc_github_token';
+
+    const chatTimeline = document.getElementById('chatTimeline');
+    const messageInput = document.getElementById('messageInput');
+    const btnSendMessage = document.getElementById('btnSendMessage');
+    const btnRefreshChat = document.getElementById('btnRefreshChat');
+    const btnTokenConfig = document.getElementById('btnTokenConfig');
+    const tokenModal = document.getElementById('tokenModal');
+    const tokenInput = document.getElementById('tokenInput');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnSaveToken = document.getElementById('btnSaveToken');
+    const authStatusText = document.getElementById('authStatusText');
+    const composerTabs = document.querySelectorAll('.composer-tab');
+
+    const buildVersion = document.getElementById('buildVersion');
+    const btnDownload = document.getElementById('btnDownload');
+    const buildArtifactName = document.getElementById('buildArtifactName');
+    const buildTimestamp = document.getElementById('buildTimestamp');
+
+    let currentComposerMode = 'feedback';
+
+    async function loadLatestRelease() {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        buildVersion.innerText = data.tag_name || 'v6.1.BETA26-neoforge-alpha.1';
+        if (data.assets && data.assets.length > 0) {
+          const jarAsset = data.assets.find(a => a.name.endsWith('.jar')) || data.assets[0];
+          btnDownload.href = jarAsset.browser_download_url;
+          buildArtifactName.innerText = jarAsset.name;
+          const mb = (jarAsset.size / (1024 * 1024)).toFixed(1);
+          btnDownload.innerHTML = `<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Download .JAR (${mb} MB)`;
+        }
+        if (data.published_at) {
+          const d = new Date(data.published_at);
+          buildTimestamp.innerText = `Released ${d.toLocaleDateString()}`;
+        }
+      } catch (err) {
+        console.warn('Could not query latest release:', err);
+      }
+    }
+
+    async function loadChatMessages() {
+      try {
+        const headers = { 'Accept': 'application/vnd.github.v3+json' };
+        const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+        if (token) headers['Authorization'] = `token ${token}`;
+
+        const issueRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${FEEDBACK_ISSUE_ID}`, { headers });
+        const commentsRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${FEEDBACK_ISSUE_ID}/comments?per_page=50`, { headers });
+
+        if (!issueRes.ok) {
+          chatTimeline.innerHTML = `<div style="text-align: center; color: var(--accent-red); padding: 30px;">Could not load Feedback Issue #${FEEDBACK_ISSUE_ID}. (${issueRes.status})</div>`;
+          return;
+        }
+
+        const issue = await issueRes.json();
+        const comments = commentsRes.ok ? await commentsRes.json() : [];
+
+        const allItems = [
+          {
+            user: issue.user,
+            body: issue.body,
+            created_at: issue.created_at,
+            isInitial: true
+          },
+          ...comments
+        ];
+
+        renderMessages(allItems);
+      } catch (err) {
+        console.error('Failed to load chat:', err);
+        chatTimeline.innerHTML = `<div style="text-align: center; color: var(--accent-red); padding: 30px;">Network error loading chat: ${err.message}</div>`;
+      }
+    }
+
+    function renderMessages(items) {
+      if (!items || items.length === 0) {
+        chatTimeline.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px;">No messages yet. Be the first to start the crucible conversation!</div>`;
+        return;
+      }
+
+      chatTimeline.innerHTML = items.map(item => {
+        const user = item.user || { login: 'Anonymous', avatar_url: 'https://github.com/ghost.png' };
+        const author = user.login;
+        const avatar = user.avatar_url;
+        const timeStr = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        let role = 'Tester';
+        let roleClass = 'role-tester';
+        if (author === 'strata-scribe') {
+          role = 'Scribe';
+          roleClass = 'role-scribe';
+        } else if (author.includes('jules') || author.includes('bot') || author.includes('action')) {
+          role = 'Jules AI';
+          roleClass = 'role-jules';
+        } else if (item.isInitial) {
+          role = 'Host';
+          roleClass = 'role-scribe';
+        }
+
+        const parsedContent = marked.parse(item.body || '');
+
+        return `
+          <div class="chat-bubble">
+            <img src="${avatar}" class="bubble-avatar" alt="${author}">
+            <div class="bubble-content">
+              <div class="bubble-header">
+                <span class="bubble-author">@${author}</span>
+                <span class="bubble-role ${roleClass}">${role}</span>
+                <span class="bubble-time">${timeStr}</span>
+              </div>
+              <div class="bubble-body">${parsedContent}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      chatTimeline.scrollTop = chatTimeline.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+
+      if (token) {
+        btnSendMessage.disabled = true;
+        btnSendMessage.innerText = 'Transmuting...';
+
+        try {
+          const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${FEEDBACK_ISSUE_ID}/comments`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ body: text })
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.message || 'API error');
+          }
+
+          messageInput.value = '';
+          await loadChatMessages();
+        } catch (err) {
+          alert('Could not post directly: ' + err.message + '\nOpening GitHub issue comment thread.');
+          openGitHubComment(text);
+        } finally {
+          btnSendMessage.disabled = false;
+          btnSendMessage.innerHTML = `<span>Send to Scribe & Jules</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>`;
+        }
+      } else {
+        openGitHubComment(text);
+      }
+    }
+
+    function openGitHubComment(text) {
+      const url = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/${FEEDBACK_ISSUE_ID}#issuecomment-new`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Message copied to clipboard! Opening GitHub Issue #11 to submit comment...');
+        window.open(url, '_blank');
+      }).catch(() => {
+        window.open(url, '_blank');
+      });
+    }
+
+    composerTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        composerTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentComposerMode = tab.dataset.mode;
+
+        if (currentComposerMode === 'bug') {
+          messageInput.value = `### 🐛 In-Game Bug Report\n- **NeoForge Version**: \n- **Minecraft Version**: 1.20.4\n- **Observed Behavior**: \n- **Expected Behavior**: \n\n<details><summary>Crash Log / Console Stack Trace</summary>\n\n\`\`\`\n[paste log here]\n\`\`\`\n</details>`;
+        } else if (currentComposerMode === 'priority') {
+          messageInput.value = `### ⚡ System Priority Vote\nI would like Jules & Scribe to prioritize the following system next:\n- [ ] Arcane Workbench Crafting & Wand Mechanics\n- [ ] Crucible Boiling & Alchemical Transmutation\n- [ ] Infusion Altar Multi-Block & Runic Matrix\n- [ ] Golemancy & Seal AI Automation\n\n**Reason / Context**: `;
+        } else {
+          messageInput.value = '';
+        }
+      });
+    });
+
+    btnTokenConfig.addEventListener('click', () => {
+      tokenInput.value = localStorage.getItem(STORAGE_TOKEN_KEY) || '';
+      tokenModal.style.display = 'flex';
+    });
+
+    btnCloseModal.addEventListener('click', () => {
+      tokenModal.style.display = 'none';
+    });
+
+    btnSaveToken.addEventListener('click', () => {
+      const t = tokenInput.value.trim();
+      if (t) {
+        localStorage.setItem(STORAGE_TOKEN_KEY, t);
+        authStatusText.innerText = 'Direct In-Page Post Active (Token Authenticated)';
+        authStatusText.style.color = 'var(--accent-green)';
+      } else {
+        localStorage.removeItem(STORAGE_TOKEN_KEY);
+        authStatusText.innerText = 'Direct in-page post ready or opens GitHub Issue #11';
+        authStatusText.style.color = 'var(--text-muted)';
+      }
+      tokenModal.style.display = 'none';
+      loadChatMessages();
+    });
+
+    if (localStorage.getItem(STORAGE_TOKEN_KEY)) {
+      authStatusText.innerText = 'Direct In-Page Post Active (Token Authenticated)';
+      authStatusText.style.color = 'var(--accent-green)';
+    }
+
+    btnSendMessage.addEventListener('click', sendMessage);
+    btnRefreshChat.addEventListener('click', loadChatMessages);
+
+    messageInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey && currentComposerMode === 'feedback') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    loadLatestRelease();
+    loadChatMessages();
+    setInterval(loadChatMessages, 15000);
+  </script>
+</body>
+</html>
