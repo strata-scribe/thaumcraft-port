@@ -24,7 +24,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -36,7 +35,6 @@ public class Thaumcraft {
     // Deferred Registers
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     // Initial Registrations
     public static final DeferredBlock<Block> AMBER_BLOCK = BLOCKS.registerSimpleBlock("amber_block", p -> p.mapColor(MapColor.STONE));
@@ -46,17 +44,6 @@ public class Thaumcraft {
     public static final DeferredItem<Item> SALIS_MUNDUS = ITEMS.registerSimpleItem("salis_mundus", p -> p);
     public static final DeferredItem<Item> THAUMONOMICON = ITEMS.registerItem("thaumonomicon", thaumcraft.common.items.curios.ItemThaumonomicon::new, p -> p.stacksTo(1));
 
-    // Creative Tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> THAUMCRAFT_TAB = CREATIVE_MODE_TABS.register("thaumcraft_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.thaumcraft"))
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> SALIS_MUNDUS.get().getDefaultInstance())
-            .displayItems((parameters, output) -> {
-                output.accept(THAUMONOMICON.get());
-                output.accept(AMBER.get());
-                output.accept(SALIS_MUNDUS.get());
-                output.accept(AMBER_BLOCK_ITEM.get());
-            }).build());
 
     public Thaumcraft(IEventBus modEventBus, ModContainer modContainer) {
         Dump.dump();
@@ -64,7 +51,7 @@ public class Thaumcraft {
         NeoForge.EVENT_BUS.register(this);
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
-        CREATIVE_MODE_TABS.register(modEventBus);
+        thaumcraft.common.lib.CreativeTabThaumcraft.CREATIVE_MODE_TABS.register(modEventBus);
         thaumcraft.common.lib.SoundsTC.SOUNDS.register(modEventBus);
         thaumcraft.common.lib.capabilities.PlayerKnowledge.ATTACHMENT_TYPES.register(modEventBus);
         modEventBus.addListener(thaumcraft.common.lib.network.PacketHandler::register);
