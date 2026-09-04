@@ -605,6 +605,123 @@
       font-weight: 500;
     }
 
+    /* Panels & Interactive Voting */
+    .panel-mode {
+      display: none;
+    }
+    .panel-mode.active {
+      display: block;
+    }
+
+    .vote-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .vote-card {
+      background: rgba(26, 16, 43, 0.65);
+      border: 1px solid var(--border-arcane);
+      border-radius: 10px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: left;
+    }
+
+    .vote-card:hover {
+      background: rgba(157, 78, 221, 0.18);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .vote-card.selected {
+      background: rgba(157, 78, 221, 0.28);
+      border-color: #c77dff;
+      box-shadow: 0 0 16px rgba(157, 78, 221, 0.5);
+    }
+
+    .vote-card-title {
+      font-family: var(--font-title);
+      font-size: 0.92rem;
+      color: var(--gold);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .vote-card-desc {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .composer-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-arcane);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--text-bright);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .composer-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .bridge-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .bridge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+
+    .bridge-dot.offline {
+      background: #ef4444;
+      box-shadow: 0 0 6px #ef4444;
+    }
+
+    .confirmation-toast {
+      padding: 10px 14px;
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid #10b981;
+      border-radius: 8px;
+      color: #34d399;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Modal for Token */
     .modal-overlay {
       display: none;
@@ -791,21 +908,108 @@
               </div>
             </div>
 
-            <textarea 
-              id="messageInput" 
-              class="composer-textarea" 
-              placeholder="Type your testing feedback, question, or drop a Minecraft crash log..."
-            ></textarea>
-
-            <div class="composer-actions">
-              <div class="auth-hint" id="authStatusText">
-                Direct in-page post ready or opens GitHub Issue #11
+            <!-- Panel 1: General Chat -->
+            <div id="panelChat" class="panel-mode active">
+              <div class="input-row">
+                <input type="text" id="chatAuthor" class="composer-input" placeholder="Your Handle (default: Playtester)" style="width: 240px;">
               </div>
-              <button id="btnSendMessage" class="btn-send">
-                <span>Send to Scribe & Jules</span>
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-              </button>
+              <textarea 
+                id="messageInput" 
+                class="composer-textarea" 
+                placeholder="Type your testing feedback, question, or message to Scribe & Jules..."
+              ></textarea>
+              <div class="composer-actions">
+                <div class="auth-hint" id="authStatusText">
+                  <div class="bridge-indicator">
+                    <span class="bridge-dot" id="bridgeDot"></span>
+                    <span id="bridgeText">Connecting to Workstation Bridge...</span>
+                  </div>
+                </div>
+                <button id="btnSendMessage" class="btn-send">
+                  <span>Send to Scribe & Jules</span>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+              </div>
             </div>
+
+            <!-- Panel 2: Report In-Game Bug -->
+            <div id="panelBug" class="panel-mode">
+              <div class="input-row">
+                <input type="text" id="bugAuthor" class="composer-input" placeholder="Your Handle (default: Playtester)" style="width: 220px;">
+                <select id="bugSubsystem" class="composer-input" style="flex: 1; min-width: 200px; background: #0c0817;">
+                  <option value="Arcane Workbench">Arcane Workbench & Crafting</option>
+                  <option value="Crucible Boiling">Crucible Boiling & Liquid Vis</option>
+                  <option value="Wands & Primal Vis">Wands & Primal Vis Mechanics</option>
+                  <option value="Item Registration">Item / Block Texture Glitch</option>
+                  <option value="Crash on Launch">Crash on Launch / World Load</option>
+                  <option value="Other">Other In-Game Glitch</option>
+                </select>
+              </div>
+              <textarea 
+                id="bugNotes" 
+                class="composer-input" 
+                style="width: 100%; height: 75px; resize: vertical; margin-bottom: 8px;" 
+                placeholder="Observed behavior: What happened, what were you doing, and what went wrong?"
+              ></textarea>
+              <textarea 
+                id="bugTrace" 
+                class="composer-input" 
+                style="width: 100%; height: 80px; font-family: var(--font-mono); font-size: 0.8rem; resize: vertical;" 
+                placeholder="Stack trace / Java Exception (optional - use 'Extract Trace Only' button above to strip system specs)"
+              ></textarea>
+              <div class="composer-actions">
+                <div class="auth-hint">Direct in-page submission &bull; Auto-sanitized</div>
+                <button id="btnSendBug" class="btn-send">
+                  <span>🐛 Transmute Bug Report</span>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Panel 3: System Priority Vote -->
+            <div id="panelVote" class="panel-mode">
+              <div style="font-size: 0.82rem; color: var(--text-bright); margin-bottom: 8px; font-weight: 500;">
+                Click to choose which system Scribe & Jules should build and verify next:
+              </div>
+              <div class="input-row">
+                <input type="text" id="voteAuthor" class="composer-input" placeholder="Your Handle (default: Playtester)" style="width: 240px;">
+                <input type="text" id="voteNotes" class="composer-input" placeholder="Optional context or reason for this priority..." style="flex: 1; min-width: 220px;">
+              </div>
+
+              <div class="vote-grid" id="voteGrid">
+                <div class="vote-card selected" data-sys="Arcane Workbench">
+                  <div class="vote-card-title">🔮 Arcane Workbench</div>
+                  <div class="vote-card-desc">3x3 crafting grid, Wand Vis channeling, recipe codecs & visual table matrix.</div>
+                </div>
+                <div class="vote-card" data-sys="Crucible Boiling">
+                  <div class="vote-card-title">🧪 Crucible Boiling</div>
+                  <div class="vote-card-desc">Heat detection, boiling bubbles, aspect dissolution & spillover venting.</div>
+                </div>
+                <div class="vote-card" data-sys="Infusion Altar">
+                  <div class="vote-card-title">⚡ Infusion Altar</div>
+                  <div class="vote-card-desc">Runic Matrix multiblock, pillar symmetry, runic altar rituals & instability.</div>
+                </div>
+                <div class="vote-card" data-sys="Golemancy & Seals">
+                  <div class="vote-card-title">🤖 Golemancy & Seals</div>
+                  <div class="vote-card-desc">Clockwork golems, task control seals, logistic delivery & chest sorting.</div>
+                </div>
+                <div class="vote-card" data-sys="Thaumic Research">
+                  <div class="vote-card-title">📜 Thaumic Research</div>
+                  <div class="vote-card-desc">Theorycrafting research table, arcane discovery progression & warp effects.</div>
+                </div>
+              </div>
+
+              <div class="composer-actions">
+                <div class="auth-hint">Clicking Cast Vote immediately routes to top of queue</div>
+                <button id="btnSendVote" class="btn-send" style="background: linear-gradient(135deg, #d4af37, #9d4edd);">
+                  <span>⚡ Cast Priority Vote</span>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- In-Page Confirmation Banner -->
+            <div class="confirmation-toast" id="confirmationToast"></div>
           </div>
         </div>
       </div>
@@ -1044,30 +1248,116 @@
       return text;
     }
 
-    async function sendMessage() {
-      const rawText = messageInput.value.trim();
-      if (!rawText) return;
+    const GIST_ENDPOINT_RAW = 'https://gist.githubusercontent.com/strata-scribe/07f7695afedba6eb0dfc759e702f17dc/raw/gistfile0.txt';
+    let bridgeEndpoint = 'https://brick-skin-unknown-rabbit.trycloudflare.com';
 
-      // Pre-flight client-side PII scrubbing
-      const { text: cleanText, count: piiCount } = sanitizePII(rawText);
-      const text = cleanText;
+    async function checkBridgeStatus() {
+      const dot = document.getElementById('bridgeDot');
+      const txt = document.getElementById('bridgeText');
+      if (!dot || !txt) return;
 
-      if (piiCount > 0) {
-        messageInput.value = text;
-        const privacyStatus = document.getElementById('privacyStatusText');
-        privacyStatus.innerHTML = `<span class="scrub-alert">🛡️ Scrubbed ${piiCount} sensitive item(s) (usernames/paths/tokens/IPs) before sending.</span>`;
-        setTimeout(() => {
-          privacyStatus.innerHTML = '<strong>Privacy Guard Active:</strong> System usernames, local paths, IPs & session tokens are auto-scrubbed before sending.';
-        }, 5000);
+      try {
+        const gistRes = await fetch(`${GIST_ENDPOINT_RAW}?t=${Date.now()}`);
+        if (gistRes.ok) {
+          const data = await gistRes.json();
+          if (data.endpoint) bridgeEndpoint = data.endpoint;
+        }
+      } catch (e) {}
+
+      if (bridgeEndpoint) {
+        try {
+          const statusRes = await fetch(`${bridgeEndpoint}/api/status`, { signal: AbortSignal.timeout(4000) });
+          if (statusRes.ok) {
+            dot.className = 'bridge-dot';
+            txt.innerText = 'Workstation Bridge Online (Direct In-Page Transmutation Active)';
+            txt.style.color = 'var(--accent-green)';
+            return true;
+          }
+        } catch (e) {}
       }
 
-      const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+      dot.className = 'bridge-dot offline';
+      txt.innerText = 'Workstation Bridge Offline (Falls back to GitHub Issue #11)';
+      txt.style.color = 'var(--text-muted)';
+      return false;
+    }
 
-      if (token) {
-        btnSendMessage.disabled = true;
-        btnSendMessage.innerText = 'Transmuting...';
+    let selectedSubsystem = 'Arcane Workbench';
+    const voteCards = document.querySelectorAll('.vote-card');
+    voteCards.forEach(card => {
+      card.addEventListener('click', () => {
+        voteCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedSubsystem = card.dataset.sys;
+      });
+    });
 
-        try {
+    composerTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        composerTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentComposerMode = tab.dataset.mode;
+
+        document.getElementById('panelChat').classList.remove('active');
+        document.getElementById('panelBug').classList.remove('active');
+        document.getElementById('panelVote').classList.remove('active');
+
+        if (currentComposerMode === 'bug') {
+          document.getElementById('panelBug').classList.add('active');
+        } else if (currentComposerMode === 'priority') {
+          document.getElementById('panelVote').classList.add('active');
+        } else {
+          document.getElementById('panelChat').classList.add('active');
+        }
+      });
+    });
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('confirmationToast');
+      toast.style.display = 'flex';
+      if (isError) {
+        toast.style.background = 'rgba(239, 68, 68, 0.2)';
+        toast.style.borderColor = '#ef4444';
+        toast.style.color = '#f87171';
+      } else {
+        toast.style.background = 'rgba(16, 185, 129, 0.18)';
+        toast.style.borderColor = '#10b981';
+        toast.style.color = '#34d399';
+      }
+      toast.innerHTML = (isError ? '⚠️ ' : '✨ ') + message;
+      setTimeout(() => { toast.style.display = 'none'; }, 7000);
+    }
+
+    async function submitFeedback(payload, btn) {
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerText = 'Transmuting...';
+
+      try {
+        if (bridgeEndpoint) {
+          const res = await fetch(`${bridgeEndpoint}/api/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(10000)
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            showToast(data.message || 'Transmutation successful! Scribe & Jules have received your dispatch.');
+            await loadChatMessages();
+            return true;
+          }
+        }
+
+        const token = localStorage.getItem(STORAGE_TOKEN_KEY);
+        if (token) {
+          let bodyText = payload.body || '';
+          if (payload.type === 'vote') {
+            bodyText = `🗳️ **Priority Vote**: **${payload.subsystem}**\n\n${payload.notes || ''}`;
+          } else if (payload.type === 'bug') {
+            bodyText = `🐛 **Bug Report** (${payload.subsystem}):\n${payload.notes}\n\n\`\`\`\n${payload.trace || ''}\n\`\`\``;
+          }
           const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues/${FEEDBACK_ISSUE_ID}/comments`, {
             method: 'POST',
             headers: {
@@ -1075,47 +1365,73 @@
               'Accept': 'application/vnd.github.v3+json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ body: text })
+            body: JSON.stringify({ body: bodyText })
           });
-
-          if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.message || 'API error');
+          if (res.ok) {
+            showToast('Comment posted to GitHub Issue #11!');
+            await loadChatMessages();
+            return true;
           }
-
-          messageInput.value = '';
-          await loadChatMessages();
-        } catch (err) {
-          alert('Could not post directly: ' + err.message + '\nOpening GitHub issue comment thread with sanitized text.');
-          openGitHubComment(text);
-        } finally {
-          btnSendMessage.disabled = false;
-          btnSendMessage.innerHTML = `<span>Send to Scribe & Jules</span><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>`;
         }
-      } else {
-        openGitHubComment(text);
+
+        showToast('Workstation bridge is currently offline. Please try again in a few moments.', true);
+        return false;
+      } catch (err) {
+        showToast('Transmission error: ' + err.message, true);
+        return false;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
       }
     }
 
-    function openGitHubComment(text) {
-      const { text: safeText } = sanitizePII(text);
-      const url = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/${FEEDBACK_ISSUE_ID}#issuecomment-new`;
-      navigator.clipboard.writeText(safeText).then(() => {
-        alert('Sanitized message copied to clipboard! Opening GitHub Issue #11 to submit comment...');
-        window.open(url, '_blank');
-      }).catch(() => {
-        window.open(url, '_blank');
-      });
-    }
+    document.getElementById('btnSendMessage').addEventListener('click', async () => {
+      const raw = document.getElementById('messageInput').value.trim();
+      if (!raw) return;
+      const author = document.getElementById('chatAuthor').value.trim() || 'Playtester';
+      const { text: clean } = sanitizePII(raw);
+      const success = await submitFeedback({ author, type: 'chat', body: clean }, document.getElementById('btnSendMessage'));
+      if (success) document.getElementById('messageInput').value = '';
+    });
+
+    document.getElementById('btnSendBug').addEventListener('click', async () => {
+      const notes = document.getElementById('bugNotes').value.trim();
+      const trace = document.getElementById('bugTrace').value.trim();
+      if (!notes && !trace) {
+        alert('Please provide a description of the observed behavior.');
+        return;
+      }
+      const author = document.getElementById('bugAuthor').value.trim() || 'Playtester';
+      const subsystem = document.getElementById('bugSubsystem').value;
+      const { text: cleanNotes } = sanitizePII(notes);
+      const { text: cleanTrace } = sanitizePII(trace);
+      const success = await submitFeedback({ author, type: 'bug', subsystem, notes: cleanNotes, trace: cleanTrace }, document.getElementById('btnSendBug'));
+      if (success) {
+        document.getElementById('bugNotes').value = '';
+        document.getElementById('bugTrace').value = '';
+      }
+    });
+
+    document.getElementById('btnSendVote').addEventListener('click', async () => {
+      const author = document.getElementById('voteAuthor').value.trim() || 'Playtester';
+      const notes = document.getElementById('voteNotes').value.trim();
+      const { text: cleanNotes } = sanitizePII(notes);
+      const success = await submitFeedback({ author, type: 'vote', subsystem: selectedSubsystem, notes: cleanNotes }, document.getElementById('btnSendVote'));
+      if (success) {
+        document.getElementById('voteNotes').value = '';
+      }
+    });
 
     const btnScrubPII = document.getElementById('btnScrubPII');
     const btnExtractTrace = document.getElementById('btnExtractTrace');
 
     btnScrubPII.addEventListener('click', () => {
-      const current = messageInput.value;
+      let targetInput = document.getElementById('messageInput');
+      if (currentComposerMode === 'bug') targetInput = document.getElementById('bugTrace').value ? document.getElementById('bugTrace') : document.getElementById('bugNotes');
+      const current = targetInput.value;
       if (!current.trim()) return;
       const { text: scrubbed, count } = sanitizePII(current);
-      messageInput.value = scrubbed;
+      targetInput.value = scrubbed;
       const privacyStatus = document.getElementById('privacyStatusText');
       if (count > 0) {
         privacyStatus.innerHTML = `<span class="scrub-alert">🛡️ Cleaned ${count} sensitive PII item(s) from input.</span>`;
@@ -1128,32 +1444,18 @@
     });
 
     btnExtractTrace.addEventListener('click', () => {
-      const current = messageInput.value;
+      let targetInput = document.getElementById('messageInput');
+      if (currentComposerMode === 'bug') targetInput = document.getElementById('bugTrace');
+      const current = targetInput.value;
       if (!current.trim()) return;
       const extracted = extractRelevantStackTrace(current);
       const { text: scrubbed } = sanitizePII(extracted);
-      messageInput.value = scrubbed;
+      targetInput.value = scrubbed;
       const privacyStatus = document.getElementById('privacyStatusText');
       privacyStatus.innerHTML = `<span class="scrub-alert">⚡ Extracted core exception stack trace & stripped system telemetry.</span>`;
       setTimeout(() => {
         privacyStatus.innerHTML = '<strong>Privacy Guard Active:</strong> System usernames, local paths, IPs & session tokens are auto-scrubbed before sending.';
       }, 4000);
-    });
-
-    composerTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        composerTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentComposerMode = tab.dataset.mode;
-
-        if (currentComposerMode === 'bug') {
-          messageInput.value = `### 🐛 In-Game Bug Report\n- **NeoForge Version**: \n- **Minecraft Version**: 1.20.4\n- **Observed Behavior**: \n- **Expected Behavior**: \n\n<details><summary>Sanitized Stack Trace (Exception Only)</summary>\n\n\`\`\`\n[paste exception stack trace here or use 'Extract Trace Only' button]\n\`\`\`\n</details>`;
-        } else if (currentComposerMode === 'priority') {
-          messageInput.value = `### ⚡ System Priority Vote\nI would like Jules & Scribe to prioritize the following system next:\n- [ ] Arcane Workbench Crafting & Wand Mechanics\n- [ ] Crucible Boiling & Alchemical Transmutation\n- [ ] Infusion Altar Multi-Block & Runic Matrix\n- [ ] Golemancy & Seal AI Automation\n\n**Reason / Context**: `;
-        } else {
-          messageInput.value = '';
-        }
-      });
     });
 
     btnTokenConfig.addEventListener('click', () => {
@@ -1169,35 +1471,28 @@
       const t = tokenInput.value.trim();
       if (t) {
         localStorage.setItem(STORAGE_TOKEN_KEY, t);
-        authStatusText.innerText = 'Direct In-Page Post Active (Token Authenticated)';
-        authStatusText.style.color = 'var(--accent-green)';
       } else {
         localStorage.removeItem(STORAGE_TOKEN_KEY);
-        authStatusText.innerText = 'Direct in-page post ready or opens GitHub Issue #11';
-        authStatusText.style.color = 'var(--text-muted)';
       }
       tokenModal.style.display = 'none';
+      checkBridgeStatus();
       loadChatMessages();
     });
 
-    if (localStorage.getItem(STORAGE_TOKEN_KEY)) {
-      authStatusText.innerText = 'Direct In-Page Post Active (Token Authenticated)';
-      authStatusText.style.color = 'var(--accent-green)';
-    }
-
-    btnSendMessage.addEventListener('click', sendMessage);
     btnRefreshChat.addEventListener('click', loadChatMessages);
 
     messageInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey && currentComposerMode === 'feedback') {
         e.preventDefault();
-        sendMessage();
+        document.getElementById('btnSendMessage').click();
       }
     });
 
     loadLatestRelease();
     loadChatMessages();
+    checkBridgeStatus();
     setInterval(loadChatMessages, 15000);
+    setInterval(checkBridgeStatus, 60000);
   </script>
 </body>
 </html>
