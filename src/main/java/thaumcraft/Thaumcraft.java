@@ -58,6 +58,7 @@ public class Thaumcraft {
         modEventBus.addListener(thaumcraft.common.lib.network.PacketHandler::register);
         thaumcraft.api.blocks.ThaumcraftBlocks.BLOCKS.register(modEventBus);
         thaumcraft.api.golems.ThaumcraftGolemRegistries.register(modEventBus);
+        thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.BLOCK_ENTITIES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
