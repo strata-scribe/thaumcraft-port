@@ -62,7 +62,7 @@ public class GuiResearchPage extends Screen {
         if (event.button() == 0) {
             // Check if clicked close / back outside book boundary
             if (mouseX < x || mouseX > x + w || mouseY < y || mouseY > y + h) {
-                net.minecraft.client.Minecraft.getInstance().setScreen(this.parentScreen);
+                thaumcraft.client.ClientHooks.setScreen(this.parentScreen);
                 net.minecraft.client.Minecraft.getInstance().getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.BOOK_PAGE_TURN, 1.0F));
                 return true;
             }
@@ -91,7 +91,7 @@ public class GuiResearchPage extends Screen {
     @Override
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         if (event.key() == 256) { // ESC key
-            net.minecraft.client.Minecraft.getInstance().setScreen(this.parentScreen);
+            thaumcraft.client.ClientHooks.setScreen(this.parentScreen);
             return true;
         }
         return super.keyPressed(event);

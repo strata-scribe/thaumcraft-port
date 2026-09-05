@@ -267,7 +267,7 @@ public class GuiThaumonomicon extends Screen {
                         int nodeY = entry.getDisplayRow() * 24;
                         if (mx >= nodeX - 12 && mx <= nodeX + 12 && my >= nodeY - 12 && my <= nodeY + 12) {
                             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.BOOK_PAGE_TURN, 1.0F));
-                            net.minecraft.client.Minecraft.getInstance().setScreen(new GuiResearchPage(this, entry));
+                            thaumcraft.client.ClientHooks.setScreen(new GuiResearchPage(this, entry));
                             return true;
                         }
                     }

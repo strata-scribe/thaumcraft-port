@@ -21,4 +21,9 @@ public class ThaumcraftClient {
     static void onClientSetup(FMLClientSetupEvent event) {
         Thaumcraft.LOGGER.info("Thaumcraft client setup has run!");
     }
+
+    @SubscribeEvent
+    static void onRegisterMenuScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event) {
+        event.register(thaumcraft.common.container.ThaumcraftMenus.ARCANE_WORKBENCH.get(), thaumcraft.client.gui.ArcaneWorkbenchScreen::new);
+    }
 }

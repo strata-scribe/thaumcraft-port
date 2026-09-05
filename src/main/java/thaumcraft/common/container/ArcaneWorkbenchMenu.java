@@ -98,7 +98,7 @@ public class ArcaneWorkbenchMenu extends AbstractContainerMenu {
 
     private void addAllSlots(Inventory playerInventory) {
         // -- Result slot (index 0) -------------------------------------------
-        addSlot(new Slot(resultContainer, 0, 124, 35) {
+        addSlot(new Slot(resultContainer, 0, 160, 64) {
             @Override
             public boolean mayPlace(ItemStack stack) { return false; }
             @Override
@@ -109,7 +109,7 @@ public class ArcaneWorkbenchMenu extends AbstractContainerMenu {
         SimpleContainer craftProxy = makeProxy(workbench, 0, ArcaneWorkbenchBlockEntity.CRAFT_SLOTS);
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
-                addSlot(new Slot(craftProxy, row * 3 + col, 30 + col * 18, 17 + row * 18));
+                addSlot(new Slot(craftProxy, row * 3 + col, 40 + col * 24, 40 + row * 24));
             }
         }
 
@@ -117,21 +117,23 @@ public class ArcaneWorkbenchMenu extends AbstractContainerMenu {
         SimpleContainer crystalProxy = makeProxy(workbench,
                 ArcaneWorkbenchBlockEntity.CRAFT_SLOTS,
                 ArcaneWorkbenchBlockEntity.CRYSTAL_SLOTS);
+        int[] crystalX = { 64, 17, 112, 17, 112, 64 };
+        int[] crystalY = { 13, 35, 35, 93, 93, 115 };
         for (int i = 0; i < ArcaneWorkbenchBlockEntity.CRYSTAL_SLOTS; i++) {
-            addSlot(new Slot(crystalProxy, i, 8, 17 + i * 18));
+            addSlot(new Slot(crystalProxy, i, crystalX[i], crystalY[i]));
         }
 
         // -- Player inventory (3 rows of 9) -----------------------------------
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new Slot(playerInventory, 9 + row * 9 + col,
-                        8 + col * 18, 84 + row * 18));
+                        16 + col * 18, 151 + row * 18));
             }
         }
 
         // -- Player hotbar ----------------------------------------------------
         for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+            addSlot(new Slot(playerInventory, col, 16 + col * 18, 209));
         }
     }
 
