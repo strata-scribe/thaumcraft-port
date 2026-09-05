@@ -6,6 +6,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 import thaumcraft.Thaumcraft;
 import thaumcraft.api.blocks.ThaumcraftBlocks;
+import thaumcraft.common.tiles.ArcaneWorkbenchBlockEntity;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
@@ -13,5 +14,10 @@ public class ThaumcraftBlockEntities {
     public static final Supplier<BlockEntityType<TileGolemBuilder>> GOLEM_BUILDER = BLOCK_ENTITIES.register(
             "golem_builder",
             () -> new BlockEntityType<>(TileGolemBuilder::new, ThaumcraftBlocks.golemBuilder.get())
+    );
+
+    public static final Supplier<BlockEntityType<ArcaneWorkbenchBlockEntity>> ARCANE_WORKBENCH = BLOCK_ENTITIES.register(
+            "arcane_workbench",
+            () -> new BlockEntityType<>(ArcaneWorkbenchBlockEntity::new, ThaumcraftBlocks.arcaneWorkbench.get())
     );
 }
