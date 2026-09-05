@@ -23,7 +23,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> ingots = ITEMS.registerSimpleItem("ingots", p -> p);
     public static final DeferredItem<Item> nuggets = ITEMS.registerSimpleItem("nuggets", p -> p);
     public static final DeferredItem<Item> clusters = ITEMS.registerSimpleItem("clusters", p -> p);
-    public static final DeferredItem<Item> crystalEssence = ITEMS.registerItem("crystal_essence", p -> new ItemGenericEssentiaContainer(1));
+    public static final DeferredItem<Item> crystalEssence = ITEMS.registerItem("crystal_essence", p -> new ItemGenericEssentiaContainer(p, 1));
     public static final DeferredItem<Item> tallow = ITEMS.registerSimpleItem("tallow", p -> p);
     public static final DeferredItem<Item> fabric = ITEMS.registerSimpleItem("fabric", p -> p);
     public static final DeferredItem<Item> mechanismSimple = ITEMS.registerSimpleItem("mechanism_simple", p -> p);

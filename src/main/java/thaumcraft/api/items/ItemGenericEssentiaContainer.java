@@ -16,6 +16,12 @@ public class ItemGenericEssentiaContainer extends Item implements IEssentiaConta
 {
 	protected int base = 1;
 	
+	public ItemGenericEssentiaContainer(Item.Properties properties, int base)
+    {
+        super(properties.stacksTo(64));
+        this.base = base;
+    }
+
 	public ItemGenericEssentiaContainer(int base)
     {
         super(new Item.Properties().stacksTo(64));

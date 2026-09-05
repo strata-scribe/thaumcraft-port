@@ -32,13 +32,9 @@ public class Thaumcraft {
     public static final String MODID = "thaumcraft";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    // Deferred Registers
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
-
-    // Initial Registrations
-    public static final DeferredBlock<Block> AMBER_BLOCK = BLOCKS.registerSimpleBlock("amber_block", p -> p.mapColor(MapColor.STONE));
-    public static final DeferredItem<BlockItem> AMBER_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("amber_block", AMBER_BLOCK);
+    // Initial Registrations / Aliases
+    public static final DeferredBlock<Block> AMBER_BLOCK = thaumcraft.api.blocks.ThaumcraftBlocks.amberBlock;
+    public static final DeferredItem<BlockItem> AMBER_BLOCK_ITEM = thaumcraft.api.items.ThaumcraftItems.ITEMS.registerSimpleBlockItem("amber_block", AMBER_BLOCK);
     
     public static final DeferredItem<Item> AMBER = thaumcraft.api.items.ThaumcraftItems.amber;
     public static final DeferredItem<Item> SALIS_MUNDUS = thaumcraft.api.items.ThaumcraftItems.salisMundus;
@@ -49,8 +45,6 @@ public class Thaumcraft {
         Dump.dump();
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
-        BLOCKS.register(modEventBus);
-        ITEMS.register(modEventBus);
         thaumcraft.api.items.ThaumcraftItems.ITEMS.register(modEventBus);
         thaumcraft.common.lib.CreativeTabThaumcraft.CREATIVE_MODE_TABS.register(modEventBus);
         thaumcraft.common.lib.SoundsTC.SOUNDS.register(modEventBus);
@@ -61,7 +55,6 @@ public class Thaumcraft {
         thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         thaumcraft.common.container.ThaumcraftMenus.MENU_TYPES.register(modEventBus);
 
-        NeoForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

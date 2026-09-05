@@ -166,7 +166,7 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> lampArcane = BLOCKS.registerSimpleBlock("lamp_arcane", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> lampFertility = BLOCKS.registerSimpleBlock("lamp_fertility", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> lampGrowth = BLOCKS.registerSimpleBlock("lamp_growth", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> golemBuilder = BLOCKS.register("golem_builder", () -> new thaumcraft.common.blocks.devices.BlockGolemBuilder(BlockBehaviour.Properties.of()));
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockGolemBuilder> golemBuilder = BLOCKS.registerBlock("golem_builder", thaumcraft.common.blocks.devices.BlockGolemBuilder::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> essentiaTransportInput = BLOCKS.registerSimpleBlock("essentia_transport_input", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> essentiaTransportOutput = BLOCKS.registerSimpleBlock("essentia_transport_output", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> patternCrafter = BLOCKS.registerSimpleBlock("pattern_crafter", () -> BlockBehaviour.Properties.of());
