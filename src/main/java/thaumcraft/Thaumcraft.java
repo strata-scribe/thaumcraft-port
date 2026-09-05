@@ -59,6 +59,7 @@ public class Thaumcraft {
         thaumcraft.api.blocks.ThaumcraftBlocks.BLOCKS.register(modEventBus);
         thaumcraft.api.golems.ThaumcraftGolemRegistries.register(modEventBus);
         thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.BLOCK_ENTITIES.register(modEventBus);
+        thaumcraft.common.container.ThaumcraftMenus.MENU_TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);

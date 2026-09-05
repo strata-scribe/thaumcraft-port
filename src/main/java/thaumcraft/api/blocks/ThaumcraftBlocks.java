@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import thaumcraft.Thaumcraft;
+import thaumcraft.common.blocks.BlockArcaneWorkbench;
 
 
 
@@ -125,7 +126,10 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> levitator = BLOCKS.registerSimpleBlock("levitator", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> dioptra = BLOCKS.registerSimpleBlock("dioptra", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> crucible = BLOCKS.registerSimpleBlock("crucible", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> arcaneWorkbench = BLOCKS.registerSimpleBlock("arcane_workbench", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockArcaneWorkbench> arcaneWorkbench = BLOCKS.registerBlock(
+			"arcane_workbench",
+			BlockArcaneWorkbench::new,
+			() -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> arcaneWorkbenchCharger = BLOCKS.registerSimpleBlock("arcane_workbench_charger", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> wandWorkbench = BLOCKS.registerSimpleBlock("wand_workbench", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> rechargePedestal = BLOCKS.registerSimpleBlock("recharge_pedestal", () -> BlockBehaviour.Properties.of());
