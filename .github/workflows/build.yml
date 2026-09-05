@@ -23,3 +23,10 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thaumcraft-neoforge-build
+          path: build/libs/*.jar
+          if-no-files-found: error
