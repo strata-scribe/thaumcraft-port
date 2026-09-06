@@ -117,7 +117,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> creativePlacer = ITEMS.registerSimpleItem("creative_placer", p -> p);
     public static final DeferredItem<Item> creativeFluxSponge = ITEMS.registerSimpleItem("creative_flux_sponge", p -> p);
     public static final DeferredItem<Item> bathSalts = ITEMS.registerSimpleItem("bath_salts", p -> p);
-    public static final DeferredItem<Item> sanitySoap = ITEMS.registerSimpleItem("sanity_soap", p -> p);
+    public static final DeferredItem<Item> sanitySoap = ITEMS.registerItem("sanity_soap", thaumcraft.common.items.tools.ItemSanitizingSoap::new);
     public static final DeferredItem<Item> turretPlacer = ITEMS.registerSimpleItem("turret_placer", p -> p);
     public static final DeferredItem<Item> enchantedPlaceholder = ITEMS.registerSimpleItem("enchanted_placeholder", p -> p);
     public static final DeferredItem<Item> casterBasic = ITEMS.registerSimpleItem("caster_basic", p -> p);
