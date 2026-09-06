@@ -10,6 +10,7 @@ public class ThaumcraftItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Thaumcraft.MODID);
 
     public static final DeferredItem<net.minecraft.world.item.BlockItem> arcaneWorkbench = ITEMS.registerSimpleBlockItem("arcane_workbench", thaumcraft.api.blocks.ThaumcraftBlocks.arcaneWorkbench);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> crucible = ITEMS.registerSimpleBlockItem("crucible", thaumcraft.api.blocks.ThaumcraftBlocks.crucible);
     public static final DeferredItem<Item> thaumonomicon = ITEMS.registerItem("thaumonomicon", thaumcraft.common.items.curios.ItemThaumonomicon::new, p -> p.stacksTo(1));
     public static final DeferredItem<Item> curio = ITEMS.registerSimpleItem("curio", p -> p);
     public static final DeferredItem<Item> lootBag = ITEMS.registerSimpleItem("loot_bag", p -> p);

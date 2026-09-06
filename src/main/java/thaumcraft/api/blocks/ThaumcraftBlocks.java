@@ -8,6 +8,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import thaumcraft.Thaumcraft;
 import thaumcraft.common.blocks.BlockArcaneWorkbench;
+import thaumcraft.common.blocks.crafting.BlockCrucible;
+import net.minecraft.world.level.block.SoundType;
 
 
 
@@ -125,7 +127,13 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> arcaneEarToggle = BLOCKS.registerSimpleBlock("arcane_ear_toggle", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> levitator = BLOCKS.registerSimpleBlock("levitator", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> dioptra = BLOCKS.registerSimpleBlock("dioptra", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crucible = BLOCKS.registerSimpleBlock("crucible", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockCrucible> crucible = BLOCKS.registerBlock(
+			"crucible",
+			BlockCrucible::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(2.0f, 6.0f)
+					.sound(SoundType.METAL));
 	public static DeferredBlock<BlockArcaneWorkbench> arcaneWorkbench = BLOCKS.registerBlock(
 			"arcane_workbench",
 			BlockArcaneWorkbench::new,
