@@ -22,6 +22,12 @@ public class ThaumcraftMenus {
      * MenuType for the Arcane Workbench.
      * Uses IMenuTypeExtension to pass the workbench's BlockPos from the network packet.
      */
+    public static final DeferredHolder<MenuType<?>, MenuType<thaumcraft.common.container.ResearchTableMenu>>
+            RESEARCH_TABLE = MENU_TYPES.register(
+                    "research_table",
+                    () -> IMenuTypeExtension.create(thaumcraft.common.container.ResearchTableMenu::createClientSide)
+            );
+
     public static final DeferredHolder<MenuType<?>, MenuType<ArcaneWorkbenchMenu>>
             ARCANE_WORKBENCH = MENU_TYPES.register(
                     "arcane_workbench",

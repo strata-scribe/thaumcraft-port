@@ -61,6 +61,11 @@ public class ThaumcraftBlockEntities {
     );
 
     /** Infusion Matrix — runic crafting controller. */
+    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.research.TileResearchTable>> RESEARCH_TABLE = BLOCK_ENTITIES.register(
+            "research_table",
+            () -> new BlockEntityType<>(thaumcraft.common.tiles.research.TileResearchTable::new, ThaumcraftBlocks.researchTable.get())
+    );
+
     public static final Supplier<BlockEntityType<InfusionMatrixBlockEntity>> INFUSION_MATRIX = BLOCK_ENTITIES.register(
             "infusion_matrix",
             () -> new BlockEntityType<>(InfusionMatrixBlockEntity::new, ThaumcraftBlocks.infusionMatrix.get())

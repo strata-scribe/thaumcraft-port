@@ -162,7 +162,7 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> arcaneWorkbenchCharger = BLOCKS.registerSimpleBlock("arcane_workbench_charger", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> wandWorkbench = BLOCKS.registerSimpleBlock("wand_workbench", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> rechargePedestal = BLOCKS.registerSimpleBlock("recharge_pedestal", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> researchTable = BLOCKS.registerSimpleBlock("research_table", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.research.BlockResearchTable> researchTable = BLOCKS.registerBlock("research_table", thaumcraft.common.blocks.research.BlockResearchTable::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tube = BLOCKS.registerBlock("tube", thaumcraft.common.blocks.essentia.BlockTube::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeValve = BLOCKS.registerSimpleBlock("tube_valve", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeRestrict = BLOCKS.registerSimpleBlock("tube_restrict", () -> BlockBehaviour.Properties.of());
