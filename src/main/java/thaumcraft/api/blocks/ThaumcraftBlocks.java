@@ -84,13 +84,13 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> lootUrnUncommon = BLOCKS.registerSimpleBlock("loot_urn_uncommon", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> lootUrnRare = BLOCKS.registerSimpleBlock("loot_urn_rare", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> eldritch = BLOCKS.registerSimpleBlock("eldritch", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crystalAir = BLOCKS.registerSimpleBlock("crystal_air", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crystalFire = BLOCKS.registerSimpleBlock("crystal_fire", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crystalWater = BLOCKS.registerSimpleBlock("crystal_water", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crystalEarth = BLOCKS.registerSimpleBlock("crystal_earth", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crystalOrder = BLOCKS.registerSimpleBlock("crystal_order", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crystalEntropy = BLOCKS.registerSimpleBlock("crystal_entropy", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> crystalTaint = BLOCKS.registerSimpleBlock("crystal_taint", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<Block> crystalAir = BLOCKS.registerBlock("crystal_air", p -> new thaumcraft.common.blocks.world.BlockVisCrystal(thaumcraft.api.aspects.Aspect.AIR, p), () -> BlockBehaviour.Properties.of().lightLevel(s -> 1).noOcclusion().sound(SoundType.GLASS));
+	public static DeferredBlock<Block> crystalFire = BLOCKS.registerBlock("crystal_fire", p -> new thaumcraft.common.blocks.world.BlockVisCrystal(thaumcraft.api.aspects.Aspect.FIRE, p), () -> BlockBehaviour.Properties.of().lightLevel(s -> 1).noOcclusion().sound(SoundType.GLASS));
+	public static DeferredBlock<Block> crystalWater = BLOCKS.registerBlock("crystal_water", p -> new thaumcraft.common.blocks.world.BlockVisCrystal(thaumcraft.api.aspects.Aspect.WATER, p), () -> BlockBehaviour.Properties.of().lightLevel(s -> 1).noOcclusion().sound(SoundType.GLASS));
+	public static DeferredBlock<Block> crystalEarth = BLOCKS.registerBlock("crystal_earth", p -> new thaumcraft.common.blocks.world.BlockVisCrystal(thaumcraft.api.aspects.Aspect.EARTH, p), () -> BlockBehaviour.Properties.of().lightLevel(s -> 1).noOcclusion().sound(SoundType.GLASS));
+	public static DeferredBlock<Block> crystalOrder = BLOCKS.registerBlock("crystal_order", p -> new thaumcraft.common.blocks.world.BlockVisCrystal(thaumcraft.api.aspects.Aspect.ORDER, p), () -> BlockBehaviour.Properties.of().lightLevel(s -> 1).noOcclusion().sound(SoundType.GLASS));
+	public static DeferredBlock<Block> crystalEntropy = BLOCKS.registerBlock("crystal_entropy", p -> new thaumcraft.common.blocks.world.BlockVisCrystal(thaumcraft.api.aspects.Aspect.ENTROPY, p), () -> BlockBehaviour.Properties.of().lightLevel(s -> 1).noOcclusion().sound(SoundType.GLASS));
+	public static DeferredBlock<Block> crystalTaint = BLOCKS.registerBlock("crystal_taint", p -> new thaumcraft.common.blocks.world.BlockVisCrystal(thaumcraft.api.aspects.Aspect.FLUX, p), () -> BlockBehaviour.Properties.of().lightLevel(s -> 1).noOcclusion().sound(SoundType.GLASS));
 	public static DeferredBlock<Block> grassAmbient = BLOCKS.registerSimpleBlock("grass_ambient", () -> BlockBehaviour.Properties.of());
 
 	// Doodads
