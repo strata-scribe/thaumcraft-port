@@ -11,6 +11,7 @@ import thaumcraft.common.tiles.crafting.CrucibleBlockEntity;
 import thaumcraft.common.tiles.essentia.JarBlockEntity;
 import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
 import thaumcraft.common.tiles.crafting.InfusionMatrixBlockEntity;
+import thaumcraft.common.tiles.devices.TileLevitator;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
@@ -18,6 +19,11 @@ public class ThaumcraftBlockEntities {
     public static final Supplier<BlockEntityType<TileGolemBuilder>> GOLEM_BUILDER = BLOCK_ENTITIES.register(
             "golem_builder",
             () -> new BlockEntityType<>(TileGolemBuilder::new, ThaumcraftBlocks.golemBuilder.get())
+    );
+
+    public static final Supplier<BlockEntityType<TileLevitator>> LEVITATOR = BLOCK_ENTITIES.register(
+            "levitator",
+            () -> new BlockEntityType<>(TileLevitator::new, ThaumcraftBlocks.levitator.get())
     );
 
     public static final Supplier<BlockEntityType<ArcaneWorkbenchBlockEntity>> ARCANE_WORKBENCH = BLOCK_ENTITIES.register(
