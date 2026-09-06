@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import thaumcraft.Thaumcraft;
 import thaumcraft.common.lib.capabilities.PlayerKnowledge;
 import thaumcraft.common.lib.capabilities.PlayerWarp;
+import thaumcraft.common.lib.capabilities.RunicShieldAttachment;
 
 public class ThaumcraftCapabilities {
 
@@ -52,6 +53,13 @@ public class ThaumcraftCapabilities {
                             return true;
                         }
                     })
+                    .copyOnDeath().build()
+    );
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<RunicShieldAttachment>> RUNIC_SHIELD_ATTACHMENT = ATTACHMENT_TYPES.register(
+            "runic_shield",
+            () -> AttachmentType.builder(RunicShieldAttachment::new)
+                    .serialize(RunicShieldAttachment.MAP_CODEC)
                     .copyOnDeath().build()
     );
 
@@ -120,4 +128,12 @@ public class ThaumcraftCapabilities {
 	{
 		return player.getData(WARP_ATTACHMENT);
 	}
+
+    /**
+     * Retrieves the runic shield attachment for the supplied player
+     */
+    public static RunicShieldAttachment getRunicShield(@Nonnull Player player)
+    {
+        return player.getData(RUNIC_SHIELD_ATTACHMENT);
+    }
 }
