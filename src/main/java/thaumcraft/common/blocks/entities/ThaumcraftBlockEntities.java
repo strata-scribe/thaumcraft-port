@@ -12,6 +12,7 @@ import thaumcraft.common.tiles.essentia.JarBlockEntity;
 import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
 import thaumcraft.common.tiles.crafting.InfusionMatrixBlockEntity;
 import thaumcraft.common.tiles.devices.TileLevitator;
+import thaumcraft.common.tiles.essentia.TileTube;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
@@ -64,5 +65,11 @@ public class ThaumcraftBlockEntities {
             "infusion_matrix",
             () -> new BlockEntityType<>(InfusionMatrixBlockEntity::new, ThaumcraftBlocks.infusionMatrix.get())
     );
+
+    public static final Supplier<BlockEntityType<TileTube>> TUBE = BLOCK_ENTITIES.register(
+            "tube",
+            () -> new BlockEntityType<>(TileTube::new, ThaumcraftBlocks.tube.get())
+    );
+
 }
 
