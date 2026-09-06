@@ -9,6 +9,8 @@ import thaumcraft.api.blocks.ThaumcraftBlocks;
 import thaumcraft.common.tiles.ArcaneWorkbenchBlockEntity;
 import thaumcraft.common.tiles.crafting.CrucibleBlockEntity;
 import thaumcraft.common.tiles.essentia.JarBlockEntity;
+import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
+import thaumcraft.common.tiles.crafting.InfusionMatrixBlockEntity;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
@@ -35,6 +37,21 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(JarBlockEntity::new,
                     ThaumcraftBlocks.jarNormal.get(),
                     ThaumcraftBlocks.jarVoid.get())
+    );
+
+    /** Pedestal — single-item holder for infusion altar. */
+    public static final Supplier<BlockEntityType<PedestalBlockEntity>> PEDESTAL = BLOCK_ENTITIES.register(
+            "pedestal",
+            () -> new BlockEntityType<>(PedestalBlockEntity::new,
+                    ThaumcraftBlocks.pedestalArcane.get(),
+                    ThaumcraftBlocks.pedestalAncient.get(),
+                    ThaumcraftBlocks.pedestalEldritch.get())
+    );
+
+    /** Infusion Matrix — runic crafting controller. */
+    public static final Supplier<BlockEntityType<InfusionMatrixBlockEntity>> INFUSION_MATRIX = BLOCK_ENTITIES.register(
+            "infusion_matrix",
+            () -> new BlockEntityType<>(InfusionMatrixBlockEntity::new, ThaumcraftBlocks.infusionMatrix.get())
     );
 }
 

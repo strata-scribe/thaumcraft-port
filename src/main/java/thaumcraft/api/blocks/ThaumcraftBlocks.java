@@ -10,6 +10,8 @@ import thaumcraft.Thaumcraft;
 import thaumcraft.common.blocks.BlockArcaneWorkbench;
 import thaumcraft.common.blocks.crafting.BlockCrucible;
 import thaumcraft.common.blocks.essentia.BlockJar;
+import thaumcraft.common.blocks.crafting.BlockInfusionMatrix;
+import thaumcraft.common.blocks.crafting.BlockPedestal;
 import net.minecraft.world.level.block.SoundType;
 
 
@@ -100,9 +102,27 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> metalAlchemical = BLOCKS.registerSimpleBlock("metal_alchemical", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> metalAlchemicalAdvanced = BLOCKS.registerSimpleBlock("metal_alchemical_advanced", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> bloom = BLOCKS.registerSimpleBlock("bloom", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> pedestalArcane = BLOCKS.registerSimpleBlock("pedestal_arcane", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> pedestalAncient = BLOCKS.registerSimpleBlock("pedestal_ancient", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> pedestalEldritch = BLOCKS.registerSimpleBlock("pedestal_eldritch", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockPedestal> pedestalArcane = BLOCKS.registerBlock(
+			"pedestal_arcane",
+			BlockPedestal::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(2.0f, 6.0f)
+					.sound(SoundType.STONE));
+	public static DeferredBlock<BlockPedestal> pedestalAncient = BLOCKS.registerBlock(
+			"pedestal_ancient",
+			BlockPedestal::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(2.0f, 6.0f)
+					.sound(SoundType.STONE));
+	public static DeferredBlock<BlockPedestal> pedestalEldritch = BLOCKS.registerBlock(
+			"pedestal_eldritch",
+			BlockPedestal::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(2.0f, 6.0f)
+					.sound(SoundType.STONE));
 	public static DeferredBlock<Block> fleshBlock = BLOCKS.registerSimpleBlock("flesh_block", () -> BlockBehaviour.Properties.of());
 
 	public static DeferredBlock<Block> pavingStoneTravel = BLOCKS.registerSimpleBlock("paving_stone_travel", () -> BlockBehaviour.Properties.of());
@@ -174,7 +194,13 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> smelterVent = BLOCKS.registerSimpleBlock("smelter_vent", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> fluxScrubber = BLOCKS.registerSimpleBlock("flux_scrubber", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> alembic = BLOCKS.registerSimpleBlock("alembic", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> infusionMatrix = BLOCKS.registerSimpleBlock("infusion_matrix", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockInfusionMatrix> infusionMatrix = BLOCKS.registerBlock(
+			"infusion_matrix",
+			BlockInfusionMatrix::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(2.0f, 6.0f)
+					.sound(SoundType.STONE));
 	public static DeferredBlock<Block> infernalFurnace = BLOCKS.registerSimpleBlock("infernal_furnace", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> thaumatorium = BLOCKS.registerSimpleBlock("thaumatorium", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> thaumatoriumTop = BLOCKS.registerSimpleBlock("thaumatorium_top", () -> BlockBehaviour.Properties.of());
