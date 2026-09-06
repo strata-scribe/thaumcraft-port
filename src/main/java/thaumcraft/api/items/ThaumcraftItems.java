@@ -11,6 +11,10 @@ public class ThaumcraftItems {
 
     public static final DeferredItem<net.minecraft.world.item.BlockItem> arcaneWorkbench = ITEMS.registerSimpleBlockItem("arcane_workbench", thaumcraft.api.blocks.ThaumcraftBlocks.arcaneWorkbench);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> crucible = ITEMS.registerSimpleBlockItem("crucible", thaumcraft.api.blocks.ThaumcraftBlocks.crucible);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalArcaneItem = ITEMS.registerSimpleBlockItem("pedestal_arcane", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalArcane);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalAncientItem = ITEMS.registerSimpleBlockItem("pedestal_ancient", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalAncient);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalEldritchItem = ITEMS.registerSimpleBlockItem("pedestal_eldritch", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalEldritch);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> infusionMatrixItem = ITEMS.registerSimpleBlockItem("infusion_matrix", thaumcraft.api.blocks.ThaumcraftBlocks.infusionMatrix);
     public static final DeferredItem<Item> thaumonomicon = ITEMS.registerItem("thaumonomicon", thaumcraft.common.items.curios.ItemThaumonomicon::new, p -> p.stacksTo(1));
     public static final DeferredItem<Item> curio = ITEMS.registerSimpleItem("curio", p -> p);
     public static final DeferredItem<Item> lootBag = ITEMS.registerSimpleItem("loot_bag", p -> p);
