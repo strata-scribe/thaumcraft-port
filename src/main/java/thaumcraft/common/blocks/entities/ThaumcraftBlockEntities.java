@@ -8,6 +8,7 @@ import thaumcraft.Thaumcraft;
 import thaumcraft.api.blocks.ThaumcraftBlocks;
 import thaumcraft.common.tiles.ArcaneWorkbenchBlockEntity;
 import thaumcraft.common.tiles.crafting.CrucibleBlockEntity;
+import thaumcraft.common.tiles.essentia.JarBlockEntity;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
@@ -27,4 +28,13 @@ public class ThaumcraftBlockEntities {
             "crucible",
             () -> new BlockEntityType<>(CrucibleBlockEntity::new, ThaumcraftBlocks.crucible.get())
     );
+
+    /** Warded Jar — single-aspect essentia storage (normal and void variants). */
+    public static final Supplier<BlockEntityType<JarBlockEntity>> JAR = BLOCK_ENTITIES.register(
+            "jar",
+            () -> new BlockEntityType<>(JarBlockEntity::new,
+                    ThaumcraftBlocks.jarNormal.get(),
+                    ThaumcraftBlocks.jarVoid.get())
+    );
 }
+

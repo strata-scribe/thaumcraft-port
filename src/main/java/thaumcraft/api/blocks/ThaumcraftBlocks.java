@@ -9,6 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import thaumcraft.Thaumcraft;
 import thaumcraft.common.blocks.BlockArcaneWorkbench;
 import thaumcraft.common.blocks.crafting.BlockCrucible;
+import thaumcraft.common.blocks.essentia.BlockJar;
 import net.minecraft.world.level.block.SoundType;
 
 
@@ -150,8 +151,20 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> tubeBuffer = BLOCKS.registerSimpleBlock("tube_buffer", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> centrifuge = BLOCKS.registerSimpleBlock("centrifuge", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> hungryChest = BLOCKS.registerSimpleBlock("hungry_chest", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> jarNormal = BLOCKS.registerSimpleBlock("jar_normal", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> jarVoid = BLOCKS.registerSimpleBlock("jar_void", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockJar> jarNormal = BLOCKS.registerBlock(
+			"jar_normal",
+			BlockJar::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(0.3f, 0.5f)
+					.sound(SoundType.GLASS));
+	public static DeferredBlock<BlockJar> jarVoid = BLOCKS.registerBlock(
+			"jar_void",
+			BlockJar::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(0.3f, 0.5f)
+					.sound(SoundType.GLASS));
 	public static DeferredBlock<Block> jarBrain = BLOCKS.registerSimpleBlock("jar_brain", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> bellows = BLOCKS.registerSimpleBlock("bellows", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> smelterBasic = BLOCKS.registerSimpleBlock("smelter_basic", () -> BlockBehaviour.Properties.of());
