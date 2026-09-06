@@ -121,6 +121,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> turretPlacer = ITEMS.registerSimpleItem("turret_placer", p -> p);
     public static final DeferredItem<Item> enchantedPlaceholder = ITEMS.registerSimpleItem("enchanted_placeholder", p -> p);
     public static final DeferredItem<Item> casterBasic = ITEMS.registerSimpleItem("caster_basic", p -> p);
+    public static final DeferredItem<Item> casterGauntlet = ITEMS.registerItem("caster_gauntlet", thaumcraft.common.items.casters.CasterGauntletItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<Item> focus1 = ITEMS.registerSimpleItem("focus1", p -> p);
     public static final DeferredItem<Item> focus2 = ITEMS.registerSimpleItem("focus2", p -> p);
     public static final DeferredItem<Item> focus3 = ITEMS.registerSimpleItem("focus3", p -> p);
@@ -234,6 +235,7 @@ public class ThaumcraftItems {
         ItemsTC.turretPlacer = turretPlacer.get();
         ItemsTC.enchantedPlaceholder = enchantedPlaceholder.get();
         ItemsTC.casterBasic = casterBasic.get();
+        ItemsTC.casterGauntlet = casterGauntlet.get();
         ItemsTC.focus1 = focus1.get();
         ItemsTC.focus2 = focus2.get();
         ItemsTC.focus3 = focus3.get();
