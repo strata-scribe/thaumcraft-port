@@ -136,6 +136,7 @@ public class ItemsTC {
 			
 	//casters & foci
 	public static Item casterBasic;	
+	public static Item casterGauntlet;
 	public static Item focus1;	
 	public static Item focus2;
 	public static Item focus3;
