@@ -35,9 +35,29 @@ public class BlockArcaneWorkbench extends Block implements EntityBlock {
     }
 
     // -------------------------------------------------------------------------
-    // Player interaction — NeoForge 26.1.x uses useWithoutItem for "bare hand"
-    // activation; it is called for both hands when no item triggers first.
+    // MenuProvider lookup
     // -------------------------------------------------------------------------
+
+    @Nullable
+    @Override
+    protected net.minecraft.world.MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        return be instanceof net.minecraft.world.MenuProvider menuProvider ? menuProvider : null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Player interaction — handles right-click with empty hand or holding item
+    // -------------------------------------------------------------------------
+
+    @Override
+    protected InteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state,
+                                          Level level, BlockPos pos, Player player,
+                                          net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        if (player.isShiftKeyDown()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+        return useWithoutItem(state, level, pos, player, hit);
+    }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
@@ -45,8 +65,15 @@ public class BlockArcaneWorkbench extends Block implements EntityBlock {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
-        // Delegate to the block entity which implements MenuProvider
-        player.openMenu(state.getMenuProvider(level, pos), pos);
+        net.minecraft.world.MenuProvider menuProvider = state.getMenuProvider(level, pos);
+        if (menuProvider != null) {
+            if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                serverPlayer.openMenu(menuProvider, buf -> buf.writeBlockPos(pos));
+            } else {
+                player.openMenu(menuProvider);
+            }
+        }
         return InteractionResult.CONSUME;
     }
 }
+

@@ -77,19 +77,30 @@ public class ArcaneWorkbenchMenu extends AbstractContainerMenu {
     public static ArcaneWorkbenchMenu createClientSide(int containerId,
                                                         Inventory playerInventory,
                                                         FriendlyByteBuf buf) {
-        BlockPos pos = buf.readBlockPos();
+        BlockPos pos = BlockPos.ZERO;
+        if (buf != null && buf.isReadable()) {
+            try {
+                pos = buf.readBlockPos();
+            } catch (Exception ignored) {
+                if (playerInventory.player != null) {
+                    pos = playerInventory.player.blockPosition();
+                }
+            }
+        } else if (playerInventory.player != null) {
+            pos = playerInventory.player.blockPosition();
+        }
         // On the client level, try to fetch the real BE; fall back to a dummy.
         ArcaneWorkbenchBlockEntity be = null;
-        if (playerInventory.player.level().getBlockEntity(pos) instanceof ArcaneWorkbenchBlockEntity found) {
+        if (playerInventory.player != null && playerInventory.player.level().getBlockEntity(pos) instanceof ArcaneWorkbenchBlockEntity found) {
             be = found;
         }
         if (be == null) {
             // Dummy BE so the client menu can at least open without NPE
             be = new ArcaneWorkbenchBlockEntity(pos,
-                    playerInventory.player.level().getBlockState(pos));
+                    playerInventory.player != null ? playerInventory.player.level().getBlockState(pos) : thaumcraft.api.blocks.ThaumcraftBlocks.arcaneWorkbench.get().defaultBlockState());
         }
         return new ArcaneWorkbenchMenu(containerId, playerInventory, be,
-                ContainerLevelAccess.create(playerInventory.player.level(), pos));
+                playerInventory.player != null ? ContainerLevelAccess.create(playerInventory.player.level(), pos) : ContainerLevelAccess.NULL);
     }
 
     // -------------------------------------------------------------------------

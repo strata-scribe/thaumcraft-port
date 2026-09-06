@@ -49,6 +49,11 @@ public class ResearchCategory {
     
     public AspectList formula;
 	
+	public ResearchCategory(String key) {
+		this.key = key;
+		this.formula = new AspectList();
+	}
+
 	public ResearchCategory(String key, String researchkey, AspectList formula, Identifier icon, Identifier background) {
 		this.key = key;
 		researchKey = researchkey;

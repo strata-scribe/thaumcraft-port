@@ -200,8 +200,8 @@ public class ResearchEntry {
 				}
 			}
 		}
-		catch (Exception ex) {
-			System.out.println("EXCEPTION PARSING ITEM: " + name + " -> " + ex.getMessage());
+		catch (Throwable ex) {
+			// Registry uninitialized or item not found
 		}
 		return stack;
 	}

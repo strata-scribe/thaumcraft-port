@@ -15,16 +15,37 @@ public class ResearchStage {
 
 	public static final Codec<ResearchStage> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		Codec.STRING.fieldOf("text").forGetter(ResearchStage::getText),
-		Identifier.CODEC.listOf().optionalFieldOf("recipes", List.of()).forGetter(s -> s.getRecipes() == null ? List.of() : Arrays.asList(s.getRecipes())),
+		Codec.STRING.listOf().optionalFieldOf("recipes", List.of()).forGetter(s -> {
+			if (s.getRecipes() == null) return List.of();
+			java.util.List<String> list = new java.util.ArrayList<>();
+			for (Identifier id : s.getRecipes()) list.add(id.toString());
+			return list;
+		}),
 		Codec.STRING.listOf().optionalFieldOf("required_item", List.of()).forGetter(s -> List.of()),
 		Codec.STRING.listOf().optionalFieldOf("required_craft", List.of()).forGetter(s -> List.of()),
-		Knowledge.CODEC.listOf().optionalFieldOf("required_knowledge", List.of()).forGetter(s -> s.getKnow() == null ? List.of() : Arrays.asList(s.getKnow())),
+		Codec.STRING.listOf().optionalFieldOf("required_knowledge", List.of()).forGetter(s -> {
+			if (s.getKnow() == null) return List.of();
+			java.util.List<String> list = new java.util.ArrayList<>();
+			for (Knowledge k : s.getKnow()) {
+				if (k.category == null) list.add(k.type.name() + ";" + k.amount);
+				else list.add(k.type.name() + ";" + (k.category.key != null ? k.category.key : "") + ";" + k.amount);
+			}
+			return list;
+		}),
 		Codec.STRING.listOf().optionalFieldOf("required_research", List.of()).forGetter(s -> s.getResearch() == null ? List.of() : Arrays.asList(s.getResearch())),
 		Codec.INT.optionalFieldOf("warp", 0).forGetter(ResearchStage::getWarp)
 	).apply(instance, (text, recipes, reqItem, reqCraft, reqKnow, reqRes, warp) -> {
 		ResearchStage stage = new ResearchStage();
 		stage.setText(text);
-		if (!recipes.isEmpty()) stage.setRecipes(recipes.toArray(new Identifier[0]));
+		if (!recipes.isEmpty()) {
+			java.util.List<Identifier> ids = new java.util.ArrayList<>();
+			for (String r : recipes) {
+				try {
+					ids.add(Identifier.parse(r.toLowerCase()));
+				} catch (Exception ignored) {}
+			}
+			if (!ids.isEmpty()) stage.setRecipes(ids.toArray(new Identifier[0]));
+		}
 
 		if (!reqItem.isEmpty()) stage.setObtain(thaumcraft.api.research.ResearchEntry.parseJsonOreList("", reqItem.toArray(new String[0])));
 
@@ -42,7 +63,16 @@ public class ResearchStage {
 			}
 		}
 
-		if (!reqKnow.isEmpty()) stage.setKnow(reqKnow.toArray(new Knowledge[0]));
+		if (!reqKnow.isEmpty()) {
+			java.util.List<Knowledge> kl = new java.util.ArrayList<>();
+			for (String s : reqKnow) {
+				try {
+					Knowledge k = Knowledge.parse(s);
+					if (k != null) kl.add(k);
+				} catch (Exception ignored) {}
+			}
+			if (!kl.isEmpty()) stage.setKnow(kl.toArray(new Knowledge[0]));
+		}
 
 		if (!reqRes.isEmpty()) {
 			String[] arr = reqRes.toArray(new String[0]);
@@ -218,7 +248,10 @@ public class ResearchStage {
     			try {
     				num = Integer.parseInt(s[1]);
     			} catch (Exception e) {}    			
-    			EnumKnowledgeType t = EnumKnowledgeType.valueOf(s[0].toUpperCase());
+    			EnumKnowledgeType t = null;
+    			try {
+    				t = EnumKnowledgeType.valueOf(s[0].toUpperCase());
+    			} catch (Exception ignored) {}
     			if (t!=null && !t.hasFields() && num>0) {
     				return new Knowledge(t, null, num);
     			}
@@ -227,9 +260,15 @@ public class ResearchStage {
     			try {
     				num = Integer.parseInt(s[2]);
     			} catch (Exception e) {}    			
-    			EnumKnowledgeType t = EnumKnowledgeType.valueOf(s[0].toUpperCase());
+    			EnumKnowledgeType t = null;
+    			try {
+    				t = EnumKnowledgeType.valueOf(s[0].toUpperCase());
+    			} catch (Exception ignored) {}
     			ResearchCategory f = ResearchCategories.getResearchCategory(s[1].toUpperCase());
-    			if (t!=null && f!=null && num>0) {
+    			if (f == null) {
+    				f = new ResearchCategory(s[1].toUpperCase());
+    			}
+    			if (t!=null && num>0) {
     				return new Knowledge(t,f,num);
     			}
     		}
