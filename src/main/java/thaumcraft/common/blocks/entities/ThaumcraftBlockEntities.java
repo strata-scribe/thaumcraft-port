@@ -26,6 +26,11 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(TileLevitator::new, ThaumcraftBlocks.levitator.get())
     );
 
+    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.TileFocalManipulator>> FOCAL_MANIPULATOR = BLOCK_ENTITIES.register(
+            "focal_manipulator",
+            () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.TileFocalManipulator::new, ThaumcraftBlocks.focalManipulator.get())
+    );
+
     public static final Supplier<BlockEntityType<ArcaneWorkbenchBlockEntity>> ARCANE_WORKBENCH = BLOCK_ENTITIES.register(
             "arcane_workbench",
             () -> new BlockEntityType<>(ArcaneWorkbenchBlockEntity::new, ThaumcraftBlocks.arcaneWorkbench.get())

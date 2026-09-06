@@ -27,4 +27,10 @@ public class ThaumcraftMenus {
                     "arcane_workbench",
                     () -> IMenuTypeExtension.create(ArcaneWorkbenchMenu::createClientSide)
             );
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FocalManipulatorMenu>>
+            FOCAL_MANIPULATOR = MENU_TYPES.register(
+                    "focal_manipulator",
+                    () -> IMenuTypeExtension.create(FocalManipulatorMenu::createClientSide)
+            );
 }
