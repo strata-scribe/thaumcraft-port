@@ -146,7 +146,7 @@ public class ThaumcraftBlocks {
 	// Machines
 	public static DeferredBlock<Block> arcaneEar = BLOCKS.registerSimpleBlock("arcane_ear", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> arcaneEarToggle = BLOCKS.registerSimpleBlock("arcane_ear_toggle", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> levitator = BLOCKS.registerSimpleBlock("levitator", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockLevitator> levitator = BLOCKS.registerBlock("levitator", thaumcraft.common.blocks.devices.BlockLevitator::new, () -> BlockBehaviour.Properties.of().noOcclusion());
 	public static DeferredBlock<Block> dioptra = BLOCKS.registerSimpleBlock("dioptra", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<BlockCrucible> crucible = BLOCKS.registerBlock(
 			"crucible",
