@@ -9,10 +9,15 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import thaumcraft.Thaumcraft;
 import thaumcraft.common.blocks.BlockArcaneWorkbench;
 import thaumcraft.common.blocks.crafting.BlockCrucible;
+import thaumcraft.common.blocks.essentia.BlockAlembic;
 import thaumcraft.common.blocks.essentia.BlockJar;
+import thaumcraft.common.blocks.essentia.BlockSmelter;
+import thaumcraft.common.blocks.essentia.BlockSmelterAux;
+import thaumcraft.common.blocks.essentia.BlockSmelterVent;
 import thaumcraft.common.blocks.crafting.BlockInfusionMatrix;
 import thaumcraft.common.blocks.crafting.BlockPedestal;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 
 
@@ -187,13 +192,49 @@ public class ThaumcraftBlocks {
 					.sound(SoundType.GLASS));
 	public static DeferredBlock<Block> jarBrain = BLOCKS.registerSimpleBlock("jar_brain", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> bellows = BLOCKS.registerSimpleBlock("bellows", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> smelterBasic = BLOCKS.registerSimpleBlock("smelter_basic", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> smelterThaumium = BLOCKS.registerSimpleBlock("smelter_thaumium", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> smelterVoid = BLOCKS.registerSimpleBlock("smelter_void", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> smelterAux = BLOCKS.registerSimpleBlock("smelter_aux", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> smelterVent = BLOCKS.registerSimpleBlock("smelter_vent", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockSmelter> smelterBasic = BLOCKS.registerBlock(
+			"smelter_basic",
+			BlockSmelter::new,
+			() -> BlockBehaviour.Properties.of()
+					.strength(3.5f, 6.0f)
+					.sound(SoundType.METAL)
+					.lightLevel(state -> state.getValue(BlockStateProperties.LIT) ? 13 : 0));
+	public static DeferredBlock<BlockSmelter> smelterThaumium = BLOCKS.registerBlock(
+			"smelter_thaumium",
+			BlockSmelter::new,
+			() -> BlockBehaviour.Properties.of()
+					.strength(4.0f, 8.0f)
+					.sound(SoundType.METAL)
+					.lightLevel(state -> state.getValue(BlockStateProperties.LIT) ? 13 : 0));
+	public static DeferredBlock<BlockSmelter> smelterVoid = BLOCKS.registerBlock(
+			"smelter_void",
+			BlockSmelter::new,
+			() -> BlockBehaviour.Properties.of()
+					.strength(5.0f, 10.0f)
+					.sound(SoundType.METAL)
+					.lightLevel(state -> state.getValue(BlockStateProperties.LIT) ? 13 : 0));
+	public static DeferredBlock<BlockSmelterAux> smelterAux = BLOCKS.registerBlock(
+			"smelter_aux",
+			BlockSmelterAux::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(1.0f, 10.0f)
+					.sound(SoundType.METAL));
+	public static DeferredBlock<BlockSmelterVent> smelterVent = BLOCKS.registerBlock(
+			"smelter_vent",
+			BlockSmelterVent::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(1.0f, 10.0f)
+					.sound(SoundType.METAL));
 	public static DeferredBlock<Block> fluxScrubber = BLOCKS.registerSimpleBlock("flux_scrubber", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> alembic = BLOCKS.registerSimpleBlock("alembic", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockAlembic> alembic = BLOCKS.registerBlock(
+			"alembic",
+			BlockAlembic::new,
+			() -> BlockBehaviour.Properties.of()
+					.noOcclusion()
+					.strength(1.5f, 4.0f)
+					.sound(SoundType.WOOD));
 	public static DeferredBlock<BlockInfusionMatrix> infusionMatrix = BLOCKS.registerBlock(
 			"infusion_matrix",
 			BlockInfusionMatrix::new,

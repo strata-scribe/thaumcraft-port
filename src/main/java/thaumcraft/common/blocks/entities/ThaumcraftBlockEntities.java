@@ -9,6 +9,8 @@ import thaumcraft.api.blocks.ThaumcraftBlocks;
 import thaumcraft.common.tiles.ArcaneWorkbenchBlockEntity;
 import thaumcraft.common.tiles.crafting.CrucibleBlockEntity;
 import thaumcraft.common.tiles.essentia.JarBlockEntity;
+import thaumcraft.common.tiles.essentia.SmelterBlockEntity;
+import thaumcraft.common.tiles.essentia.AlembicBlockEntity;
 import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
 import thaumcraft.common.tiles.crafting.InfusionMatrixBlockEntity;
 import thaumcraft.common.tiles.devices.TileLevitator;
@@ -76,5 +78,19 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(TileTube::new, ThaumcraftBlocks.tube.get())
     );
 
-}
+    /** Essentia Smelter — decomposes items into aspects (basic, thaumium, void tiers). */
+    public static final Supplier<BlockEntityType<SmelterBlockEntity>> SMELTER = BLOCK_ENTITIES.register(
+            "smelter",
+            () -> new BlockEntityType<>(SmelterBlockEntity::new,
+                    ThaumcraftBlocks.smelterBasic.get(),
+                    ThaumcraftBlocks.smelterThaumium.get(),
+                    ThaumcraftBlocks.smelterVoid.get())
+    );
 
+    /** Distillation Alembic — single-aspect essentia receiver stacking on smelters. */
+    public static final Supplier<BlockEntityType<AlembicBlockEntity>> ALEMBIC = BLOCK_ENTITIES.register(
+            "alembic",
+            () -> new BlockEntityType<>(AlembicBlockEntity::new, ThaumcraftBlocks.alembic.get())
+    );
+
+}

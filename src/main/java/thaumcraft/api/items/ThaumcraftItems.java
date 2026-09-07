@@ -17,6 +17,12 @@ public class ThaumcraftItems {
     public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalAncientItem = ITEMS.registerSimpleBlockItem("pedestal_ancient", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalAncient);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalEldritchItem = ITEMS.registerSimpleBlockItem("pedestal_eldritch", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalEldritch);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> infusionMatrixItem = ITEMS.registerSimpleBlockItem("infusion_matrix", thaumcraft.api.blocks.ThaumcraftBlocks.infusionMatrix);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> smelterBasicItem = ITEMS.registerSimpleBlockItem("smelter_basic", thaumcraft.api.blocks.ThaumcraftBlocks.smelterBasic);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> smelterThaumiumItem = ITEMS.registerSimpleBlockItem("smelter_thaumium", thaumcraft.api.blocks.ThaumcraftBlocks.smelterThaumium);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> smelterVoidItem = ITEMS.registerSimpleBlockItem("smelter_void", thaumcraft.api.blocks.ThaumcraftBlocks.smelterVoid);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> smelterAuxItem = ITEMS.registerSimpleBlockItem("smelter_aux", thaumcraft.api.blocks.ThaumcraftBlocks.smelterAux);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> smelterVentItem = ITEMS.registerSimpleBlockItem("smelter_vent", thaumcraft.api.blocks.ThaumcraftBlocks.smelterVent);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> alembicItem = ITEMS.registerSimpleBlockItem("alembic", thaumcraft.api.blocks.ThaumcraftBlocks.alembic);
     public static final DeferredItem<Item> thaumonomicon = ITEMS.registerItem("thaumonomicon", thaumcraft.common.items.curios.ItemThaumonomicon::new, p -> p.stacksTo(1));
     public static final DeferredItem<Item> curio = ITEMS.registerSimpleItem("curio", p -> p);
     public static final DeferredItem<Item> lootBag = ITEMS.registerSimpleItem("loot_bag", p -> p);
