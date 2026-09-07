@@ -57,6 +57,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> phial = ITEMS.registerSimpleItem("phial", p -> p);
     public static final DeferredItem<Item> label = ITEMS.registerSimpleItem("label", p -> p);
     public static final DeferredItem<Item> bottleTaint = ITEMS.registerSimpleItem("bottle_taint", p -> p);
+    public static final DeferredItem<Item> vitiumSlag = ITEMS.registerSimpleItem("vitium_slag", p -> p);
     public static final DeferredItem<Item> jarBrace = ITEMS.registerSimpleItem("jar_brace", p -> p);
     public static final DeferredItem<Item> causalityCollapser = ITEMS.registerSimpleItem("causality_collapser", p -> p);
     public static final DeferredItem<Item> scribingTools = ITEMS.registerSimpleItem("scribing_tools", p -> p);
@@ -171,6 +172,7 @@ public class ThaumcraftItems {
         ItemsTC.phial = phial.get();
         ItemsTC.label = label.get();
         ItemsTC.bottleTaint = bottleTaint.get();
+        ItemsTC.vitiumSlag = vitiumSlag.get();
         ItemsTC.jarBrace = jarBrace.get();
         ItemsTC.causalityCollapser = causalityCollapser.get();
         ItemsTC.scribingTools = scribingTools.get();

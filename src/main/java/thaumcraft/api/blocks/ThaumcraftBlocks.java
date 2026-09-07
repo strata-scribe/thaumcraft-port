@@ -263,9 +263,9 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> potionSprayer = BLOCKS.registerSimpleBlock("potion_sprayer", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> stabilizer = BLOCKS.registerSimpleBlock("stabilizer", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> visGenerator = BLOCKS.registerSimpleBlock("vis_generator", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> condenser = BLOCKS.registerSimpleBlock("condenser", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> condenserlattice = BLOCKS.registerSimpleBlock("condenserlattice", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> condenserlatticeDirty = BLOCKS.registerSimpleBlock("condenserlattice_dirty", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockCondenser> condenser = BLOCKS.registerBlock("condenser", thaumcraft.common.blocks.devices.BlockCondenser::new, () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockCondenserLattice> condenserlattice = BLOCKS.registerBlock("condenserlattice", p -> new thaumcraft.common.blocks.devices.BlockCondenserLattice(p, false), () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockCondenserLattice> condenserlatticeDirty = BLOCKS.registerBlock("condenserlattice_dirty", p -> new thaumcraft.common.blocks.devices.BlockCondenserLattice(p, true), () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> voidSiphon = BLOCKS.registerSimpleBlock("void_siphon", () -> BlockBehaviour.Properties.of());
 
 	// Fluids
