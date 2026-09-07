@@ -93,4 +93,9 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(AlembicBlockEntity::new, ThaumcraftBlocks.alembic.get())
     );
 
+    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.TileCondenser>> CONDENSER = BLOCK_ENTITIES.register(
+            "condenser",
+            () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.TileCondenser::new, ThaumcraftBlocks.condenser.get())
+    );
+
 }
