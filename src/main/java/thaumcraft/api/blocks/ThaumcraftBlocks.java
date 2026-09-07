@@ -135,7 +135,7 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> pillarArcane = BLOCKS.registerSimpleBlock("pillar_arcane", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> pillarAncient = BLOCKS.registerSimpleBlock("pillar_ancient", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> pillarEldritch = BLOCKS.registerSimpleBlock("pillar_eldritch", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> redstoneRelay = BLOCKS.registerSimpleBlock("redstone_relay", () -> BlockBehaviour.Properties.of());
+	// public static DeferredBlock<Block> redstoneRelay = BLOCKS.registerSimpleBlock("redstone_relay", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> matrixSpeed = BLOCKS.registerSimpleBlock("matrix_speed", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> matrixCost = BLOCKS.registerSimpleBlock("matrix_cost", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> visBattery = BLOCKS.registerSimpleBlock("vis_battery", () -> BlockBehaviour.Properties.of());
@@ -149,7 +149,7 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> inlay = BLOCKS.registerSimpleBlock("inlay", () -> BlockBehaviour.Properties.of());
 
 	// Machines
-	public static DeferredBlock<Block> arcaneEar = BLOCKS.registerSimpleBlock("arcane_ear", () -> BlockBehaviour.Properties.of());
+	// public static DeferredBlock<Block> arcaneEar = BLOCKS.registerSimpleBlock("arcane_ear", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> arcaneEarToggle = BLOCKS.registerSimpleBlock("arcane_ear_toggle", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockLevitator> levitator = BLOCKS.registerBlock("levitator", thaumcraft.common.blocks.devices.BlockLevitator::new, () -> BlockBehaviour.Properties.of().noOcclusion());
 	public static DeferredBlock<Block> dioptra = BLOCKS.registerSimpleBlock("dioptra", () -> BlockBehaviour.Properties.of());
@@ -287,40 +287,6 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> placeholderCauldron = BLOCKS.registerSimpleBlock("placeholder_cauldron", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> placeholderTable = BLOCKS.registerSimpleBlock("placeholder_table", () -> BlockBehaviour.Properties.of());
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockArcaneEar> arcaneEar = BLOCKS.registerBlock("arcane_ear", thaumcraft.common.blocks.devices.BlockArcaneEar::new, () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockRedstoneRelay> redstoneRelay = BLOCKS.registerBlock("redstone_relay", thaumcraft.common.blocks.devices.BlockRedstoneRelay::new, () -> BlockBehaviour.Properties.of());
 }
