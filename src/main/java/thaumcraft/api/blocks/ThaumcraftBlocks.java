@@ -1,6 +1,8 @@
 package thaumcraft.api.blocks;
 import java.util.HashMap;
 import net.minecraft.world.level.block.Block;
+import thaumcraft.common.blocks.devices.BlockHungryChest;
+import thaumcraft.common.blocks.devices.BlockVoidSiphon;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -175,7 +177,7 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> tubeFilter = BLOCKS.registerSimpleBlock("tube_filter", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeBuffer = BLOCKS.registerSimpleBlock("tube_buffer", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> centrifuge = BLOCKS.registerSimpleBlock("centrifuge", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> hungryChest = BLOCKS.registerSimpleBlock("hungry_chest", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockHungryChest> hungryChest = BLOCKS.registerBlock("hungry_chest", p -> new BlockHungryChest(p, () -> thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.HUNGRY_CHEST.get()), () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<BlockJar> jarNormal = BLOCKS.registerBlock(
 			"jar_normal",
 			BlockJar::new,
@@ -266,7 +268,7 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockCondenser> condenser = BLOCKS.registerBlock("condenser", thaumcraft.common.blocks.devices.BlockCondenser::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockCondenserLattice> condenserlattice = BLOCKS.registerBlock("condenserlattice", p -> new thaumcraft.common.blocks.devices.BlockCondenserLattice(p, false), () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockCondenserLattice> condenserlatticeDirty = BLOCKS.registerBlock("condenserlattice_dirty", p -> new thaumcraft.common.blocks.devices.BlockCondenserLattice(p, true), () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> voidSiphon = BLOCKS.registerSimpleBlock("void_siphon", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockVoidSiphon> voidSiphon = BLOCKS.registerBlock("void_siphon", BlockVoidSiphon::new, () -> BlockBehaviour.Properties.of());
 
 	// Fluids
 	public static DeferredBlock<Block> fluxGoo = BLOCKS.registerSimpleBlock("flux_goo", () -> BlockBehaviour.Properties.of());

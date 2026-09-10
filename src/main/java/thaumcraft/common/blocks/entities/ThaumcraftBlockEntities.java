@@ -14,10 +14,23 @@ import thaumcraft.common.tiles.essentia.AlembicBlockEntity;
 import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
 import thaumcraft.common.tiles.crafting.InfusionMatrixBlockEntity;
 import thaumcraft.common.tiles.devices.TileLevitator;
+import thaumcraft.common.tiles.devices.HungryChestBlockEntity;
+import thaumcraft.common.tiles.devices.VoidSiphonBlockEntity;
 import thaumcraft.common.tiles.essentia.TileTube;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
+
+
+    public static final Supplier<BlockEntityType<VoidSiphonBlockEntity>> VOID_SIPHON = BLOCK_ENTITIES.register(
+            "void_siphon",
+            () -> new BlockEntityType<>(VoidSiphonBlockEntity::new, ThaumcraftBlocks.voidSiphon.get())
+    );
+
+    public static final Supplier<BlockEntityType<HungryChestBlockEntity>> HUNGRY_CHEST = BLOCK_ENTITIES.register(
+            "hungry_chest",
+            () -> new BlockEntityType<>(HungryChestBlockEntity::new, ThaumcraftBlocks.hungryChest.get())
+    );
 
     public static final Supplier<BlockEntityType<TileGolemBuilder>> GOLEM_BUILDER = BLOCK_ENTITIES.register(
             "golem_builder",
