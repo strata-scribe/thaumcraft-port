@@ -42,7 +42,6 @@ public class ResearchJsonTest {
             "/assets/thaumcraft/research/scans.json"
         };
 
-        JsonParser parser = new JsonParser();
         int totalParsed = 0;
         List<String> parsedKeys = new ArrayList<>();
 
@@ -50,7 +49,7 @@ public class ResearchJsonTest {
             InputStream stream = getClass().getResourceAsStream(filePath);
             assertNotNull(stream, "Resource file must exist: " + filePath);
 
-            JsonObject obj = parser.parse(new InputStreamReader(stream)).getAsJsonObject();
+            JsonObject obj = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
             JsonArray entries = obj.get("entries").getAsJsonArray();
 
             for (JsonElement elem : entries) {
