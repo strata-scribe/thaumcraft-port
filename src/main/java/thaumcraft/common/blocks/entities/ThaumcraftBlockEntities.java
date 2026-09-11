@@ -109,6 +109,11 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(thaumcraft.common.tiles.essentia.TileVoidTube::new, ThaumcraftBlocks.tubeVoid.get())
     );
 
+    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.essentia.TileTubeFilter>> TUBE_FILTER = BLOCK_ENTITIES.register(
+            "tube_filter",
+            () -> new BlockEntityType<>(thaumcraft.common.tiles.essentia.TileTubeFilter::new, ThaumcraftBlocks.tubeFilter.get())
+    );
+
     /** Essentia Smelter — decomposes items into aspects (basic, thaumium, void tiers). */
     public static final Supplier<BlockEntityType<SmelterBlockEntity>> SMELTER = BLOCK_ENTITIES.register(
             "smelter",
