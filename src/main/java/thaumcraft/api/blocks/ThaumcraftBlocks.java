@@ -193,7 +193,7 @@ public class ThaumcraftBlocks {
 					.strength(0.3f, 0.5f)
 					.sound(SoundType.GLASS));
 	public static DeferredBlock<Block> jarBrain = BLOCKS.registerSimpleBlock("jar_brain", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> bellows = BLOCKS.registerSimpleBlock("bellows", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockBellows> bellows = BLOCKS.registerBlock("bellows", thaumcraft.common.blocks.devices.BlockBellows::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<BlockSmelter> smelterBasic = BLOCKS.registerBlock(
 			"smelter_basic",
 			BlockSmelter::new,
