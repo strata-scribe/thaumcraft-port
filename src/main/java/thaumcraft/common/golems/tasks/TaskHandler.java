@@ -82,7 +82,8 @@ public class TaskHandler {
         out.sort(Comparator.comparingDouble(t -> {
             BlockPos p = t.getPos();
             double distSq = (p != null) ? p.distToCenterSqr(golem.getX(), golem.getY(), golem.getZ()) : Double.MAX_VALUE;
-            return GolemSealLogic.effectiveDistance(distSq, t.getPriority());
+            long age = 300 - t.getLifespan();
+            return GolemTaskPriorityLogic.calculatePriorityScore(distSq, t.getPriority(), age);
         }));
 
         return out;
@@ -114,7 +115,8 @@ public class TaskHandler {
         out.sort(Comparator.comparingDouble(t -> {
             Entity target = t.getEntity();
             double distSq = (target != null) ? target.distanceToSqr(golem.getX(), golem.getY(), golem.getZ()) : Double.MAX_VALUE;
-            return GolemSealLogic.effectiveDistance(distSq, t.getPriority());
+            long age = 300 - t.getLifespan();
+            return GolemTaskPriorityLogic.calculatePriorityScore(distSq, t.getPriority(), age);
         }));
 
         return out;
