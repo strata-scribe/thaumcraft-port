@@ -1,20 +1,11 @@
-1. **Create `JarLogic.java`**:
-   - Extract jar logic from `JarBlockEntity` and `BlockJar` to a decoupled `JarLogic` class.
-   - Decouple it to not have Minecraft imports (e.g. `ItemStack`, `Player`, `Level`, `BlockPos` shouldn't dictate core transaction logic).
-   - Variables: `capacity`, `amount`, `aspect`, `aspectFilter`, `isVoid`.
-   - Methods for:
-     - `addToContainer(Aspect tag, int am)`: return leftover. Void jar will return 0 (infinite sink) when adding the currently locked/stored aspect.
-     - `takeFromContainer(Aspect tag, int am)`: return success boolean.
-     - `doesContainerAccept(Aspect tag)`: boolean
-     - Phial interactions logic: fill from empty phial, empty to filled phial.
-     - Labeling logic.
-2. **Update `JarBlockEntity.java`**:
-   - Remove internal fields `amount`, `aspect`, `aspectFilter`.
-   - Replaced by a `JarLogic logic` instance.
-   - Delegate `IAspectContainer` methods to `JarLogic`.
-   - Subclass or set a flag for void jars? There is only one block entity `JarBlockEntity` but two blocks `jarNormal` and `jarVoid`. Wait, let's see how `BlockJar` distinguishes them. Actually `JarBlockEntity` just needs a boolean `isVoid` that is determined upon creation. Wait, the block entity type is one, maybe we pass `isVoid` in constructor or the Block Entity looks at block state / block.
-   - We need to correctly handle void jar logic. The user request: "Warded Jar capacity (250 essentia), Void Jar infinite sink for locked aspect."
-3. **Update `BlockJar.java`**:
-   - Refactor `useItemOn` to use `JarLogic`'s transaction result, keeping UI logic (sound, dropping item).
-4. **Create `JarLogicTest.java`**:
-   - Add unit tests as requested.
+1. **Create `fundamentals.json`**:
+   - Path: `src/main/resources/assets/thaumcraft/research/fundamentals.json`.
+   - Category: "FUNDAMENTALS"
+   - Include nodes: "SALISMUNDUS", "ORES", "VISCRYSTALS", "PLANTS", "AURA".
+   - Include `warp` in the stage definition for some entries (per prompt: "Validate JSON schema: stages, icons, parents, warp ratings."). I'll add `warp: 1` to one or more stages.
+   - Include `parents` array to test parent node schema.
+2. **Update `ResearchFundamentalsJsonTest`**:
+   - Write a unit test using standard JSON parsing or directly loading via `ResearchEntry.CODEC.parse`.
+   - The test will read `fundamentals.json` and ensure "SALISMUNDUS", "ORES", "VISCRYSTALS", "PLANTS", "AURA" are present and that their stages, icons, parents, and warp fields can be safely loaded.
+3. **Pre-commit step**: Run `pre_commit_instructions` and follow them to ensure proper testing, verification, review, and reflection.
+4. **Run tests**: `./gradlew test` must pass 100%.
