@@ -11,6 +11,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import thaumcraft.common.blocks.devices.BlockLevitator;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
+import thaumcraft.common.lib.LevitatorRelayLogic;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
@@ -18,6 +21,19 @@ public class TileLevitator extends BlockEntity {
 
     public TileLevitator(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.LEVITATOR.get(), pos, state);
+    }
+
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        // Any specific levitator data can be loaded here. Currently, INVERTED is stored in the block state.
+    }
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        // Any specific levitator data can be saved here.
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, TileLevitator tile) {
@@ -33,7 +49,8 @@ public class TileLevitator extends BlockEntity {
         Direction facing = state.getValue(BlockLevitator.FACING);
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, beamBox);
         for (Entity entity : entities) {
-            applyLevitation(entity, facing);
+            boolean inverted = state.hasProperty(BlockLevitator.INVERTED) ? state.getValue(BlockLevitator.INVERTED) : false;
+            applyLevitation(entity, facing, inverted);
         }
     }
 
@@ -57,19 +74,12 @@ public class TileLevitator extends BlockEntity {
         return TileLevitatorHelper.calculateBeamBox(pos, facing, distance);
     }
 
-    public static void applyLevitation(Entity entity, Direction facing) {
-        Vec3 motion = entity.getDeltaMovement();
-        double targetMotion = facing == Direction.UP ? 0.2D : -0.2D;
+    public static void applyLevitation(Entity entity, Direction facing, boolean inverted) {
+        Vec3 currentMotion = entity.getDeltaMovement();
+        boolean isSneaking = entity instanceof Player player && player.isCrouching();
+        Vec3 newMotion = LevitatorRelayLogic.calculatePropulsion(currentMotion, facing, inverted, isSneaking);
 
-        if (entity instanceof Player player && player.isCrouching()) {
-            if (facing == Direction.UP) {
-                targetMotion = -0.1D;
-            } else {
-                targetMotion = -0.05D;
-            }
-        }
-
-        entity.setDeltaMovement(motion.x, targetMotion, motion.z);
+        entity.setDeltaMovement(newMotion);
         entity.fallDistance = 0;
     }
 }
