@@ -478,14 +478,14 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
             if (isPillar(level, pos.offset(-1, -2, -1)) && isPillar(level, pos.offset(1, -2, -1))
                     && isPillar(level, pos.offset(1, -2, 1)) && isPillar(level, pos.offset(-1, -2, 1))) {
                 if (allPillarsMatch(level, pos, pillarAncient)) {
-                    --cycleTime;
-                    costMult -= 0.1f;
-                    stabilityReplenish -= 0.1f;
+                    cycleTime += InfusionStabiliserMathLogic.getAncientPillarCycleTimeModifier();
+                    costMult += InfusionStabiliserMathLogic.getAncientPillarCostModifier();
+                    stabilityReplenish += InfusionStabiliserMathLogic.getAncientPillarStabilityModifier();
                 }
                 if (allPillarsMatch(level, pos, pillarEldritch)) {
-                    cycleTime -= 3;
-                    costMult += 0.05f;
-                    stabilityReplenish += 0.2f;
+                    cycleTime += InfusionStabiliserMathLogic.getEldritchPillarCycleTimeModifier();
+                    costMult += InfusionStabiliserMathLogic.getEldritchPillarCostModifier();
+                    stabilityReplenish += InfusionStabiliserMathLogic.getEldritchPillarStabilityModifier();
                 }
             }
 
@@ -511,8 +511,8 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
             Block pedestalAncient = ThaumcraftBlocks.pedestalAncient.get();
             for (BlockPos cc : pedestals) {
                 Block bb = level.getBlockState(cc).getBlock();
-                if (bb == pedestalEldritch) costMult += 0.0025f;
-                if (bb == pedestalAncient) costMult -= 0.01f;
+                if (bb == pedestalEldritch) costMult += InfusionStabiliserMathLogic.getPedestalEldritchCostModifier();
+                if (bb == pedestalAncient) costMult += InfusionStabiliserMathLogic.getPedestalAncientCostModifier();
             }
         } catch (Exception ignored) {}
     }
@@ -525,9 +525,8 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
     }
 
     private float calcDiminishingReturns(Block b, float base) {
-        float bb = base;
         int c = tempBlockCount.getOrDefault(b, 0);
-        if (c > 0) bb *= (float) Math.pow(0.75, c);
+        float bb = InfusionStabiliserMathLogic.calcDiminishingReturns(base, c);
         tempBlockCount.put(b, c + 1);
         return bb;
     }
