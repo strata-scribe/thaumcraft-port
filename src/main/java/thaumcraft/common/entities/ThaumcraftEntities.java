@@ -15,6 +15,7 @@ import thaumcraft.common.entities.monster.tainted.EntityTaintCrawler;
 import thaumcraft.common.entities.monster.pech.EntityPech;
 import thaumcraft.common.entities.monster.EntityEldritchCrab;
 import thaumcraft.common.entities.monster.EntityInhabitedZombie;
+import thaumcraft.common.entities.projectile.EntityFocusRift;
 
 public class ThaumcraftEntities {
 
@@ -69,5 +70,14 @@ public class ThaumcraftEntities {
                             .sized(0.6f, 1.95f)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE,
                                     Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "inhabited_zombie"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityFocusRift>> FOCUS_RIFT =
+            ENTITIES.register("focus_rift", () ->
+                    EntityType.Builder.<EntityFocusRift>of(EntityFocusRift::new, MobCategory.MISC)
+                            .sized(1.0f, 1.0f)
+                            .clientTrackingRange(4)
+                            .updateInterval(10)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                                    Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "focus_rift"))));
 }
 

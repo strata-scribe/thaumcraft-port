@@ -109,6 +109,7 @@ public class ItemFocus extends Item {
         register(FocusMediumProjectile.class, "projectile", 0x40A0C0);
         register(FocusMediumPlanar.class, "planar", 0x808060);
         register(FocusMediumMine.class, "mine", 0xA04020);
+        register(FocusMediumRift.class, "rift", 0x330066);
 
         register(FocusEffectFire.class, "fire", 0xE05010);
         register(FocusEffectFrost.class, "frost", 0x10A0E0);
