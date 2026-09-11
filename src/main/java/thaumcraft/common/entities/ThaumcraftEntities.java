@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import thaumcraft.Thaumcraft;
 import thaumcraft.common.entities.monster.boss.EntityFluxRift;
 import thaumcraft.common.entities.monster.tainted.EntityTaintSeed;
+import thaumcraft.common.entities.monster.pech.EntityPech;
 
 public class ThaumcraftEntities {
 
@@ -29,5 +30,12 @@ public class ThaumcraftEntities {
                             .sized(1.0f, 1.0f)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE,
                                     Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "taint_seed"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityPech>> PECH =
+            ENTITIES.register("pech", () ->
+                    EntityType.Builder.<EntityPech>of(EntityPech::new, MobCategory.MONSTER)
+                            .sized(0.6f, 1.5f)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                                    Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "pech"))));
 }
 
