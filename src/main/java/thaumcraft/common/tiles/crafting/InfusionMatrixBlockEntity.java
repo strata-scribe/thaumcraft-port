@@ -348,10 +348,10 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
     private void handleInstabilityEvent(Level level, BlockPos pos) {
         int event = level.getRandom().nextInt(6);
         switch (event) {
-            case 0 -> ejectRandomPedestalItem(level);
+            case 0 -> ejectRandomPedestalItem(level, pos);
             case 1 -> zapNearbyEntity(level, pos);
             case 2, 3 -> {} // placeholder for warp / harm
-            case 4 -> ejectRandomPedestalItem(level);
+            case 4 -> ejectRandomPedestalItem(level, pos);
             case 5 -> level.explode(null,
                     pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
                     1.5f + level.getRandom().nextFloat(),
@@ -359,15 +359,33 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
         }
     }
 
-    private void ejectRandomPedestalItem(Level level) {
+    private void ejectRandomPedestalItem(Level level, BlockPos matrixPos) {
+        if (!thaumcraft.common.lib.crafting.InfusionDisplacementLogic.shouldKnockoff(
+                this.recipeInstability, level.getRandom().nextDouble())) {
+            return;
+        }
+
         for (int retries = 0; retries < 25 && !pedestals.isEmpty(); ++retries) {
             BlockPos cc = pedestals.get(level.getRandom().nextInt(pedestals.size()));
             BlockEntity te = level.getBlockEntity(cc);
             if (te instanceof PedestalBlockEntity ped && ped.hasItem()) {
-                net.minecraft.world.Containers.dropItemStack(level,
-                        cc.getX() + 0.5, cc.getY() + 1.0, cc.getZ() + 0.5,
-                        ped.getItem());
+                ItemStack item = ped.getItem().copy();
                 ped.setItem(ItemStack.EMPTY);
+
+                double dx = cc.getX() - matrixPos.getX();
+                double dz = cc.getZ() - matrixPos.getZ();
+
+                double randX = (level.getRandom().nextDouble() - 0.5) * 2;
+                double randY = level.getRandom().nextDouble();
+                double randZ = (level.getRandom().nextDouble() - 0.5) * 2;
+
+                double[] vel = thaumcraft.common.lib.crafting.InfusionDisplacementLogic.generateLaunchTrajectory(
+                        dx, dz, randX, randY, randZ);
+
+                net.minecraft.world.entity.item.ItemEntity entity = new net.minecraft.world.entity.item.ItemEntity(
+                        level, cc.getX() + 0.5, cc.getY() + 1.0, cc.getZ() + 0.5, item);
+                entity.setDeltaMovement(vel[0], vel[1], vel[2]);
+                level.addFreshEntity(entity);
                 return;
             }
         }
