@@ -1,0 +1,12 @@
+1. **Add sapling collection logic to `SealLumberjackLogic`**:
+   - Update `SealLumberjackLogic.java` using `replace_with_git_merge_diff`.
+   - Update the `BlockValidator` interface with `isSapling`.
+   - Add a method `scanForSaplings` analogous to `scanForLogs`.
+2. **Update tests for sapling collection**:
+   - Add test `testScanForSaplings` in `SealLumberjackLogicTest.java`.
+3. **Run tests**:
+   - Run `./gradlew test` to ensure new tests pass.
+4. **Complete pre-commit steps**:
+   - Call code review and complete memory recording.
+5. **Submit changes**:
+   - Submit the code.
