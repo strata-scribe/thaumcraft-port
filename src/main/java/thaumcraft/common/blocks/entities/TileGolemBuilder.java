@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import thaumcraft.api.golems.EnumGolemTrait;
 import thaumcraft.api.golems.parts.*;
+import thaumcraft.common.golems.GolemBuilderLogic;
 
 public class TileGolemBuilder extends BlockEntity {
 
@@ -24,8 +25,11 @@ public class TileGolemBuilder extends BlockEntity {
     }
 
     public void startCrafting() {
-        this.isCrafting = true;
-        this.constructionTime = 0;
+        if (GolemBuilderLogic.validateParts(material, head, arm, leg, addon)) {
+            this.isCrafting = true;
+            this.constructionTime = 0;
+            this.maxConstructionTime = GolemBuilderLogic.getBuildTime(material);
+        }
     }
 
     public void tick(Level level, BlockPos pos, BlockState state) {
@@ -119,4 +123,12 @@ public class TileGolemBuilder extends BlockEntity {
     public int getConstructionTime() { return constructionTime; }
     public int getMaxConstructionTime() { return maxConstructionTime; }
     public boolean isCrafting() { return isCrafting; }
+
+    public int getVisCost() {
+        return GolemBuilderLogic.getVisCost(material, head, arm, leg, addon);
+    }
+
+    public int getClayCost() {
+        return GolemBuilderLogic.getClayCost(material, head, arm, leg, addon);
+    }
 }
