@@ -48,8 +48,8 @@ public class EntityTaintacle extends Monster implements ITaintedMob {
     }
 
     @Override
-    protected double getMeleeAttackRangeSqr(LivingEntity entity) {
-        return 36.0D; // 6.0 squared for extended melee reach
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return this.distanceToSqr(target) <= 36.0D;
     }
 
     @Override
