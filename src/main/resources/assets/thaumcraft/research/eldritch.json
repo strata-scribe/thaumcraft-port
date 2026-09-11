@@ -1,97 +1,274 @@
 {
-    "entries" :[
+    "entries": [
         {
-            "key": "BASEELDRITCH",    
+            "key": "BASEELDRITCH",
             "name": "research.BASEELDRITCH.title",
-            "icons": [ "thaumcraft:void_seed" ],
-            "category": "ELDRITCH", "location": [ 0,0 ], 
-            "parents": [ "METALLURGY", "UNLOCKELDRITCH" ],        
-            "meta": [ "ROUND" ],        
+            "icons": [
+                "thaumcraft:void_seed"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                0,
+                0
+            ],
+            "parents": [
+                "METALLURGY",
+                "UNLOCKELDRITCH"
+            ],
+            "meta": [
+                "ROUND"
+            ],
             "stages": [
-                    {
-                        "text": "research.BASEELDRITCH.stage.1",
-                        "required_knowledge":["THEORY;BASICS;1","THEORY;ALCHEMY;1","THEORY;ELDRITCH;1"],
-                        "warp": 2
-                    },
-                    {
-                        "text": "research.BASEELDRITCH.stage.2",  
-                        "recipes": ["thaumcraft:voidingot","thaumcraft:void_stuff"]         
-                    }
-                ]
-        },
-        {
-        "key": "VOIDSIPHON",    
-        "name": "research.VOIDSIPHON.title",
-        "icons": [ "thaumcraft:void_siphon" ],
-        "category": "ELDRITCH", "location": [ 3,0 ], 
-        "parents": [ "BASEELDRITCH", "INFUSION" ],    
-        "stages": [
                 {
-                    "text": "research.VOIDSIPHON.stage.1",  
-                    "required_knowledge":["OBSERVATION;ELDRITCH;1","THEORY;ELDRITCH;1"],
-                    "warp": 1
+                    "text": "research.BASEELDRITCH.stage.1",
+                    "required_knowledge": [
+                        "THEORY;BASICS;1",
+                        "THEORY;ALCHEMY;1",
+                        "THEORY;ELDRITCH;1"
+                    ],
+                    "warp": 2
                 },
                 {
-                    "text": "research.VOIDSIPHON.stage.2",  
-                    "recipes": ["thaumcraft:VoidSiphon"]
+                    "text": "research.BASEELDRITCH.stage.2",
+                    "recipes": [
+                        "thaumcraft:voidingot",
+                        "thaumcraft:void_stuff"
+                    ]
                 }
             ]
         },
         {
-        "key": "VOIDSEERPEARL",    
-        "name": "research.VOIDSEERPEARL.title",
-        "icons": [ "thaumcraft:voidseer_charm" ],
-        "category": "ELDRITCH", "location": [ -3,0 ], 
-        "parents": [ "BASEELDRITCH", "CURIOSITYBAND" ],    
-        "stages": [
+            "key": "VOIDSIPHON",
+            "name": "research.VOIDSIPHON.title",
+            "icons": [
+                "thaumcraft:void_siphon"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                3,
+                0
+            ],
+            "parents": [
+                "BASEELDRITCH",
+                "INFUSION"
+            ],
+            "stages": [
                 {
-                    "text": "research.VOIDSEERPEARL.stage.1",  
-                    "required_knowledge":["OBSERVATION;ELDRITCH;1","THEORY;ELDRITCH;1"],
+                    "text": "research.VOIDSIPHON.stage.1",
+                    "required_knowledge": [
+                        "OBSERVATION;ELDRITCH;1",
+                        "THEORY;ELDRITCH;1"
+                    ],
+                    "warp": 1
+                },
+                {
+                    "text": "research.VOIDSIPHON.stage.2",
+                    "recipes": [
+                        "thaumcraft:VoidSiphon"
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "VOIDSEERPEARL",
+            "name": "research.VOIDSEERPEARL.title",
+            "icons": [
+                "thaumcraft:voidseer_charm"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                -3,
+                0
+            ],
+            "parents": [
+                "BASEELDRITCH",
+                "CURIOSITYBAND"
+            ],
+            "stages": [
+                {
+                    "text": "research.VOIDSEERPEARL.stage.1",
+                    "required_knowledge": [
+                        "OBSERVATION;ELDRITCH;1",
+                        "THEORY;ELDRITCH;1"
+                    ],
                     "warp": 3
                 },
                 {
-                    "text": "research.VOIDSEERPEARL.stage.2",  
-                    "recipes": ["thaumcraft:VoidseerPearl"]
+                    "text": "research.VOIDSEERPEARL.stage.2",
+                    "recipes": [
+                        "thaumcraft:VoidseerPearl"
+                    ]
                 }
             ]
         },
         {
-        "key": "VOIDROBEARMOR",    
-        "name": "research.VOIDROBEARMOR.title",
-        "icons": [ "thaumcraft:void_robe_helm" ],
-        "category": "ELDRITCH", "location": [ 0,3 ], 
-        "parents": [ "BASEELDRITCH", "ARMORFORTRESS" ],    
-        "stages": [
+            "key": "VOIDROBEARMOR",
+            "name": "research.VOIDROBEARMOR.title",
+            "icons": [
+                "thaumcraft:void_robe_helm"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                0,
+                3
+            ],
+            "parents": [
+                "BASEELDRITCH",
+                "ARMORFORTRESS"
+            ],
+            "stages": [
                 {
-                    "text": "research.VOIDROBEARMOR.stage.1",  
-                    "required_knowledge":["OBSERVATION;ELDRITCH;1","THEORY;ELDRITCH;1"],
+                    "text": "research.VOIDROBEARMOR.stage.1",
+                    "required_knowledge": [
+                        "OBSERVATION;ELDRITCH;1",
+                        "THEORY;ELDRITCH;1"
+                    ],
                     "warp": 1
                 },
                 {
-                    "text": "research.VOIDROBEARMOR.stage.2",  
-                    "recipes": ["thaumcraft:VoidRobeHelm","thaumcraft:VoidRobeChest","thaumcraft:VoidRobeLegs"]
+                    "text": "research.VOIDROBEARMOR.stage.2",
+                    "recipes": [
+                        "thaumcraft:VoidRobeHelm",
+                        "thaumcraft:VoidRobeChest",
+                        "thaumcraft:VoidRobeLegs"
+                    ]
                 }
             ]
         },
         {
-        "key": "PRIMALCRUSHER",    
-        "name": "research.PRIMALCRUSHER.title",
-        "icons": [ "thaumcraft:primal_crusher" ],
-        "category": "ELDRITCH", "location": [ 0,-3 ], 
-        "parents": [ "BASEELDRITCH", "ELEMENTALTOOLS" ],    
-        "stages": [
+            "key": "PRIMALCRUSHER",
+            "name": "research.PRIMALCRUSHER.title",
+            "icons": [
+                "thaumcraft:primal_crusher"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                0,
+                -3
+            ],
+            "parents": [
+                "BASEELDRITCH",
+                "ELEMENTALTOOLS"
+            ],
+            "stages": [
                 {
-                    "text": "research.PRIMALCRUSHER.stage.1",  
-                    "required_knowledge":["OBSERVATION;ELDRITCH;1","THEORY;ELDRITCH;1"],
+                    "text": "research.PRIMALCRUSHER.stage.1",
+                    "required_knowledge": [
+                        "OBSERVATION;ELDRITCH;1",
+                        "THEORY;ELDRITCH;1"
+                    ],
                     "warp": 1
                 },
                 {
-                    "text": "research.PRIMALCRUSHER.stage.2",  
-                    "recipes": ["thaumcraft:PrimalCrusher"]
+                    "text": "research.PRIMALCRUSHER.stage.2",
+                    "recipes": [
+                        "thaumcraft:PrimalCrusher"
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "WARP",
+            "name": "research.WARP.title",
+            "icons": [
+                "thaumcraft:textures/research/r_warp.png"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                -1,
+                1
+            ],
+            "meta": [
+                "ROUND",
+                "HIDDEN"
+            ],
+            "stages": [
+                {
+                    "text": "research.WARP.stage.1",
+                    "recipes": [
+                        "thaumcraft:sanitychecker"
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "CrimsonRites",
+            "name": "research.CrimsonRites.title",
+            "icons": [
+                "thaumcraft:curio;1;6"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                -3,
+                1
+            ],
+            "parents": [
+                "!CrimsonCultist"
+            ],
+            "meta": [
+                "ROUND",
+                "HIDDEN",
+                "REVERSE"
+            ],
+            "stages": [
+                {
+                    "text": "research.CrimsonRites.stage.1",
+                    "required_item": [
+                        "thaumcraft:curio;1;6"
+                    ]
+                },
+                {
+                    "text": "research.CrimsonRites.stage.2"
+                }
+            ]
+        },
+        {
+            "key": "ELDRITCHEYE",
+            "name": "research.ELDRITCHEYE.title",
+            "icons": [
+                "thaumcraft:eldritch_eye"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                -2,
+                1
+            ],
+            "parents": [
+                "BASEELDRITCH"
+            ],
+            "stages": [
+                {
+                    "text": "research.ELDRITCHEYE.stage.1",
+                    "required_knowledge": [
+                        "OBSERVATION;ELDRITCH;1"
+                    ],
+                    "warp": 1
+                }
+            ]
+        },
+        {
+            "key": "OUTERLANDS",
+            "name": "research.OUTERLANDS.title",
+            "icons": [
+                "thaumcraft:void_seed"
+            ],
+            "category": "ELDRITCH",
+            "location": [
+                -4,
+                1
+            ],
+            "parents": [
+                "BASEELDRITCH"
+            ],
+            "stages": [
+                {
+                    "text": "research.OUTERLANDS.stage.1",
+                    "required_knowledge": [
+                        "OBSERVATION;ELDRITCH;1"
+                    ],
+                    "warp": 2
                 }
             ]
         }
-        
     ]
 }
-    
