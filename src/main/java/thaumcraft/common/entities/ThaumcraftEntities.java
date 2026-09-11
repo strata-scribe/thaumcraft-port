@@ -10,6 +10,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import thaumcraft.Thaumcraft;
 import thaumcraft.common.entities.monster.boss.EntityFluxRift;
 import thaumcraft.common.entities.monster.tainted.EntityTaintSeed;
+import thaumcraft.common.entities.monster.tainted.EntityTaintacle;
+import thaumcraft.common.entities.monster.tainted.EntityTaintCrawler;
 import thaumcraft.common.entities.monster.pech.EntityPech;
 
 public class ThaumcraftEntities {
@@ -37,5 +39,19 @@ public class ThaumcraftEntities {
                             .sized(0.6f, 1.5f)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE,
                                     Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "pech"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityTaintacle>> TAINTACLE =
+            ENTITIES.register("taintacle", () ->
+                    EntityType.Builder.<EntityTaintacle>of(EntityTaintacle::new, MobCategory.MONSTER)
+                            .sized(0.8f, 3.0f)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                                    Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "taintacle"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityTaintCrawler>> TAINT_CRAWLER =
+            ENTITIES.register("taint_crawler", () ->
+                    EntityType.Builder.<EntityTaintCrawler>of(EntityTaintCrawler::new, MobCategory.MONSTER)
+                            .sized(0.5f, 0.4f)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                                    Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "taint_crawler"))));
 }
 

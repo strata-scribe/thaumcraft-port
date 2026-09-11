@@ -55,6 +55,7 @@ public class Thaumcraft {
         thaumcraft.common.entities.ThaumcraftEntities.ENTITIES.register(modEventBus);
         thaumcraft.common.container.ThaumcraftMenus.MENU_TYPES.register(modEventBus);
 
+        modEventBus.addListener(thaumcraft.common.entities.ThaumcraftEntityEvents::onEntityAttributeCreation);
         modEventBus.addListener(this::addCreative);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
