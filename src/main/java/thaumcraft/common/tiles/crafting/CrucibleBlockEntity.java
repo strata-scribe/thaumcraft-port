@@ -41,7 +41,7 @@ import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
  *         <li>Otherwise → item's aspects dissolved into the aspect pool.</li>
  *       </ul>
  *   </li>
- *   <li>If aspects exceed {@link #MAX_ASPECTS} or the {@code spillCounter} reaches 100 → one
+ *   <li>If aspects exceed {@link #MAX_ASPECTS} or 400 ticks pass without crafting while boiling → one
  *       random aspect is purged to the aura as flux.</li>
  * </ol>
  *
@@ -77,10 +77,10 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
     private AspectList aspects = new AspectList();
 
     /**
-     * Ticks since last spill.  When this reaches 100 on a boiling crucible,
+     * Ticks since last craft. Used for decay logic,
      * one random aspect is spilled to the aura.
      */
-    private long spillCounter = -100L;
+    private long ticksWithoutCrafting = 0L;
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -104,8 +104,6 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
     }
 
     private void serverTick(Level level, BlockPos pos) {
-        spillCounter++;
-
         // --- Heat logic ---
         short prevHeat = heat;
         BlockState below = level.getBlockState(pos.below());
@@ -134,9 +132,14 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
         if (aspects.visSize() > MAX_ASPECTS) {
             spillRandom(level, pos);
         }
-        if (spillCounter >= 100L && heat > 150) {
-            spillRandom(level, pos);
-            spillCounter = 0L;
+
+        if (heat > 150 && aspects.visSize() > 0) {
+            ticksWithoutCrafting++;
+            if (CrucibleDecayLogic.shouldDecayThisTick(ticksWithoutCrafting)) {
+                spillRandom(level, pos);
+            }
+        } else {
+            ticksWithoutCrafting = 0L;
         }
     }
 
@@ -202,7 +205,7 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
                 aspects = recipe.removeMatching(aspects);
                 water = Math.max(0, water - WATER_PER_CRAFT);
                 ejectItem(output);
-                spillCounter = -250L;
+                ticksWithoutCrafting = 0L;
                 crafted = true;
                 item.shrink(1);
             } else {
@@ -213,7 +216,7 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
                         aspects.add(tag, objectAspects.getAmount(tag));
                     }
                     dissolved = true;
-                    spillCounter = -150L;
+                    ticksWithoutCrafting = 0L;
                     item.shrink(1);
                 }
             }
@@ -287,8 +290,17 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
         Aspect[] arr = aspects.getAspects();
         Aspect tag = arr[level.getRandom().nextInt(arr.length)];
         aspects.remove(tag, 1);
-        // Aspect.FLUX not yet accessible in port — treat all as minor pollution
-        AuraHelper.polluteAura(level, pos, 0.25f, true);
+
+        if (CrucibleDecayLogic.shouldSpillAsGoo(level.getRandom().nextFloat())) {
+            BlockPos abovePos = pos.above();
+            if (level.getBlockState(abovePos).isAir()) {
+                level.setBlockAndUpdate(abovePos, thaumcraft.api.blocks.ThaumcraftBlocks.fluxGoo.get().defaultBlockState());
+            } else {
+                AuraHelper.polluteAura(level, pos, CrucibleDecayLogic.getAuraFluxPollution(), true);
+            }
+        } else {
+            AuraHelper.polluteAura(level, pos, CrucibleDecayLogic.getAuraFluxPollution(), true);
+        }
         setChanged();
     }
 
