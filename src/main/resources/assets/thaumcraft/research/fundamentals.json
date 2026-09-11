@@ -1,0 +1,77 @@
+{
+    "entries": [
+        {
+            "key": "SALISMUNDUS",
+            "name": "research.SALISMUNDUS.title",
+            "icons": [ "thaumcraft:salis_mundus" ],
+            "category": "FUNDAMENTALS",
+            "location": [ 0,0 ],
+            "meta": [ "ROUND","SPIKY" ],
+            "stages": [
+                {
+                    "text": "research.SALISMUNDUS.stage.1",
+                    "required_craft":["thaumcraft:salis_mundus"],
+                    "recipes": ["thaumcraft:salis_mundus"]
+                }
+            ]
+        },
+        {
+            "key": "ORES",
+            "name": "research.ORES.title",
+            "icons": [ "thaumcraft:amber" ],
+            "category": "FUNDAMENTALS",
+            "location": [ 2,0 ],
+            "parents": [ "SALISMUNDUS" ],
+            "meta": [ "ROUND" ],
+            "stages": [
+                {
+                    "text": "research.ORES.stage.1",
+                    "warp": 1
+                }
+            ]
+        },
+        {
+            "key": "VISCRYSTALS",
+            "name": "research.VISCRYSTALS.title",
+            "icons": [ "thaumcraft:crystal_essence" ],
+            "category": "FUNDAMENTALS",
+            "location": [ -2,0 ],
+            "parents": [ "SALISMUNDUS" ],
+            "meta": [ "ROUND" ],
+            "stages": [
+                {
+                    "text": "research.VISCRYSTALS.stage.1"
+                }
+            ]
+        },
+        {
+            "key": "PLANTS",
+            "name": "research.PLANTS.title",
+            "icons": [ "minecraft:sapling" ],
+            "category": "FUNDAMENTALS",
+            "location": [ 0,2 ],
+            "parents": [ "SALISMUNDUS" ],
+            "meta": [ "ROUND" ],
+            "stages": [
+                {
+                    "text": "research.PLANTS.stage.1"
+                }
+            ]
+        },
+        {
+            "key": "AURA",
+            "name": "research.AURA.title",
+            "icons": [ "thaumcraft:vis_resonator" ],
+            "category": "FUNDAMENTALS",
+            "location": [ 0,-2 ],
+            "parents": [ "SALISMUNDUS" ],
+            "meta": [ "ROUND","SPIKY" ],
+            "stages": [
+                {
+                    "text": "research.AURA.stage.1",
+                    "warp": 2
+                }
+            ]
+        }
+    ]
+}
