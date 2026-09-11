@@ -14,6 +14,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<net.minecraft.world.item.BlockItem> jarNormal = ITEMS.registerSimpleBlockItem("jar_normal", thaumcraft.api.blocks.ThaumcraftBlocks.jarNormal);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> jarVoid = ITEMS.registerSimpleBlockItem("jar_void", thaumcraft.api.blocks.ThaumcraftBlocks.jarVoid);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalArcaneItem = ITEMS.registerSimpleBlockItem("pedestal_arcane", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalArcane);
+    public static final DeferredItem<net.minecraft.world.item.BlockItem> tubeVoidItem = ITEMS.registerSimpleBlockItem("tube_void", thaumcraft.api.blocks.ThaumcraftBlocks.tubeVoid);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalAncientItem = ITEMS.registerSimpleBlockItem("pedestal_ancient", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalAncient);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> pedestalEldritchItem = ITEMS.registerSimpleBlockItem("pedestal_eldritch", thaumcraft.api.blocks.ThaumcraftBlocks.pedestalEldritch);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> infusionMatrixItem = ITEMS.registerSimpleBlockItem("infusion_matrix", thaumcraft.api.blocks.ThaumcraftBlocks.infusionMatrix);
