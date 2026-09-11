@@ -17,6 +17,7 @@ import thaumcraft.common.tiles.devices.TileLevitator;
 import thaumcraft.common.tiles.devices.HungryChestBlockEntity;
 import thaumcraft.common.tiles.devices.VoidSiphonBlockEntity;
 import thaumcraft.common.tiles.essentia.TileTube;
+import thaumcraft.common.tiles.essentia.CentrifugeBlockEntity;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
@@ -119,6 +120,11 @@ public class ThaumcraftBlockEntities {
     public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.TileCondenser>> CONDENSER = BLOCK_ENTITIES.register(
             "condenser",
             () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.TileCondenser::new, ThaumcraftBlocks.condenser.get())
+    );
+
+    public static final Supplier<BlockEntityType<CentrifugeBlockEntity>> CENTRIFUGE = BLOCK_ENTITIES.register(
+            "centrifuge",
+            () -> new BlockEntityType<>(CentrifugeBlockEntity::new, ThaumcraftBlocks.centrifuge.get())
     );
 
 }
