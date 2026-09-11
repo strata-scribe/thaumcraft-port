@@ -374,12 +374,8 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
     }
 
     private void zapNearbyEntity(Level level, BlockPos pos) {
-        List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class,
-                new AABB(pos).inflate(10.0));
-        if (!targets.isEmpty()) {
-            LivingEntity target = targets.get(level.getRandom().nextInt(targets.size()));
-            target.hurt(level.damageSources().magic(), 4 + level.getRandom().nextInt(4));
-        }
+        // Delegate to the new hazard logic system
+        InfusionHazardLightningLogic.executeHazard(level, pos, recipeInstability, countDelay);
     }
 
     // -------------------------------------------------------------------------
