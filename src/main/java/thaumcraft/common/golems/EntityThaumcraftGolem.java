@@ -52,55 +52,30 @@ public class EntityThaumcraftGolem extends PathfinderMob implements IGolemAPI {
         }
     }
 
-    public static class CalculatedAttributes {
-        public double maxHealth = 10.0D;
-        public double armor = 0.0D;
-        public double speed = 0.3D;
-        public double damage = 1.0D;
-        public double knockbackRes = 0.0D;
-    }
-
-    // Extracted for unit testing
-    public static CalculatedAttributes calculateAttributes(GolemProperties properties, String[] traitNames) {
-        CalculatedAttributes attr = new CalculatedAttributes();
+    public void updateAttributesFromProperties() {
+        String materialKey = "";
+        int matHealthMod = 0;
+        int matArmorMod = 0;
+        int matDamageMod = 0;
 
         if (properties.getMaterial() != null) {
-            attr.maxHealth += properties.getMaterial().healthMod;
-            attr.armor += properties.getMaterial().armor;
-            attr.damage += properties.getMaterial().damage;
+            materialKey = properties.getMaterial().key;
+            matHealthMod = properties.getMaterial().healthMod;
+            matArmorMod = properties.getMaterial().armor;
+            matDamageMod = properties.getMaterial().damage;
         }
 
         Set<String> traits = new HashSet<>();
-        if (traitNames != null) {
-            for (String t : traitNames) traits.add(t);
-        } else {
+        if (properties.getTraits() != null) {
             for (EnumGolemTrait t : properties.getTraits()) {
-                traits.add(t.name().toLowerCase());
+                if (t != null) {
+                    traits.add(t.name().toLowerCase());
+                }
             }
         }
 
-        if (traits.contains("light")) {
-            attr.speed *= 1.2;
-        }
-        if (traits.contains("fragile")) {
-            attr.maxHealth *= 0.75;
-        }
-        if (traits.contains("heavy")) {
-            attr.speed *= 0.8;
-            attr.knockbackRes += 0.5;
-        }
-        if (traits.contains("armored")) {
-            attr.armor += 4;
-        }
-        if (traits.contains("brutal")) {
-            attr.damage += 2;
-        }
-
-        return attr;
-    }
-
-    public void updateAttributesFromProperties() {
-        CalculatedAttributes calc = calculateAttributes(properties, null);
+        GolemMaterialScalingLogic.CalculatedAttributes calc =
+                GolemMaterialScalingLogic.calculateAttributes(materialKey, matHealthMod, matArmorMod, matDamageMod, traits);
 
         if (this.getAttribute(Attributes.MAX_HEALTH) != null) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(calc.maxHealth);
