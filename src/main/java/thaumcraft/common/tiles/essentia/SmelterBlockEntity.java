@@ -7,6 +7,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aura.AuraHelper;
@@ -14,6 +16,9 @@ import thaumcraft.api.blocks.ThaumcraftBlocks;
 import thaumcraft.api.items.ThaumcraftItems;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.blocks.essentia.SmelterTier;
+import thaumcraft.common.tiles.essentia.logic.SmelterAuxLogic;
+
+import java.util.Random;
 
 /**
  * Block entity for the Essentia Smelter — decomposes items into their
@@ -50,6 +55,8 @@ public class SmelterBlockEntity extends BlockEntity {
     // Internal essentia buffer
     // -------------------------------------------------------------------------
 
+    private static final Random RANDOM = new Random();
+
     /** Multi-aspect buffer holding decomposed essentia awaiting alembic push. */
     private final AspectList aspects = new AspectList();
     /** Cached total essentia in the buffer. */
@@ -77,6 +84,10 @@ public class SmelterBlockEntity extends BlockEntity {
     private int tickCount = 0;
     /** Cached bellows count (-1 = not yet scanned). */
     private int bellows = 0;
+    /** Cached aux pumps count */
+    private int auxPumps = 0;
+    /** Cached vents count */
+    private int vents = 0;
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -213,7 +224,8 @@ public class SmelterBlockEntity extends BlockEntity {
      */
     public int computeSmeltTime(AspectList inputAspects) {
         int totalVis = inputAspects.visSize();
-        return Math.max(1, (int)(totalVis * 2 * (1.0f - 0.125f * bellows)));
+        int baseTime = Math.max(1, (int)(totalVis * 2 * (1.0f - 0.125f * bellows)));
+        return SmelterAuxLogic.calculateSmeltTime(baseTime, auxPumps);
     }
 
     /**
@@ -264,26 +276,14 @@ public class SmelterBlockEntity extends BlockEntity {
      * @return the number of flux points successfully vented (absorbed by vents)
      */
     private int ventFlux(Level level, BlockPos pos, int flux) {
-        int vented = 0;
-        BlockState state = level.getBlockState(pos);
-        Direction smelterFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        int vented = SmelterAuxLogic.getVentedFlux(flux, vents, RANDOM);
 
-        for (int i = 0; i < flux; i++) {
-            boolean found = false;
-            for (Direction face : Direction.Plane.HORIZONTAL) {
-                if (face == smelterFacing) continue;
-                BlockPos ventPos = pos.relative(face);
-                BlockState ventState = level.getBlockState(ventPos);
-                if (ventState.is(ThaumcraftBlocks.smelterVent.get())
-                        && ventState.getValue(BlockStateProperties.HORIZONTAL_FACING) == face.getOpposite()
-                        && level.getRandom().nextFloat() < 0.333f) {
-                    vented++;
-                    found = true;
-                    break;
-                }
-            }
-            // If no vent absorbed this point, it will go to aura (handled by caller)
+        for (int i = 0; i < vented; i++) {
+            ItemStack slag = new ItemStack(ThaumcraftItems.vitiumSlag.get());
+            ItemEntity item = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, slag);
+            level.addFreshEntity(item);
         }
+
         return vented;
     }
 
@@ -374,6 +374,29 @@ public class SmelterBlockEntity extends BlockEntity {
         // Bellows detection is deferred to TileBellows integration.
         // For now, bellows defaults to 0.
         bellows = 0;
+
+        auxPumps = 0;
+        vents = 0;
+
+        if (level == null) return;
+
+        BlockState state = getBlockState();
+        if (!state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) return;
+        Direction smelterFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+
+        for (Direction face : Direction.Plane.HORIZONTAL) {
+            if (face == smelterFacing) continue;
+            BlockPos neighbourPos = worldPosition.relative(face);
+            BlockState neighbourState = level.getBlockState(neighbourPos);
+
+            if (neighbourState.is(ThaumcraftBlocks.smelterAux.get())
+                    && neighbourState.getValue(BlockStateProperties.HORIZONTAL_FACING) == face.getOpposite()) {
+                auxPumps++;
+            } else if (neighbourState.is(ThaumcraftBlocks.smelterVent.get())
+                    && neighbourState.getValue(BlockStateProperties.HORIZONTAL_FACING) == face.getOpposite()) {
+                vents++;
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
