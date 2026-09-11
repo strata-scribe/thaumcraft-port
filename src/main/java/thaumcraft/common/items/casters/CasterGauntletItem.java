@@ -103,13 +103,21 @@ public class CasterGauntletItem extends Item implements ICaster {
         } else {
             ItemStack focus = getFocusStack(stack);
             if (!focus.isEmpty()) {
-                // If a focus is equipped, executes the focus spell package
-                FocusPackage fp = new FocusPackage(player);
-                if (focus.has(DataComponents.CUSTOM_DATA)) {
-                    CompoundTag customData = focus.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-                    fp.deserialize(customData);
+                FocusPackage fp = ItemFocus.getPackage(focus);
+                if (fp == null) {
+                    fp = new FocusPackage(player);
+                    if (focus.has(DataComponents.CUSTOM_DATA)) {
+                        CompoundTag customData = focus.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+                        fp.deserialize(customData);
+                    }
+                }
+                float visCost = thaumcraft.common.casters.FocusLogic.calculateVisCost(fp.getComplexity(), getConsumptionModifier(stack, player, false));
+                if (visCost > 0.0f && !consumeVis(stack, player, visCost, false, false)) {
+                    return InteractionResult.FAIL;
                 }
                 FocusEngine.castFocusPackage(player, fp);
+                int cooldown = thaumcraft.common.casters.FocusLogic.calculateCooldownTicks(fp.getComplexity());
+                player.getCooldowns().addCooldown(stack, cooldown);
             }
             return InteractionResult.SUCCESS;
         }
