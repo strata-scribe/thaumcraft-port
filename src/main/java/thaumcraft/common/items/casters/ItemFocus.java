@@ -121,6 +121,7 @@ public class ItemFocus extends Item {
         register(FocusModScatter.class, "scatter", 0x808080);
         register(FocusModSplitTarget.class, "split_target", 0x808080);
         register(FocusModSplitTrajectory.class, "split_trajectory", 0x808080);
+        register(FocusModChain.class, "chain", 0x808080);
     }
 
     private static void register(Class<?> clazz, String name, int color) {
