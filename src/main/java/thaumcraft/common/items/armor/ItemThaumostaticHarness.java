@@ -21,7 +21,7 @@ import thaumcraft.api.items.RechargeHelper;
  * - Vis charge consumption based on flight mode (1 charge/s hover, 2.5 charges/s flight)
  * - Emergency parachute descent damping when fuel depletes
  *
- * Mathematical rules and simulation algorithms are delegated to {@link EquipmentLogic}.
+ * Mathematical rules and simulation algorithms are delegated to {@link HarnessFlightLogic}.
  */
 public class ItemThaumostaticHarness extends Item implements IRechargable {
 
@@ -55,24 +55,28 @@ public class ItemThaumostaticHarness extends Item implements IRechargable {
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
-    public float getVisDrainPerSecond(boolean isFlying, boolean isHovering) {
-        return EquipmentLogic.calculateHarnessVisDrain(isFlying, isHovering);
+    public float getVisDrainPerSecond(boolean isFlying, boolean isHovering, boolean isSprinting) {
+        return HarnessFlightLogic.calculateHarnessVisDrain(isFlying, isHovering, isSprinting);
     }
 
-    public float getVisDrainPerTick(boolean isFlying, boolean isHovering) {
-        return EquipmentLogic.calculateHarnessDrainPerTick(isFlying, isHovering);
+    public float getVisDrainPerTick(boolean isFlying, boolean isHovering, boolean isSprinting) {
+        return HarnessFlightLogic.calculateHarnessDrainPerTick(isFlying, isHovering, isSprinting);
     }
 
     public double getAdjustedSpeed(double currentMotion, double targetSpeed) {
-        return EquipmentLogic.calculateHarnessSpeed(currentMotion, targetSpeed);
+        return HarnessFlightLogic.calculateHarnessSpeed(currentMotion, targetSpeed);
     }
 
     public double getVerticalMotion(double currentMotionY, boolean jumpHeld, boolean sneakHeld, boolean hoverActive) {
-        return EquipmentLogic.calculateHarnessVerticalMotion(currentMotionY, jumpHeld, sneakHeld, hoverActive);
+        return HarnessFlightLogic.calculateHarnessVerticalMotion(currentMotionY, jumpHeld, sneakHeld, hoverActive);
     }
 
     public double getDescentDamping(double currentMotionY) {
-        return EquipmentLogic.calculateHarnessDescentDamping(currentMotionY);
+        return HarnessFlightLogic.calculateHarnessDescentDamping(currentMotionY);
+    }
+
+    public double getForwardSpeedBoost(double currentMotion, boolean isSprinting) {
+        return HarnessFlightLogic.calculateForwardSpeedBoost(currentMotion, isSprinting);
     }
 
     @Override
@@ -87,7 +91,7 @@ public class ItemThaumostaticHarness extends Item implements IRechargable {
                 if (flying || hovering) {
                     // Drain vis periodically
                     if (player.tickCount % 20 == 0) {
-                        int drain = Math.round(EquipmentLogic.calculateHarnessVisDrain(flying, hovering));
+                        int drain = Math.round(HarnessFlightLogic.calculateHarnessVisDrain(flying, hovering, player.isSprinting()));
                         if (drain > 0) {
                             RechargeHelper.consumeCharge(itemStack, player, drain);
                         }
