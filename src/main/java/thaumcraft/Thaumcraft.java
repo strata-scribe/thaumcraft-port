@@ -42,7 +42,6 @@ public class Thaumcraft {
 
 
     public Thaumcraft(IEventBus modEventBus, ModContainer modContainer) {
-        Dump.dump();
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
         thaumcraft.api.items.ThaumcraftItems.ITEMS.register(modEventBus);
