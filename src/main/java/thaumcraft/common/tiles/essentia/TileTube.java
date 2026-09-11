@@ -14,9 +14,13 @@ public class TileTube extends BlockEntity implements IEssentiaTransport {
 
     public final TubeLogic logic;
 
+    protected TileTube(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos, BlockState state, java.util.function.Function<Runnable, TubeLogic> logicFactory) {
+        super(type, pos, state);
+        this.logic = logicFactory.apply(this::setChanged);
+    }
+
     public TileTube(BlockPos pos, BlockState state) {
-        super(ThaumcraftBlockEntities.TUBE.get(), pos, state);
-        this.logic = new TubeLogic(this::setChanged);
+        this(ThaumcraftBlockEntities.TUBE.get(), pos, state, TubeLogic::new);
     }
 
     @Override
