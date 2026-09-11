@@ -62,7 +62,32 @@ public class EntityMindSpider extends Spider {
         if (!EntityCombatLogic.canMindSpiderAttack(this.harmless)) {
             return false;
         }
-        return super.doHurtTarget(level, target);
+
+        boolean success = super.doHurtTarget(level, target);
+        if (success && target instanceof net.minecraft.world.entity.LivingEntity livingTarget) {
+            // Apply Poison and Blindness
+            livingTarget.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.POISON, MindSpiderLogic.getPoisonDurationTicks(), 0), this);
+            livingTarget.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.BLINDNESS, MindSpiderLogic.getBlindnessDurationTicks(), 0), this);
+
+            // Warp Poison effect for players
+            if (livingTarget instanceof net.minecraft.world.entity.player.Player player) {
+                thaumcraft.api.ThaumcraftApi.internalMethods.addWarpToPlayer(player, 1, thaumcraft.api.capabilities.IPlayerWarp.EnumWarpType.TEMPORARY);
+            }
+
+            // Swarm coordination: alert other spiders within radius
+            java.util.List<EntityMindSpider> spiders = level.getEntitiesOfClass(
+                    EntityMindSpider.class,
+                    this.getBoundingBox().inflate(MindSpiderLogic.getSwarmAlertRadius()));
+            for (EntityMindSpider spider : spiders) {
+                if (spider != this) {
+                    spider.setTarget(livingTarget);
+                }
+            }
+        }
+
+        return success;
     }
 
     @Override
