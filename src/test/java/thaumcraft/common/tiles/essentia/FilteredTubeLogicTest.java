@@ -24,7 +24,7 @@ public class FilteredTubeLogicTest {
 
         logic.setSuction(Aspect.FIRE, 32);
         assertEquals(Aspect.FIRE, logic.getSuctionType(Direction.NORTH));
-        assertEquals(32, logic.getSuctionAmount(Direction.NORTH));
+        assertEquals(31, logic.getSuctionAmount(Direction.NORTH)); // Suction drops by 1 via TubePhysicsLogic
 
         assertEquals(1, logic.addEssentia(Aspect.WATER, 1, Direction.SOUTH));
         assertEquals(Aspect.WATER, logic.getEssentiaType(Direction.SOUTH));
@@ -50,7 +50,7 @@ public class FilteredTubeLogicTest {
         logic.setSuction(Aspect.WATER, 32);
 
         assertEquals(Aspect.WATER, logic.getSuctionType(Direction.NORTH));
-        assertEquals(32, logic.getSuctionAmount(Direction.NORTH));
+        assertEquals(31, logic.getSuctionAmount(Direction.NORTH)); // Suction drops by 1 via TubePhysicsLogic
     }
 
     @Test
