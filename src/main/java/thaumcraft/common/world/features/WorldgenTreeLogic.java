@@ -174,42 +174,4 @@ public class WorldgenTreeLogic {
     }
 
 
-    // --- Eldritch Obelisk Procedural Geometry ---
-
-    /**
-     * Checks if relative coordinates (dx, dz) are within the dais platform bounds.
-     * Platform radius is typically 3 (for a 7x7 platform: [-3, 3] on both axes).
-     */
-    public static boolean isObeliskPlatformBlock(int dx, int dz, int platformRadius) {
-        return Math.abs(dx) <= platformRadius && Math.abs(dz) <= platformRadius;
-    }
-
-    /**
-     * Checks if relative coordinates (dx, dz) correspond to one of the 4 corner pedestals.
-     * For radius 3, pedestals are at (±3, ±3).
-     */
-    public static boolean isObeliskPedestal(int dx, int dz, int radius) {
-        return Math.abs(dx) == radius && Math.abs(dz) == radius;
-    }
-
-    /**
-     * Checks if relative coordinates (dx, dz) correspond to the central monolithic spire (0, 0).
-     */
-    public static boolean isObeliskSpireBlock(int dx, int dz) {
-        return dx == 0 && dz == 0;
-    }
-
-    /**
-     * Calculates central spire height (5 + rand3, in range [5, 7]).
-     */
-    public static int calculateObeliskSpireHeight(int rand3) {
-        return 5 + Math.abs(rand3 % 3);
-    }
-
-    /**
-     * Checks if coordinate is the apex capstone at the top of the spire.
-     */
-    public static boolean isObeliskCapstone(int dx, int dy, int dz, int spireHeight) {
-        return dx == 0 && dz == 0 && dy == spireHeight;
-    }
 }

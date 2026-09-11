@@ -27,8 +27,7 @@ public class EldritchObeliskFeature extends Feature<NoneFeatureConfiguration> {
         RandomSource random = context.random();
 
         int platformRadius = 3; // 7x7 platform
-        int rand3 = random.nextInt(3);
-        int spireHeight = WorldgenTreeLogic.calculateObeliskSpireHeight(rand3); // 5..7 blocks
+        int spireHeight = thaumcraft.common.world.logic.EldritchObeliskStructureLogic.getSpireHeight();
 
         if (origin.getY() <= level.getMinY() || origin.getY() + spireHeight + 2 >= level.getMaxY()) {
             return false;
@@ -43,10 +42,9 @@ public class EldritchObeliskFeature extends Feature<NoneFeatureConfiguration> {
         // 1. Generate 7x7 Dais Platform with glyphed stone ring
         for (int dx = -platformRadius; dx <= platformRadius; dx++) {
             for (int dz = -platformRadius; dz <= platformRadius; dz++) {
-                if (WorldgenTreeLogic.isObeliskPlatformBlock(dx, dz, platformRadius)) {
+                if (thaumcraft.common.world.logic.EldritchObeliskStructureLogic.isObeliskPlatformBlock(dx, dz, platformRadius)) {
                     BlockPos platPos = origin.offset(dx, 0, dz);
-                    boolean isGlyphRing = (Math.abs(dx) == 2 && Math.abs(dz) <= 2)
-                            || (Math.abs(dz) == 2 && Math.abs(dx) <= 2);
+                    boolean isGlyphRing = thaumcraft.common.world.logic.EldritchObeliskStructureLogic.isGlyphCarvedStone(dx, dz);
 
                     BlockState platState = isGlyphRing
                             ? ThaumcraftBlocks.stoneAncientGlyphed.get().defaultBlockState()
@@ -60,17 +58,17 @@ public class EldritchObeliskFeature extends Feature<NoneFeatureConfiguration> {
         // 2. Place 4 Corner Pedestals at (±3, ±3)
         for (int dx = -platformRadius; dx <= platformRadius; dx++) {
             for (int dz = -platformRadius; dz <= platformRadius; dz++) {
-                if (WorldgenTreeLogic.isObeliskPedestal(dx, dz, platformRadius)) {
+                if (thaumcraft.common.world.logic.EldritchObeliskStructureLogic.isObeliskPedestal(dx, dz, platformRadius)) {
                     BlockPos pedPos = origin.offset(dx, 1, dz);
                     level.setBlock(pedPos, ThaumcraftBlocks.pedestalAncient.get().defaultBlockState(), 2);
                 }
             }
         }
 
-        // 3. Generate Central Monolithic Spire (Eldritch Stone)
+        // 3. Generate Central Monolithic Spire (Obsidian)
         for (int y = 1; y <= spireHeight; y++) {
             BlockPos spirePos = origin.offset(0, y, 0);
-            level.setBlock(spirePos, ThaumcraftBlocks.eldritch.get().defaultBlockState(), 2);
+            level.setBlock(spirePos, net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState(), 2);
         }
 
         // 4. Place Apex Ancient Stone Capstone
