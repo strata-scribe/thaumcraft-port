@@ -22,17 +22,30 @@ public class BlockLevitator extends Block implements EntityBlock {
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    public static final BooleanProperty INVERTED = BooleanProperty.create("inverted");
 
     public BlockLevitator(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP).setValue(POWERED, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.UP).setValue(POWERED, false).setValue(INVERTED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED);
+        builder.add(FACING, POWERED, INVERTED);
     }
 
+
+    @Override
+    protected net.minecraft.world.InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.phys.BlockHitResult hitResult) {
+        if (player.isCrouching()) {
+            if (!level.isClientSide()) {
+                level.setBlock(pos, state.cycle(INVERTED), 3);
+                level.playSound(null, pos, net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.value(), net.minecraft.sounds.SoundSource.BLOCKS, 0.3F, 0.6F);
+            }
+            return net.minecraft.world.InteractionResult.SUCCESS;
+        }
+        return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -41,7 +54,7 @@ public class BlockLevitator extends Block implements EntityBlock {
             facing = context.getPlayer() != null && context.getPlayer().getXRot() > 0 ? Direction.UP : Direction.DOWN;
         }
         boolean powered = context.getLevel().hasNeighborSignal(context.getClickedPos());
-        return this.defaultBlockState().setValue(FACING, facing).setValue(POWERED, powered);
+        return this.defaultBlockState().setValue(FACING, facing).setValue(POWERED, powered).setValue(INVERTED, false);
     }
 
     @Override

@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
 
-public class BlockRedstoneRelay extends Block {
+public class BlockRedstoneRelay extends Block implements net.minecraft.world.level.block.EntityBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
 
@@ -80,4 +80,23 @@ public class BlockRedstoneRelay extends Block {
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return state.getValue(POWER);
     }
+
+    @Nullable
+    @Override
+    public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new thaumcraft.common.tiles.devices.TileRedstoneRelay(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends net.minecraft.world.level.block.entity.BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<T> getTicker(Level level, BlockState state, net.minecraft.world.level.block.entity.BlockEntityType<T> blockEntityType) {
+        return createTickerHelper(blockEntityType, thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.REDSTONE_RELAY.get(), thaumcraft.common.tiles.devices.TileRedstoneRelay::tick);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    protected static <E extends net.minecraft.world.level.block.entity.BlockEntity, A extends net.minecraft.world.level.block.entity.BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<A> createTickerHelper(net.minecraft.world.level.block.entity.BlockEntityType<A> type, net.minecraft.world.level.block.entity.BlockEntityType<E> targetType, net.minecraft.world.level.block.entity.BlockEntityTicker<? super E> ticker) {
+        return targetType == type ? (net.minecraft.world.level.block.entity.BlockEntityTicker<A>) ticker : null;
+    }
+
 }

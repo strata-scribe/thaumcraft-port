@@ -14,6 +14,7 @@ import thaumcraft.common.tiles.essentia.AlembicBlockEntity;
 import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
 import thaumcraft.common.tiles.crafting.InfusionMatrixBlockEntity;
 import thaumcraft.common.tiles.devices.TileLevitator;
+import thaumcraft.common.tiles.devices.TileRedstoneRelay;
 import thaumcraft.common.tiles.devices.HungryChestBlockEntity;
 import thaumcraft.common.tiles.devices.VoidSiphonBlockEntity;
 import thaumcraft.common.tiles.essentia.TileTube;
@@ -36,6 +37,12 @@ public class ThaumcraftBlockEntities {
     public static final Supplier<BlockEntityType<TileGolemBuilder>> GOLEM_BUILDER = BLOCK_ENTITIES.register(
             "golem_builder",
             () -> new BlockEntityType<>(TileGolemBuilder::new, ThaumcraftBlocks.golemBuilder.get())
+    );
+
+
+    public static final Supplier<BlockEntityType<TileRedstoneRelay>> REDSTONE_RELAY = BLOCK_ENTITIES.register(
+            "redstone_relay",
+            () -> new BlockEntityType<>(TileRedstoneRelay::new, ThaumcraftBlocks.redstoneRelay.get())
     );
 
     public static final Supplier<BlockEntityType<TileLevitator>> LEVITATOR = BLOCK_ENTITIES.register(
