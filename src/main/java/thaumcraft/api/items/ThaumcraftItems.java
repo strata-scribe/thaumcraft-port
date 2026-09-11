@@ -67,11 +67,11 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> thaumiumShovel = ITEMS.registerSimpleItem("thaumium_shovel", p -> p);
     public static final DeferredItem<Item> thaumiumPick = ITEMS.registerSimpleItem("thaumium_pick", p -> p);
     public static final DeferredItem<Item> thaumiumHoe = ITEMS.registerSimpleItem("thaumium_hoe", p -> p);
-    public static final DeferredItem<Item> elementalAxe = ITEMS.registerSimpleItem("elemental_axe", p -> p);
-    public static final DeferredItem<Item> elementalSword = ITEMS.registerSimpleItem("elemental_sword", p -> p);
-    public static final DeferredItem<Item> elementalShovel = ITEMS.registerSimpleItem("elemental_shovel", p -> p);
-    public static final DeferredItem<Item> elementalPick = ITEMS.registerSimpleItem("elemental_pick", p -> p);
-    public static final DeferredItem<Item> elementalHoe = ITEMS.registerSimpleItem("elemental_hoe", p -> p);
+    public static final DeferredItem<Item> elementalAxe = ITEMS.registerItem("elemental_axe", thaumcraft.common.items.tools.ItemElementalAxe::new, p -> p.stacksTo(1).durability(1500));
+    public static final DeferredItem<Item> elementalSword = ITEMS.registerItem("elemental_sword", thaumcraft.common.items.tools.ItemElementalSword::new, p -> p.stacksTo(1).durability(1500));
+    public static final DeferredItem<Item> elementalShovel = ITEMS.registerItem("elemental_shovel", thaumcraft.common.items.tools.ItemElementalShovel::new, p -> p.stacksTo(1).durability(1500));
+    public static final DeferredItem<Item> elementalPick = ITEMS.registerItem("elemental_pick", thaumcraft.common.items.tools.ItemElementalPickaxe::new, p -> p.stacksTo(1).durability(1500));
+    public static final DeferredItem<Item> elementalHoe = ITEMS.registerItem("elemental_hoe", thaumcraft.common.items.tools.ItemElementalHoe::new, p -> p.stacksTo(1).durability(1500));
     public static final DeferredItem<Item> voidAxe = ITEMS.registerSimpleItem("void_axe", p -> p);
     public static final DeferredItem<Item> voidSword = ITEMS.registerSimpleItem("void_sword", p -> p);
     public static final DeferredItem<Item> voidShovel = ITEMS.registerSimpleItem("void_shovel", p -> p);
