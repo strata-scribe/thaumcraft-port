@@ -15,7 +15,8 @@ import thaumcraft.api.casters.FocusPackage;
 import thaumcraft.api.casters.Trajectory;
 import thaumcraft.api.casters.FocusEngine;
 import thaumcraft.common.casters.FocusRiftLogic;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.List;
 
@@ -48,25 +49,17 @@ public class EntityFocusRift extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {
-        this.entityData.set(DURATION, compound.getInt("duration"));
-        this.entityData.set(RADIUS, compound.getFloat("radius"));
-        this.tickCounter = compound.getInt("tickCounter");
-
-        if (compound.contains("focusPackage")) {
-            this.focusPackage = new FocusPackage();
-            this.focusPackage.deserialize(compound.getCompound("focusPackage"));
-        }
+    protected void readAdditionalSaveData(ValueInput input) {
+        this.entityData.set(DURATION, input.getIntOr("duration", 20));
+        this.entityData.set(RADIUS, input.getFloatOr("radius", 4.0f));
+        this.tickCounter = input.getIntOr("tickCounter", 0);
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {
-        compound.putInt("duration", this.entityData.get(DURATION));
-        compound.putFloat("radius", this.entityData.get(RADIUS));
-        compound.putInt("tickCounter", this.tickCounter);
-        if (this.focusPackage != null) {
-            compound.put("focusPackage", this.focusPackage.serialize());
-        }
+    protected void addAdditionalSaveData(ValueOutput output) {
+        output.putInt("duration", this.entityData.get(DURATION));
+        output.putFloat("radius", this.entityData.get(RADIUS));
+        output.putInt("tickCounter", this.tickCounter);
     }
 
     @Override
@@ -94,7 +87,7 @@ public class EntityFocusRift extends Entity {
                     if (diff.lengthSqr() > 1.0E-4D) { // Safety check to prevent NaN normalize
                         Vec3 dir = diff.normalize();
                         e.setDeltaMovement(e.getDeltaMovement().add(dir.scale(velocityMag)));
-                        e.hasImpulse = true;
+                        e.hurtMarked = true;
                     }
                 }
 
@@ -106,5 +99,10 @@ public class EntityFocusRift extends Entity {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel level, net.minecraft.world.damagesource.DamageSource source, float amount) {
+        return false;
     }
 }
