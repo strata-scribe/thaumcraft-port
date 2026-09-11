@@ -32,23 +32,13 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
     // -------------------------------------------------------------------------
 
     /** Maximum essentia this jar can hold. */
-    public static final int CAPACITY = 250;
+    public static final int CAPACITY = JarLogic.CAPACITY;
 
     // -------------------------------------------------------------------------
     // State fields
     // -------------------------------------------------------------------------
 
-    /** The aspect currently stored in this jar, or {@code null} when empty. */
-    private Aspect aspect = null;
-
-    /** The amount of essentia stored (0–{@value #CAPACITY}). */
-    private int amount = 0;
-
-    /**
-     * Optional aspect filter.  When set, only this aspect is accepted.
-     * When {@code null} any single aspect can fill the jar.
-     */
-    private Aspect aspectFilter = null;
+    public final JarLogic logic;
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -56,6 +46,8 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
 
     public JarBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.JAR.get(), pos, state);
+        boolean isVoid = state.getBlock() == thaumcraft.api.blocks.ThaumcraftBlocks.jarVoid.get();
+        this.logic = new JarLogic(isVoid);
     }
 
     // -------------------------------------------------------------------------
@@ -68,22 +60,12 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
      */
     @Override
     public AspectList getAspects() {
-        AspectList list = new AspectList();
-        if (aspect != null && amount > 0) {
-            list.add(aspect, amount);
-        }
-        return list;
+        return logic.getAspects();
     }
 
     @Override
     public void setAspects(AspectList aspects) {
-        if (aspects != null && aspects.size() > 0) {
-            aspect = aspects.getAspectsSortedByAmount()[0];
-            amount = aspects.getAmount(aspect);
-        } else {
-            aspect = null;
-            amount = 0;
-        }
+        logic.setAspects(aspects);
         setChanged();
     }
 
@@ -93,7 +75,7 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
      */
     @Override
     public boolean doesContainerAccept(Aspect tag) {
-        return aspectFilter == null || tag == aspectFilter;
+        return logic.doesContainerAccept(tag);
     }
 
     /**
@@ -103,16 +85,9 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
      */
     @Override
     public int addToContainer(Aspect tag, int am) {
-        if (am == 0) return 0;
-        // Must be the same aspect already in the jar (or the jar must be empty)
-        if (aspect != null && tag != aspect) return am;
-        if (!doesContainerAccept(tag)) return am;
-
-        aspect = tag;
-        int canAdd = Math.min(am, CAPACITY - amount);
-        amount += canAdd;
-        setChanged();
-        return am - canAdd;
+        int leftover = logic.addToContainer(tag, am);
+        if (leftover != am) setChanged();
+        return leftover;
     }
 
     /**
@@ -122,14 +97,9 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
      */
     @Override
     public boolean takeFromContainer(Aspect tag, int am) {
-        if (tag != aspect || amount < am) return false;
-        amount -= am;
-        if (amount <= 0) {
-            amount = 0;
-            aspect = null;
-        }
-        setChanged();
-        return true;
+        boolean success = logic.takeFromContainer(tag, am);
+        if (success) setChanged();
+        return success;
     }
 
     /** @deprecated Jars store only one aspect; bulk removal is not supported. */
@@ -141,21 +111,21 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
 
     @Override
     public boolean doesContainerContainAmount(Aspect tag, int amt) {
-        return tag == aspect && amount >= amt;
+        return logic.doesContainerContainAmount(tag, amt);
     }
 
     @Deprecated
     @Override
     public boolean doesContainerContain(AspectList ot) {
         for (Aspect tag : ot.getAspects()) {
-            if (tag == aspect && amount > 0) return true;
+            if (logic.containerContains(tag) > 0) return true;
         }
         return false;
     }
 
     @Override
     public int containerContains(Aspect tag) {
-        return tag == aspect ? amount : 0;
+        return logic.containerContains(tag);
     }
 
     // -------------------------------------------------------------------------
@@ -164,28 +134,28 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
 
     /** @return the aspect currently stored, or {@code null} when the jar is empty. */
     public Aspect getStoredAspect() {
-        return aspect;
+        return logic.getAspect();
     }
 
     /** Directly sets the stored aspect (e.g., from labelling interaction). */
     public void setStoredAspect(Aspect aspect) {
-        this.aspect = aspect;
+        logic.setAspect(aspect);
         setChanged();
     }
 
     /** @return current stored amount (0–{@value #CAPACITY}). */
     public int getAmount() {
-        return amount;
+        return logic.getAmount();
     }
 
     /** @return the aspect filter, or {@code null} if none is set. */
     public Aspect getAspectFilter() {
-        return aspectFilter;
+        return logic.getAspectFilter();
     }
 
     /** Sets (or clears) the aspect filter. */
     public void setAspectFilter(Aspect filter) {
-        this.aspectFilter = filter;
+        logic.setAspectFilter(filter);
         setChanged();
     }
 
@@ -198,28 +168,31 @@ public class JarBlockEntity extends BlockEntity implements IAspectContainer {
         super.saveAdditional(output);
 
         // Store Aspect tag strings; omit keys entirely when null/empty
-        if (aspect != null) {
-            output.store("Aspect", com.mojang.serialization.Codec.STRING, aspect.getTag());
+        if (logic.getAspect() != null) {
+            output.store("Aspect", com.mojang.serialization.Codec.STRING, logic.getAspect().getTag());
         }
-        if (aspectFilter != null) {
-            output.store("AspectFilter", com.mojang.serialization.Codec.STRING, aspectFilter.getTag());
+        if (logic.getAspectFilter() != null) {
+            output.store("AspectFilter", com.mojang.serialization.Codec.STRING, logic.getAspectFilter().getTag());
         }
-        output.store("Amount", com.mojang.serialization.Codec.INT, amount);
+        output.store("Amount", com.mojang.serialization.Codec.INT, logic.getAmount());
     }
 
     @Override
     protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
         super.loadAdditional(input);
 
-        aspect = input.read("Aspect", com.mojang.serialization.Codec.STRING)
+        Aspect aspect = input.read("Aspect", com.mojang.serialization.Codec.STRING)
                 .map(Aspect::getAspect)
                 .orElse(null);
-        aspectFilter = input.read("AspectFilter", com.mojang.serialization.Codec.STRING)
+        Aspect aspectFilter = input.read("AspectFilter", com.mojang.serialization.Codec.STRING)
                 .map(Aspect::getAspect)
                 .orElse(null);
-        amount = input.read("Amount", com.mojang.serialization.Codec.INT).orElse(0);
-        // Guard: clamp amount to valid range
-        amount = Math.max(0, Math.min(CAPACITY, amount));
-        if (amount == 0) aspect = null;
+        int amount = input.read("Amount", com.mojang.serialization.Codec.INT).orElse(0);
+
+        logic.setAspect(aspect);
+        logic.setAspectFilter(aspectFilter);
+        logic.setAmount(amount);
+
+        if (logic.getAmount() == 0) logic.setAspect(null);
     }
 }
