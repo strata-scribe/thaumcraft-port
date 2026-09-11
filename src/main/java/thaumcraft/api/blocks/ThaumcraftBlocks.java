@@ -52,7 +52,10 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> stoneAncientTile = BLOCKS.registerSimpleBlock("stone_ancient_tile", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> stoneAncientRock = BLOCKS.registerSimpleBlock("stone_ancient_rock", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> stoneAncientDoorway = BLOCKS.registerSimpleBlock("stone_ancient_doorway", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> stoneAncientGlyphed = BLOCKS.registerSimpleBlock("stone_ancient_glyphed", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.research.BlockResearchTableAid> stoneAncientGlyphed = BLOCKS.registerBlock(
+			"stone_ancient_glyphed",
+			thaumcraft.common.blocks.research.BlockResearchTableAid::new,
+			() -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> stoneEldritchTile = BLOCKS.registerSimpleBlock("stone_eldritch_tile", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> stonePorous = BLOCKS.registerSimpleBlock("stone_porous", () -> BlockBehaviour.Properties.of());
 
@@ -193,7 +196,10 @@ public class ThaumcraftBlocks {
 					.noOcclusion()
 					.strength(0.3f, 0.5f)
 					.sound(SoundType.GLASS));
-	public static DeferredBlock<Block> jarBrain = BLOCKS.registerSimpleBlock("jar_brain", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.research.BlockResearchTableAid> jarBrain = BLOCKS.registerBlock(
+			"jar_brain",
+			thaumcraft.common.blocks.research.BlockResearchTableAid::new,
+			() -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<thaumcraft.common.blocks.devices.BlockBellows> bellows = BLOCKS.registerBlock("bellows", thaumcraft.common.blocks.devices.BlockBellows::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<BlockSmelter> smelterBasic = BLOCKS.registerBlock(
 			"smelter_basic",
