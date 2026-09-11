@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -11,20 +12,56 @@ import net.minecraft.world.phys.AABB;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectHelper;
 import thaumcraft.api.aspects.AspectList;
+import thaumcraft.api.items.ThaumcraftItems;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
+import thaumcraft.common.entities.monster.boss.EntityFluxRift;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Random;
 
 public class VoidSiphonBlockEntity extends BlockEntity {
     @Nullable
     private Aspect filterAspect = null;
+
+    private final VoidSiphonLogic logic = new VoidSiphonLogic();
+    private final Random random = new Random();
 
     public VoidSiphonBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.VOID_SIPHON.get(), pos, state);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, VoidSiphonBlockEntity blockEntity) {
+        blockEntity.logic.tick();
+
+        if (blockEntity.logic.shouldSiphon()) {
+            AABB riftAabb = new AABB(pos).inflate(8.0);
+            List<EntityFluxRift> rifts = level.getEntitiesOfClass(EntityFluxRift.class, riftAabb);
+
+            for (EntityFluxRift rift : rifts) {
+                if (!rift.isAlive()) continue;
+
+                float currentSize = rift.getRiftSize();
+                if (currentSize > 0) {
+                    float decay = blockEntity.logic.calculateDecayRate(currentSize);
+                    float newSize = Math.max(0, currentSize - decay);
+                    rift.setRiftSize(newSize);
+
+                    if (blockEntity.logic.shouldGenerateSeed(blockEntity.random, currentSize)) {
+                        ItemStack seedStack = new ItemStack(ThaumcraftItems.voidSeed.get());
+                        ItemEntity seedEntity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, seedStack);
+                        level.addFreshEntity(seedEntity);
+                    }
+
+                    if (newSize <= 0) {
+                        rift.discard();
+                    }
+                    break; // Siphon from one rift per cycle
+                }
+            }
+        }
+
+        // Original item processing logic
         if (level.getGameTime() % 20 == 0) {
             AABB aabb = new AABB(pos).inflate(3.0);
             List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, aabb);
