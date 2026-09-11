@@ -24,6 +24,18 @@ public class TubePhysicsLogic {
     }
 
     /**
+     * Calculates the backpressure drop over a single tube step.
+     * Each tube step decreases backpressure by 1.
+     * Minimum backpressure is 0.
+     *
+     * @param baseBackpressure the incoming backpressure amount
+     * @return the backpressure amount after dropping by 1
+     */
+    public static int calculateBackpressureDrop(int baseBackpressure) {
+        return Math.max(0, baseBackpressure - 1);
+    }
+
+    /**
      * Determines if suction flow can pass through a valve.
      * Valves only allow suction to flow in the opposite direction of the valve.
      * e.g., If a valve points NORTH (0), suction flows SOUTH -> NORTH. Thus, if checking if suction
@@ -52,11 +64,13 @@ public class TubePhysicsLogic {
         public final int id;
         public int suction;
         public int essentia;
+        public int backpressure;
 
         public Node(int id) {
             this.id = id;
             this.suction = 0;
             this.essentia = 0;
+            this.backpressure = 0;
         }
     }
 
@@ -114,6 +128,48 @@ public class TubePhysicsLogic {
                 for (Node node : nodes) {
                     if (node.id == entry.getKey()) {
                         node.suction = entry.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Simulates backpressure propagation across a graph of nodes.
+     *
+     * @param nodes       list of all nodes
+     * @param connections list of all connections
+     */
+    public static void simulateBackpressure(List<Node> nodes, List<Connection> connections) {
+        boolean changed = true;
+        int maxIterations = 1000;
+        int iterations = 0;
+
+        while (changed && iterations < maxIterations) {
+            changed = false;
+            iterations++;
+
+            Map<Integer, Integer> newBackpressures = new HashMap<>();
+
+            for (Connection conn : connections) {
+                // Propagate from source to target
+                if (canFlowThroughValve(conn.isValve, conn.valveDirection, conn.flowDirection)) {
+                    int propagatedBackpressure = calculateBackpressureDrop(conn.source.backpressure);
+                    if (propagatedBackpressure > conn.target.backpressure) {
+                        int currentBest = newBackpressures.getOrDefault(conn.target.id, conn.target.backpressure);
+                        if (propagatedBackpressure > currentBest) {
+                            newBackpressures.put(conn.target.id, propagatedBackpressure);
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            for (Map.Entry<Integer, Integer> entry : newBackpressures.entrySet()) {
+                for (Node node : nodes) {
+                    if (node.id == entry.getKey()) {
+                        node.backpressure = entry.getValue();
                         break;
                     }
                 }
