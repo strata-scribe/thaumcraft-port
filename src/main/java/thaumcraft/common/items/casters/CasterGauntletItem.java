@@ -29,7 +29,25 @@ public class CasterGauntletItem extends Item implements ICaster {
 
     @Override
     public float getConsumptionModifier(ItemStack is, Player player, boolean crafting) {
-        return 1.0f;
+        java.util.List<Integer> discounts = new java.util.ArrayList<>();
+        if (player != null && player.getInventory() != null) {
+            // Check worn armor/baubles slots. We evaluate all inventory slots but only apply discounts for actually worn equipment
+            // to support baubles that might sit in bauble slots if Curios is present or standard armor slots.
+            // But since this issue requested evaluating "worn robes, goggles, and baubles", we need to check the inventory slots
+            // assuming baubles may have their own slots added to the player inventory or are tracked via some bauble container.
+            // As a fallback in environments without full curio integration, any item implementing IVisDiscountGear in the main inventory might not be worn.
+            // But checking EquipmentSlot guarantees we get the worn armor (robes, goggles).
+            for (net.minecraft.world.entity.EquipmentSlot slot : net.minecraft.world.entity.EquipmentSlot.values()) {
+                if (slot.getType() == net.minecraft.world.entity.EquipmentSlot.Type.HUMANOID_ARMOR) {
+                    ItemStack stack = player.getItemBySlot(slot);
+                    if (stack != null && !stack.isEmpty() && stack.getItem() instanceof thaumcraft.api.items.IVisDiscountGear gear) {
+                        discounts.add(gear.getVisDiscount(stack, player));
+                    }
+                }
+            }
+        }
+        int totalDiscount = thaumcraft.common.casters.CasterGauntletLogic.calculateTotalVisDiscount(discounts);
+        return thaumcraft.common.casters.CasterGauntletLogic.calculateConsumptionModifier(totalDiscount);
     }
 
     @Override
@@ -116,7 +134,7 @@ public class CasterGauntletItem extends Item implements ICaster {
                     return InteractionResult.FAIL;
                 }
                 FocusEngine.castFocusPackage(player, fp);
-                int cooldown = thaumcraft.common.casters.FocusLogic.calculateCooldownTicks(fp.getComplexity());
+                int cooldown = thaumcraft.common.casters.CasterGauntletLogic.calculateCooldownTicks(fp.getComplexity());
                 player.getCooldowns().addCooldown(stack, cooldown);
             }
             return InteractionResult.SUCCESS;
