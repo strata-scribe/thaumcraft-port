@@ -39,3 +39,4 @@ run/
 !**/src/**/repo/
 *.class
 logs/
+.agents/
