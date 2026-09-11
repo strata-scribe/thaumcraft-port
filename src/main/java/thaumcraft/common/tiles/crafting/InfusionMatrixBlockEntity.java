@@ -86,7 +86,6 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
     int itemCount = 0;
 
     private ArrayList<BlockPos> problemBlocks = new ArrayList<>();
-    HashMap<Block, Integer> tempBlockCount = new HashMap<>();
     static final DecimalFormat myFormatter = new DecimalFormat("#######.##");
 
     // -------------------------------------------------------------------------
@@ -421,7 +420,6 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
     private void getSurroundings(Level level, BlockPos pos) {
         Set<Long> stabPositions = new HashSet<>();
         pedestals.clear();
-        tempBlockCount.clear();
         problemBlocks.clear();
         cycleTime = 10;
         stabilityReplenish = 0.0f;
@@ -448,42 +446,57 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
             }
 
             // Symmetry evaluation
-            while (!stabPositions.isEmpty()) {
-                Long[] posArray = stabPositions.toArray(new Long[0]);
-                if (posArray[0] == null) break;
-                long lp = posArray[0];
-                BlockPos c1 = BlockPos.of(lp);
+            InfusionSymmetryLogic symmetryLogic = new InfusionSymmetryLogic();
+            Set<InfusionSymmetryLogic.Coordinate> logicStabilisers = new HashSet<>();
+            for (Long lp : stabPositions) {
+                BlockPos bp = BlockPos.of(lp);
+                logicStabilisers.add(new InfusionSymmetryLogic.Coordinate(bp.getX(), bp.getY(), bp.getZ()));
+            }
 
-                // Mirror position across the matrix center
-                int dx = pos.getX() - c1.getX();
-                int dz = pos.getZ() - c1.getZ();
-                BlockPos c2 = new BlockPos(pos.getX() + dx, c1.getY(), pos.getZ() + dz);
+            InfusionSymmetryLogic.Coordinate center = new InfusionSymmetryLogic.Coordinate(pos.getX(), pos.getY(), pos.getZ());
 
-                Block sb1 = level.getBlockState(c1).getBlock();
-                Block sb2 = level.getBlockState(c2).getBlock();
-
-                float amt1 = 0.1f;
-                float amt2 = 0.1f;
-                if (sb1 instanceof IInfusionStabiliserExt ext1)
-                    amt1 = ext1.getStabilizationAmount(level, c1);
-                if (sb2 instanceof IInfusionStabiliserExt ext2)
-                    amt2 = ext2.getStabilizationAmount(level, c2);
-
-                if (sb1 == sb2 && amt1 == amt2) {
-                    if (sb1 instanceof IInfusionStabiliserExt ext
-                            && ext.hasSymmetryPenalty(level, c1, c2)) {
-                        stabilityReplenish -= ext.getSymmetryPenalty(level, c1);
-                        problemBlocks.add(c1);
-                    } else {
-                        stabilityReplenish += calcDiminishingReturns(sb1, amt1);
-                    }
-                } else {
-                    stabilityReplenish -= Math.max(amt1, amt2);
-                    problemBlocks.add(c1);
+            symmetryLogic.evaluateSymmetry(center, logicStabilisers, new InfusionSymmetryLogic.IWorldScannable() {
+                @Override
+                public Object getBlockType(InfusionSymmetryLogic.Coordinate coord) {
+                    BlockPos bp = new BlockPos(coord.x, coord.y, coord.z);
+                    return level.getBlockState(bp).getBlock();
                 }
 
-                stabPositions.remove(c2.asLong());
-                stabPositions.remove(lp);
+                @Override
+                public float getStabilizationAmount(InfusionSymmetryLogic.Coordinate coord) {
+                    BlockPos bp = new BlockPos(coord.x, coord.y, coord.z);
+                    Block block = level.getBlockState(bp).getBlock();
+                    if (block instanceof IInfusionStabiliserExt ext) {
+                        return ext.getStabilizationAmount(level, bp);
+                    }
+                    return 0.1f;
+                }
+
+                @Override
+                public boolean hasSymmetryPenalty(InfusionSymmetryLogic.Coordinate coord1, InfusionSymmetryLogic.Coordinate coord2) {
+                    BlockPos bp1 = new BlockPos(coord1.x, coord1.y, coord1.z);
+                    BlockPos bp2 = new BlockPos(coord2.x, coord2.y, coord2.z);
+                    Block block = level.getBlockState(bp1).getBlock();
+                    if (block instanceof IInfusionStabiliserExt ext) {
+                        return ext.hasSymmetryPenalty(level, bp1, bp2);
+                    }
+                    return false;
+                }
+
+                @Override
+                public float getSymmetryPenalty(InfusionSymmetryLogic.Coordinate coord) {
+                    BlockPos bp = new BlockPos(coord.x, coord.y, coord.z);
+                    Block block = level.getBlockState(bp).getBlock();
+                    if (block instanceof IInfusionStabiliserExt ext) {
+                        return ext.getSymmetryPenalty(level, bp);
+                    }
+                    return 0.0f;
+                }
+            });
+
+            stabilityReplenish += symmetryLogic.getStabilityReplenish();
+            for (InfusionSymmetryLogic.Coordinate c : symmetryLogic.getProblemBlocks()) {
+                problemBlocks.add(new BlockPos(c.x, c.y, c.z));
             }
 
             // Pillar type bonuses
@@ -536,13 +549,6 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
                 && level.getBlockState(matrixPos.offset(1, -2, -1)).getBlock() == pillarBlock
                 && level.getBlockState(matrixPos.offset(1, -2, 1)).getBlock() == pillarBlock
                 && level.getBlockState(matrixPos.offset(-1, -2, 1)).getBlock() == pillarBlock;
-    }
-
-    private float calcDiminishingReturns(Block b, float base) {
-        int c = tempBlockCount.getOrDefault(b, 0);
-        float bb = InfusionStabiliserMathLogic.calcDiminishingReturns(base, c);
-        tempBlockCount.put(b, c + 1);
-        return bb;
     }
 
     // -------------------------------------------------------------------------
