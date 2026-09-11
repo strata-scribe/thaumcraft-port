@@ -154,7 +154,7 @@ public class TheorycraftAidLogicTest {
         ITheorycraftAid aid = new ITheorycraftAid() {
             @Override
             public Object getAidObject() {
-                return net.minecraft.world.entity.monster.Zombie.class;
+                return Entity.class;
             }
 
             @Override
@@ -169,7 +169,7 @@ public class TheorycraftAidLogicTest {
         TheorycraftManager.registerAidBonus(testKey, "ELDRITCH", 2.0f, 0.5f);
 
         Set<Object> found = new HashSet<>();
-        found.add(net.minecraft.world.entity.monster.Zombie.class);
+        found.add(Entity.class);
 
         TheorycraftAidLogic.ScanResult result = testScanAids(found);
 
