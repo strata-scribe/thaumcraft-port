@@ -15,6 +15,7 @@ import thaumcraft.api.casters.FocusEngine;
 import thaumcraft.api.casters.FocusPackage;
 import thaumcraft.common.casters.FocusLogic;
 import thaumcraft.common.items.casters.foci.*;
+import thaumcraft.common.items.casters.foci.FocusEffectExchange;
 
 public class ItemFocus extends Item {
 
@@ -118,6 +119,7 @@ public class ItemFocus extends Item {
         register(FocusEffectHeal.class, "heal", 0xFFFFFF);
         register(FocusEffectBreak.class, "break", 0x404040);
         register(FocusEffectSpectralArrow.class, "spectral_arrow", 0xFFD700);
+        register(FocusEffectExchange.class, "exchange", 0x578357);
 
         register(FocusModScatter.class, "scatter", 0x808080);
         register(FocusModSplitTarget.class, "split_target", 0x808080);
