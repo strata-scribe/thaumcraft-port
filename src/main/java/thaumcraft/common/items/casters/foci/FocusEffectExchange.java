@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import thaumcraft.api.casters.Trajectory;
 import thaumcraft.api.casters.focus.FocusExchangeLogic;
@@ -44,7 +44,7 @@ public class FocusEffectExchange extends thaumcraft.api.casters.focus.FocusEffec
             if (player.isCrouching()) {
                 // Select block
                 if (mainHandItem != null && !mainHandItem.isEmpty()) {
-                    ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(targetState.getBlock());
+                    Identifier blockId = BuiltInRegistries.BLOCK.getKey(targetState.getBlock());
                     CompoundTag tag = mainHandItem.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
                     tag.putString("exchange_block", blockId.toString());
                     mainHandItem.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
@@ -56,9 +56,9 @@ public class FocusEffectExchange extends thaumcraft.api.casters.focus.FocusEffec
                 if (mainHandItem != null && mainHandItem.has(DataComponents.CUSTOM_DATA)) {
                     CompoundTag tag = mainHandItem.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
                     if (tag.contains("exchange_block")) {
-                        String blockIdStr = tag.getString("exchange_block");
-                        ResourceLocation blockId = ResourceLocation.parse(blockIdStr);
-                        Block savedBlock = BuiltInRegistries.BLOCK.get(blockId);
+                        String blockIdStr = tag.getString("exchange_block").orElse("");
+                        Identifier blockId = Identifier.parse(blockIdStr);
+                        Block savedBlock = BuiltInRegistries.BLOCK.getOptional(blockId).orElse(null);
 
                         if (savedBlock != null) {
                             // Find in inventory
