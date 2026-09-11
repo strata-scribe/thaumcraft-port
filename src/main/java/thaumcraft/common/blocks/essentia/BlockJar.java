@@ -75,7 +75,7 @@ public class BlockJar extends Block implements EntityBlock {
     // -------------------------------------------------------------------------
 
     /** Amount of essentia transferred per phial interaction. */
-    public static final int PHIAL_AMOUNT = 8;
+    public static final int PHIAL_AMOUNT = 10;
 
     // -------------------------------------------------------------------------
     // Constructor
@@ -148,10 +148,8 @@ public class BlockJar extends Block implements EntityBlock {
                 if (phialAspects != null && phialAspects.size() > 0) {
                     Aspect aspect = phialAspects.getAspects()[0];
                     int amt = phialAspects.getAmount(aspect);
-                    if (jar.doesContainerAccept(aspect)
-                            && (jar.getStoredAspect() == null || jar.getStoredAspect() == aspect)
-                            && jar.getAmount() + amt <= JarBlockEntity.CAPACITY) {
-                        jar.addToContainer(aspect, amt);
+
+                    if (jar.logic.tryFillFromPhial(aspect, amt) == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
                         jar.setChanged();
                         // Replace filled phial with empty phial
                         stack.shrink(1);
@@ -164,8 +162,7 @@ public class BlockJar extends Block implements EntityBlock {
             } else {
                 // Empty phial → drain from jar
                 Aspect stored = jar.getStoredAspect();
-                if (stored != null && jar.getAmount() >= PHIAL_AMOUNT) {
-                    jar.takeFromContainer(stored, PHIAL_AMOUNT);
+                if (jar.logic.tryDrainToPhial() == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
                     jar.setChanged();
                     ItemStack filledPhial = new ItemStack(ThaumcraftItems.phial.get());
                     IEssentiaContainerItem phialContainer = (IEssentiaContainerItem) ThaumcraftItems.phial.get();
@@ -182,21 +179,14 @@ public class BlockJar extends Block implements EntityBlock {
         // --- Label interaction: apply aspect filter ---
         if (heldItem == ThaumcraftItems.label.get()
                 && heldItem instanceof IEssentiaContainerItem labelContainer) {
-            if (jar.getAspectFilter() == null) {
-                AspectList labelAspects = labelContainer.getAspects(stack);
-                if (labelAspects != null && labelAspects.size() > 0) {
-                    Aspect filterAspect = labelAspects.getAspects()[0];
-                    // Only apply filter if jar is empty or already holds that aspect
-                    if (jar.getAmount() == 0 || jar.getStoredAspect() == filterAspect) {
-                        if (jar.getAmount() == 0) {
-                            jar.setStoredAspect(filterAspect);
-                        }
-                        jar.setAspectFilter(filterAspect);
-                        jar.setChanged();
-                        level.playSound(null, pos, SoundEvents.BOOK_PAGE_TURN,
-                                SoundSource.BLOCKS, 0.4f, 1.0f);
-                        return InteractionResult.CONSUME;
-                    }
+            AspectList labelAspects = labelContainer.getAspects(stack);
+            if (labelAspects != null && labelAspects.size() > 0) {
+                Aspect filterAspect = labelAspects.getAspects()[0];
+                if (jar.logic.applyLabel(filterAspect) == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
+                    jar.setChanged();
+                    level.playSound(null, pos, SoundEvents.BOOK_PAGE_TURN,
+                            SoundSource.BLOCKS, 0.4f, 1.0f);
+                    return InteractionResult.CONSUME;
                 }
             }
         }
@@ -220,8 +210,7 @@ public class BlockJar extends Block implements EntityBlock {
 
         if (player.isShiftKeyDown()) {
             JarBlockEntity jar = getJar(level, pos);
-            if (jar != null && jar.getAspectFilter() != null) {
-                jar.setAspectFilter(null);
+            if (jar != null && jar.logic.removeLabel() == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
                 jar.setChanged();
                 level.playSound(null, pos, SoundEvents.BOOK_PAGE_TURN,
                         SoundSource.BLOCKS, 0.5f, 1.0f);
