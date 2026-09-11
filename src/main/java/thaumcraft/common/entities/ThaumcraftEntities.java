@@ -13,6 +13,8 @@ import thaumcraft.common.entities.monster.tainted.EntityTaintSeed;
 import thaumcraft.common.entities.monster.tainted.EntityTaintacle;
 import thaumcraft.common.entities.monster.tainted.EntityTaintCrawler;
 import thaumcraft.common.entities.monster.pech.EntityPech;
+import thaumcraft.common.entities.monster.EntityEldritchCrab;
+import thaumcraft.common.entities.monster.EntityInhabitedZombie;
 
 public class ThaumcraftEntities {
 
@@ -53,5 +55,19 @@ public class ThaumcraftEntities {
                             .sized(0.5f, 0.4f)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE,
                                     Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "taint_crawler"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityEldritchCrab>> ELDRITCH_CRAB =
+            ENTITIES.register("eldritch_crab", () ->
+                    EntityType.Builder.<EntityEldritchCrab>of(EntityEldritchCrab::new, MobCategory.MONSTER)
+                            .sized(0.8f, 0.6f)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                                    Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "eldritch_crab"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<EntityInhabitedZombie>> INHABITED_ZOMBIE =
+            ENTITIES.register("inhabited_zombie", () ->
+                    EntityType.Builder.<EntityInhabitedZombie>of(EntityInhabitedZombie::new, MobCategory.MONSTER)
+                            .sized(0.6f, 1.95f)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                                    Identifier.fromNamespaceAndPath(Thaumcraft.MODID, "inhabited_zombie"))));
 }
 
