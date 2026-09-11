@@ -8,6 +8,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import thaumcraft.Thaumcraft;
 import thaumcraft.api.capabilities.ThaumcraftCapabilities;
 import thaumcraft.common.lib.capabilities.RunicShieldAttachment;
+import thaumcraft.common.lib.capabilities.RunicShieldLogic;
+import thaumcraft.api.aura.AuraHelper;
 
 @EventBusSubscriber(modid = Thaumcraft.MODID)
 public class RunicShieldEvents {
@@ -24,16 +26,18 @@ public class RunicShieldEvents {
                 float damage = event.getAmount();
                 int currentShield = shield.getCurrentShield();
 
-                if (currentShield >= damage) {
-                    shield.setCurrentShield(currentShield - (int) Math.ceil(damage));
+                RunicShieldLogic.DamageResult result = RunicShieldLogic.calculateDamageRemaining(currentShield, damage);
+
+                shield.setCurrentShield(result.newShield);
+
+                if (result.remainingDamage <= 0) {
                     event.setAmount(0);
                     event.setCanceled(true); // Completely absorbed
                 } else {
-                    shield.setCurrentShield(0);
-                    event.setAmount(damage - currentShield); // Partially absorbed
+                    event.setAmount(result.remainingDamage); // Partially absorbed
                 }
 
-                shield.setRechargeDelay(40); // Set recharge delay to 40 ticks
+                shield.setRechargeDelay(RunicShieldLogic.RECHARGE_DELAY);
             }
         }
     }
@@ -47,11 +51,18 @@ public class RunicShieldEvents {
 
         RunicShieldAttachment shield = ThaumcraftCapabilities.getRunicShield(player);
         if (shield != null) {
-            int delay = shield.getRechargeDelay();
-            if (delay > 0) {
-                shield.setRechargeDelay(delay - 1);
-            } else if (shield.getCurrentShield() < shield.getMaxShield()) {
-                if (player.tickCount % 20 == 0) {
+            RunicShieldLogic.TickResult result = RunicShieldLogic.processTick(
+                shield.getCurrentShield(),
+                shield.getMaxShield(),
+                shield.getRechargeDelay(),
+                player.tickCount
+            );
+
+            shield.setRechargeDelay(result.newRechargeDelay);
+
+            if (result.wantsToRecharge) {
+                float drained = AuraHelper.drainVis(player.level(), player.blockPosition(), RunicShieldLogic.VIS_COST, false);
+                if (drained > 0) {
                     shield.setCurrentShield(Math.min(shield.getCurrentShield() + 1, shield.getMaxShield()));
                 }
             }
