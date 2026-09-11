@@ -42,9 +42,18 @@ public class ItemThaumonomicon extends Item {
             ThaumcraftCapabilities.getKnowledge(player).sync((ServerPlayer) player);
         } else {
             level.playLocalSound(player.getX(), player.getY(), player.getZ(), net.minecraft.sounds.SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 1.0F, false);
-            thaumcraft.client.ClientHooks.openThaumonomicon();
+            openClientThaumonomicon();
         }
         
         return net.minecraft.world.InteractionResult.SUCCESS;
+    }
+
+    private void openClientThaumonomicon() {
+        try {
+            Class<?> clazz = Class.forName("thaumcraft.client.ClientHooks");
+            java.lang.reflect.Method m = clazz.getMethod("openThaumonomicon");
+            m.invoke(null);
+        } catch (Throwable ignored) {
+        }
     }
 }
