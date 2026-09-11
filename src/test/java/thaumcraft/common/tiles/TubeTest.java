@@ -24,7 +24,7 @@ public class TubeTest {
 
         for (Direction dir : Direction.values()) {
             assertNull(tube.getSuctionType(dir));
-            assertEquals(64, tube.getSuctionAmount(dir));
+            assertEquals(63, tube.getSuctionAmount(dir)); // Suction drops by 1
         }
     }
 

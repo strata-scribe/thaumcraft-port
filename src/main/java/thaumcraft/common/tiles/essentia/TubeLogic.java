@@ -12,6 +12,9 @@ public class TubeLogic implements IEssentiaTransport {
 
     private boolean[] openFaces = new boolean[]{true, true, true, true, true, true};
 
+    private boolean isValve = false;
+    private Direction valveDir = null;
+
     private final Runnable setChangedCallback;
 
     public TubeLogic(Runnable setChangedCallback) {
@@ -37,7 +40,20 @@ public class TubeLogic implements IEssentiaTransport {
     public Aspect getSuctionType(Direction face) { return suctionType; }
 
     @Override
-    public int getSuctionAmount(Direction face) { return suctionAmount; }
+    public int getSuctionAmount(Direction face) {
+        if (!isOpen(face)) return 0;
+
+        int modifiedSuction = TubePhysicsLogic.calculateSuctionDrop(suctionAmount);
+
+        if (isValve && face != null) {
+            int flowDir = face.getOpposite().get3DDataValue();
+            if (!TubePhysicsLogic.canFlowThroughValve(isValve, valveDir.get3DDataValue(), flowDir)) {
+                return 0;
+            }
+        }
+
+        return modifiedSuction;
+    }
 
     @Override
     public int takeEssentia(Aspect aspect, int amount, Direction face) {
@@ -94,5 +110,19 @@ public class TubeLogic implements IEssentiaTransport {
     public void setEssentia(Aspect type, int amount) {
         this.essentiaType = type;
         this.essentiaAmount = amount;
+    }
+
+    public boolean isValve() {
+        return isValve;
+    }
+
+    public void setValve(boolean isValve, Direction valveDir) {
+        this.isValve = isValve;
+        this.valveDir = valveDir;
+        setChangedCallback.run();
+    }
+
+    public Direction getValveDir() {
+        return valveDir;
     }
 }
