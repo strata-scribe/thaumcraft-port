@@ -77,16 +77,36 @@ public class SealGuard implements ISeal, ISealGui, ISealConfigArea, ISealConfigT
     public boolean isValidTarget(LivingEntity target) {
         if (target == null || !target.isAlive()) return false;
 
-        if (props[0].getValue() && target instanceof Monster) {
-            return true;
+        SealGuardTargetLogic.EntityCategory category = SealGuardTargetLogic.EntityCategory.OTHER;
+        if (target instanceof Monster) {
+            category = SealGuardTargetLogic.EntityCategory.MONSTER;
+        } else if (target instanceof Animal) {
+            category = SealGuardTargetLogic.EntityCategory.ANIMAL;
+        } else if (target instanceof Player) {
+            category = SealGuardTargetLogic.EntityCategory.PLAYER;
         }
-        if (props[1].getValue() && target instanceof Animal) {
-            return true;
-        }
-        if (props[2].getValue() && target instanceof Player) {
-            return true;
-        }
-        return false;
+
+        String entityId = net.minecraft.world.entity.EntityType.getKey(target.getType()).toString();
+
+        java.util.Set<String> entityTags = new java.util.HashSet<>();
+        // Get tags from EntityType
+        target.getType().getTags().map(tagKey -> tagKey.location().toString()).forEach(entityTags::add);
+
+        SealGuardTargetLogic.EntityInfo info = new SealGuardTargetLogic.EntityInfo(
+                entityId,
+                category,
+                entityTags
+        );
+
+        // A full implementation would likely read whitelistedTags from NBT or seal configuration.
+        // For this task, we initialize it as an empty set.
+        return SealGuardTargetLogic.isValidTarget(
+                info,
+                props[0].getValue(),
+                props[1].getValue(),
+                props[2].getValue(),
+                java.util.Collections.emptySet()
+        );
     }
 
     @Override
