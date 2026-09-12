@@ -1,5 +1,7 @@
 package thaumcraft.common.world.aura;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -69,43 +71,17 @@ public class AuraHandler {
             AuraChunk chunk = chunks.get(pos);
             if (chunk == null) continue;
 
-            float currentVis = chunk.getVis();
-            float currentFlux = chunk.getFlux();
-
+            List<AuraChunk> neighbors = new ArrayList<>();
             // Diffuse to neighbors
             for (Direction dir : Direction.Plane.HORIZONTAL) {
                 ChunkPos neighborPos = new ChunkPos(pos.x() + dir.getStepX(), pos.z() + dir.getStepZ());
                 // Only diffuse if neighbor is loaded/exists in map
                 if (chunks.containsKey(neighborPos)) {
-                    AuraChunk neighbor = chunks.get(neighborPos);
-
-                    // Vis diffusion
-                    if (currentVis > neighbor.getVis()) {
-                        float diff = currentVis - neighbor.getVis();
-                        float amount = diff * 0.1f; // 10% of difference
-                        chunk.setVis(chunk.getVis() - amount);
-                        neighbor.setVis(neighbor.getVis() + amount);
-                        currentVis = chunk.getVis();
-                    }
-
-                    // Flux diffusion
-                    if (currentFlux > neighbor.getFlux()) {
-                        float diff = currentFlux - neighbor.getFlux();
-                        float amount = diff * 0.1f; // 10% of difference
-                        chunk.setFlux(chunk.getFlux() - amount);
-                        neighbor.setFlux(neighbor.getFlux() + amount);
-                        currentFlux = chunk.getFlux();
-                    }
+                    neighbors.add(chunks.get(neighborPos));
                 }
             }
 
-            // Flux dissipation / Corruption logic
-            float fluxLimit = chunk.getBase() * 0.75f;
-            float spilled = chunk.spillFlux(fluxLimit);
-            if (spilled > 0) {
-                chunk.setCorruption(chunk.getCorruption() + spilled);
-            }
-            chunk.degradeCorruption(0.01f); // Slowly decay corruption
+            AuraDiffusionSimulationLogic.diffuseChunk(chunk, neighbors);
         }
     }
 }
