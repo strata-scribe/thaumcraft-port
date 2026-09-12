@@ -311,7 +311,7 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
      */
     public void spillRemnants() {
         if (level != null && aspects.visSize() > 0) {
-            AuraHelper.polluteAura(level, worldPosition, aspects.visSize() * 0.1f, true);
+            AuraHelper.polluteAura(level, worldPosition, CruciblePollutionLogic.calculateSpilloverPollution(aspects.visSize()), true);
         }
         aspects = new AspectList();
         water = 0;
