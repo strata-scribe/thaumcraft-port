@@ -211,9 +211,24 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
             } else {
                 // Dissolve
                 AspectList objectAspects = AspectHelper.getObjectAspects(single);
-                if (objectAspects != null && objectAspects.size() > 0) {
+
+                java.util.Map<String, Integer> inputMap = new java.util.LinkedHashMap<>();
+                if (objectAspects != null) {
                     for (Aspect tag : objectAspects.getAspects()) {
-                        aspects.add(tag, objectAspects.getAmount(tag));
+                        if (tag != null) {
+                            inputMap.put(tag.getTag(), objectAspects.getAmount(tag));
+                        }
+                    }
+                }
+
+                java.util.Map<String, Integer> dissolvedMap = CrucibleDecompositionLogic.calculateDecomposition(inputMap);
+
+                if (!dissolvedMap.isEmpty()) {
+                    for (java.util.Map.Entry<String, Integer> entry : dissolvedMap.entrySet()) {
+                        Aspect tag = Aspect.getAspect(entry.getKey());
+                        if (tag != null) {
+                            aspects.add(tag, entry.getValue());
+                        }
                     }
                     dissolved = true;
                     ticksWithoutCrafting = 0L;
