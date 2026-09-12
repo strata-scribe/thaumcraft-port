@@ -16,6 +16,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import thaumcraft.common.blocks.devices.BlockArcaneEar;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
+import thaumcraft.common.blocks.devices.logic.ArcaneEarNoteLogic;
 
 @EventBusSubscriber
 public class TileArcaneEar extends BlockEntity {
@@ -43,7 +44,7 @@ public class TileArcaneEar extends BlockEntity {
 
     public void trigger() {
         if (this.level != null && !this.level.isClientSide()) {
-            this.activeTicks = 20; // Activate for 20 ticks (1 second)
+            this.activeTicks = ArcaneEarNoteLogic.getPulseLengthTicks();
             this.level.setBlockAndUpdate(this.worldPosition, this.getBlockState().setValue(BlockArcaneEar.POWERED, true));
         }
     }
@@ -113,7 +114,7 @@ public class TileArcaneEar extends BlockEntity {
                         net.minecraft.world.level.chunk.LevelChunk chunk = level.getChunk(cx, cz);
                         for (BlockEntity be : chunk.getBlockEntities().values()) {
                             if (be instanceof TileArcaneEar ear && be.getBlockPos().closerThan(sourcePos, radius)) {
-                                if (ear.getNote() == note && ear.getInstrument() == instrument) {
+                                if (ArcaneEarNoteLogic.matches(note, instrument.name(), ear.getNote(), ear.getInstrument().name())) {
                                     ear.trigger();
                                 }
                             }
