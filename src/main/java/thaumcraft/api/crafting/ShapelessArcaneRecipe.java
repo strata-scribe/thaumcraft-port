@@ -12,6 +12,14 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
+import java.util.ArrayList;
+import java.util.List;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.ThaumcraftInvHelper;
 import thaumcraft.api.aspects.Aspect;
@@ -19,6 +27,82 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.items.ItemsTC;
 
 public class ShapelessArcaneRecipe implements IArcaneRecipe {
+
+    public static final MapCodec<ShapelessArcaneRecipe> CODEC = RecordCodecBuilder.<ShapelessArcaneRecipeJsonLogic.RecipeData<Ingredient, ItemStack>>mapCodec(instance -> instance.group(
+            Codec.STRING.optionalFieldOf("group", "").forGetter(ShapelessArcaneRecipeJsonLogic.RecipeData::getGroup),
+            Codec.STRING.fieldOf("research").forGetter(ShapelessArcaneRecipeJsonLogic.RecipeData::getResearch),
+            Codec.INT.fieldOf("vis").forGetter(ShapelessArcaneRecipeJsonLogic.RecipeData::getVis),
+            Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("crystals", java.util.Map.of()).forGetter(ShapelessArcaneRecipeJsonLogic.RecipeData::getCrystals),
+            Ingredient.CODEC.listOf().fieldOf("ingredients").forGetter(ShapelessArcaneRecipeJsonLogic.RecipeData::getIngredients),
+            ItemStack.CODEC.fieldOf("result").forGetter(ShapelessArcaneRecipeJsonLogic.RecipeData::getResult)
+    ).apply(instance, ShapelessArcaneRecipeJsonLogic.RecipeData::new)).xmap(
+            data -> {
+                AspectList aspects = new AspectList();
+                if (data.getCrystals() != null) {
+                    data.getCrystals().forEach((k, v) -> aspects.add(Aspect.getAspect(k), v));
+                }
+                NonNullList<Ingredient> ingredients = NonNullList.create();
+                ingredients.addAll(data.getIngredients());
+                return new ShapelessArcaneRecipe(Identifier.tryParse(data.getGroup()), data.getResearch(), data.getVis(), aspects, ingredients, data.getResult());
+            },
+            recipe -> {
+                java.util.Map<String, Integer> aspectMap = new java.util.LinkedHashMap<>();
+                if (recipe.getCrystals() != null && recipe.getCrystals().getAspects() != null) {
+                    for (Aspect a : recipe.getCrystals().getAspects()) {
+                        if (a != null) {
+                            aspectMap.put(a.getTag(), recipe.getCrystals().getAmount(a));
+                        }
+                    }
+                }
+                return new ShapelessArcaneRecipeJsonLogic.RecipeData<>(
+                        recipe.getGroup(),
+                        recipe.getResearch(),
+                        recipe.getVis(),
+                        aspectMap,
+                        new ArrayList<>(recipe.getIngredients()),
+                        recipe.recipeOutput instanceof ItemStack ? (ItemStack) recipe.recipeOutput : ItemStack.EMPTY
+                );
+            }
+    );
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ShapelessArcaneRecipe> STREAM_CODEC = StreamCodec.<RegistryFriendlyByteBuf, ShapelessArcaneRecipeJsonLogic.RecipeData<Ingredient, ItemStack>, String, String, Integer, java.util.Map<String, Integer>, List<Ingredient>, ItemStack>composite(
+            ByteBufCodecs.STRING_UTF8, ShapelessArcaneRecipeJsonLogic.RecipeData::getGroup,
+            ByteBufCodecs.STRING_UTF8, ShapelessArcaneRecipeJsonLogic.RecipeData::getResearch,
+            ByteBufCodecs.INT, ShapelessArcaneRecipeJsonLogic.RecipeData::getVis,
+            ByteBufCodecs.map(java.util.LinkedHashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.INT), ShapelessArcaneRecipeJsonLogic.RecipeData::getCrystals,
+            ByteBufCodecs.collection(java.util.ArrayList::new, Ingredient.CONTENTS_STREAM_CODEC), ShapelessArcaneRecipeJsonLogic.RecipeData::getIngredients,
+            ItemStack.STREAM_CODEC, ShapelessArcaneRecipeJsonLogic.RecipeData::getResult,
+            ShapelessArcaneRecipeJsonLogic.RecipeData::new
+    ).map(
+            data -> {
+                AspectList aspects = new AspectList();
+                if (data.getCrystals() != null) {
+                    data.getCrystals().forEach((k, v) -> aspects.add(Aspect.getAspect(k), v));
+                }
+                NonNullList<Ingredient> ingredients = NonNullList.create();
+                ingredients.addAll(data.getIngredients());
+                return new ShapelessArcaneRecipe(Identifier.tryParse(data.getGroup()), data.getResearch(), data.getVis(), aspects, ingredients, data.getResult());
+            },
+            recipe -> {
+                java.util.Map<String, Integer> aspectMap = new java.util.LinkedHashMap<>();
+                if (recipe.getCrystals() != null && recipe.getCrystals().getAspects() != null) {
+                    for (Aspect a : recipe.getCrystals().getAspects()) {
+                        if (a != null) {
+                            aspectMap.put(a.getTag(), recipe.getCrystals().getAmount(a));
+                        }
+                    }
+                }
+                return new ShapelessArcaneRecipeJsonLogic.RecipeData<>(
+                        recipe.getGroup(),
+                        recipe.getResearch(),
+                        recipe.getVis(),
+                        aspectMap,
+                        new ArrayList<>(recipe.getIngredients()),
+                        recipe.recipeOutput instanceof ItemStack ? (ItemStack) recipe.recipeOutput : ItemStack.EMPTY
+                );
+            }
+    );
+
 	private String research;
 	private int vis;
 	private AspectList crystals;	
