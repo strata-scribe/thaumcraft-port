@@ -26,6 +26,8 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IAspectContainer;
 import thaumcraft.api.aura.AuraHelper;
 import thaumcraft.api.crafting.CrucibleRecipe;
+import thaumcraft.common.tiles.crafting.logic.CrucibleBoilingLogic;
+import net.minecraft.core.registries.BuiltInRegistries;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 
 /**
@@ -108,24 +110,11 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
         short prevHeat = heat;
         BlockState below = level.getBlockState(pos.below());
 
-        if (water > 0) {
-            if (isHeatSource(below)) {
-                if (heat < 200) {
-                    heat++;
-                    if (prevHeat < 151 && heat >= 151) {
-                        setChanged();
-                    }
-                }
-            } else {
-                if (heat > 0) {
-                    heat--;
-                    if (heat == 149) {
-                        setChanged();
-                    }
-                }
-            }
-        } else if (heat > 0) {
-            heat--;
+        boolean hasHeatSource = isHeatSource(below);
+        heat = CrucibleBoilingLogic.calculateHeat(heat, water > 0, hasHeatSource);
+
+        if (CrucibleBoilingLogic.didBoilingStateChange(prevHeat, heat) || (prevHeat != heat && (heat == 149 || heat == 151))) {
+            setChanged();
         }
 
         // --- Overflow & timed spill ---
@@ -148,11 +137,8 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
      * for the crucible (fire, lava, campfire, soul_campfire, magma_block).
      */
     private static boolean isHeatSource(BlockState state) {
-        return state.is(Blocks.FIRE)
-                || state.is(Blocks.LAVA)
-                || state.is(Blocks.MAGMA_BLOCK)
-                || state.is(Blocks.CAMPFIRE)
-                || state.is(Blocks.SOUL_CAMPFIRE);
+        String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+        return CrucibleBoilingLogic.isHeatSource(blockId);
     }
 
     // -------------------------------------------------------------------------
