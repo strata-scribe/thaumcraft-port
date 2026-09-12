@@ -26,6 +26,7 @@ public class VoidSiphonBlockEntity extends BlockEntity {
 
     private final VoidSiphonLogic logic = new VoidSiphonLogic();
     private final Random random = new Random();
+    private int processingCycles = 0;
 
     public VoidSiphonBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.VOID_SIPHON.get(), pos, state);
@@ -47,7 +48,10 @@ public class VoidSiphonBlockEntity extends BlockEntity {
                     float newSize = Math.max(0, currentSize - decay);
                     rift.setRiftSize(newSize);
 
-                    if (blockEntity.logic.shouldGenerateSeed(blockEntity.random, currentSize)) {
+                    blockEntity.processingCycles++;
+
+                    if (VoidSiphonYieldLogic.shouldGenerateSeed(rift.getStability(), blockEntity.processingCycles, blockEntity.random)) {
+                        blockEntity.processingCycles = 0; // Reset cycles on successful generation
                         ItemStack seedStack = new ItemStack(ThaumcraftItems.voidSeed.get());
                         ItemEntity seedEntity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, seedStack);
                         level.addFreshEntity(seedEntity);
@@ -97,6 +101,7 @@ public class VoidSiphonBlockEntity extends BlockEntity {
         if (filterAspect != null) {
             output.store("FilterAspect", com.mojang.serialization.Codec.STRING, filterAspect.getTag());
         }
+        output.putInt("ProcessingCycles", this.processingCycles);
     }
 
     @Override
@@ -108,5 +113,6 @@ public class VoidSiphonBlockEntity extends BlockEntity {
         } else {
             this.filterAspect = null;
         }
+        this.processingCycles = input.getIntOr("ProcessingCycles", 0);
     }
 }
