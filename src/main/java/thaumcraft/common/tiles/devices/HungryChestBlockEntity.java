@@ -21,13 +21,30 @@ public class HungryChestBlockEntity extends ChestBlockEntity {
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, HungryChestBlockEntity blockEntity) {
         blockEntity.tickCount++;
-        if (blockEntity.tickCount % 20 == 0) {
-            AABB aabb = new AABB(pos).inflate(5.0);
-            List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, aabb);
 
-            for (ItemEntity itemEntity : items) {
-                if (!itemEntity.isAlive()) continue;
+        AABB aabb = new AABB(pos).inflate(5.0);
+        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, aabb);
 
+        double chestX = pos.getX() + 0.5;
+        double chestY = pos.getY() + 0.5;
+        double chestZ = pos.getZ() + 0.5;
+
+        double maxRadius = 5.0;
+        double absorbDistance = 1.0;
+        double baseSpeed = 0.05;
+
+        for (ItemEntity itemEntity : items) {
+            if (!itemEntity.isAlive()) continue;
+
+            double itemX = itemEntity.getX();
+            double itemY = itemEntity.getY();
+            double itemZ = itemEntity.getZ();
+
+            HungryChestAttractionLogic.AttractionResult result = HungryChestAttractionLogic.calculateAttractionVector(
+                    itemX, itemY, itemZ, chestX, chestY, chestZ, maxRadius, absorbDistance, baseSpeed
+            );
+
+            if (result.shouldAbsorb) {
                 ItemStack stack = itemEntity.getItem();
                 ItemStack remaining = tryInsert(blockEntity, stack);
 
@@ -36,6 +53,10 @@ public class HungryChestBlockEntity extends ChestBlockEntity {
                 } else {
                     itemEntity.setItem(remaining);
                 }
+            } else {
+                itemEntity.setDeltaMovement(
+                        itemEntity.getDeltaMovement().add(result.vx, result.vy, result.vz)
+                );
             }
         }
     }
