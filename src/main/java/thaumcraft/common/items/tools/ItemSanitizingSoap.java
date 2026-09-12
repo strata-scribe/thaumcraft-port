@@ -46,7 +46,13 @@ public class ItemSanitizingSoap extends Item {
                 stack.hurtAndBreak(1, (ServerLevel) level, player, item -> {});
 
                 IPlayerWarp warp = player.getData(ThaumcraftCapabilities.WARP_ATTACHMENT);
-                warp.set(IPlayerWarp.EnumWarpType.TEMPORARY, 0);
+
+                int washCount = SanitySoapLogic.getConsecutiveWashes(player.getUUID(), level.getGameTime());
+                int currentTempWarp = warp.get(IPlayerWarp.EnumWarpType.TEMPORARY);
+                int reduction = SanitySoapLogic.calculateWarpReduction(currentTempWarp, washCount);
+
+                warp.reduce(IPlayerWarp.EnumWarpType.TEMPORARY, reduction);
+                SanitySoapLogic.recordWash(player.getUUID(), level.getGameTime());
 
                 if (level.getRandom().nextBoolean()) {
                     warp.reduce(IPlayerWarp.EnumWarpType.NORMAL, 1);
