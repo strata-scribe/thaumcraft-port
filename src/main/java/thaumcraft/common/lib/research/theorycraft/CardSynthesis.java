@@ -1,16 +1,16 @@
 package thaumcraft.common.lib.research.theorycraft;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.research.theorycraft.ResearchTableData;
 import thaumcraft.api.research.theorycraft.TheorycraftCard;
-
+import thaumcraft.common.lib.research.theorycraft.logic.CardSynthesisLogic;
 
 public class CardSynthesis extends TheorycraftCard
 {
@@ -21,9 +21,9 @@ public class CardSynthesis extends TheorycraftCard
     @Override
     public CompoundTag serialize() {
         CompoundTag nbt = super.serialize();
-        nbt.putString("aspect1", aspect1.getTag());
-        nbt.putString("aspect2", aspect2.getTag());
-        nbt.putString("aspect3", aspect3.getTag());
+        if (aspect1 != null) nbt.putString("aspect1", aspect1.getTag());
+        if (aspect2 != null) nbt.putString("aspect2", aspect2.getTag());
+        if (aspect3 != null) nbt.putString("aspect3", aspect3.getTag());
         return nbt;
     }
     
@@ -37,12 +37,19 @@ public class CardSynthesis extends TheorycraftCard
     
     @Override
     public boolean initialize(Player player, ResearchTableData data) {
-        Random r = new Random(getSeed());
-        int num = r.nextInt(Aspect.getCompoundAspects().size());
-        aspect3 = Aspect.getCompoundAspects().get(num);
-        aspect1 = aspect3.getComponents()[0];
-        aspect2 = aspect3.getComponents()[1];
-        return true;
+        List<String[]> compoundAspects = new ArrayList<>();
+        for (Aspect a : Aspect.getCompoundAspects()) {
+            compoundAspects.add(new String[] { a.getTag(), a.getComponents()[0].getTag(), a.getComponents()[1].getTag() });
+        }
+
+        CardSynthesisLogic.SynthesisResult result = CardSynthesisLogic.initializeSynthesis(getSeed(), compoundAspects);
+        if (result != null) {
+            aspect3 = Aspect.getAspect(result.aspect3);
+            aspect1 = Aspect.getAspect(result.aspect1);
+            aspect2 = Aspect.getAspect(result.aspect2);
+            return true;
+        }
+        return false;
     }
     
     @Override
@@ -77,11 +84,13 @@ public class CardSynthesis extends TheorycraftCard
     
     @Override
     public boolean activate(Player player, ResearchTableData data) {
-        ItemStack res = ThaumcraftApiHelper.makeCrystal(aspect3);
-        data.addTotal(getResearchCategory(), 40);
-        if (player.getRandom().nextFloat() < 0.33) {
-            data.addInspiration(1);
+        CardSynthesisLogic.ActivationResult actResult = CardSynthesisLogic.calculateActivation(player.getRandom().nextFloat());
+        data.addTotal(getResearchCategory(), actResult.bonusProgress);
+        if (actResult.bonusInspiration > 0) {
+            data.addInspiration(actResult.bonusInspiration);
         }
+
+        ItemStack res = ThaumcraftApiHelper.makeCrystal(aspect3);
         if (!player.getInventory().add(res)) {
             player.drop(res, true);
         }
