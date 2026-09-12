@@ -104,6 +104,11 @@ public class TileFocalManipulator extends BlockEntity implements Container, Menu
         return new FocalManipulatorMenu(containerId, playerInventory, this, net.minecraft.world.inventory.ContainerLevelAccess.create(level, worldPosition));
     }
 
+    public int calculateExpCost(int complexity) {
+        return thaumcraft.common.casters.logic.FocalCraftingCostLogic.calculateExpCost(complexity);
+    }
+
+    // Legacy stub to keep compile if used somewhere without arguments
     public int calculateExpCost() {
         // Stub implementation
         return 10;
