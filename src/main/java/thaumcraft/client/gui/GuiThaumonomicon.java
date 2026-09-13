@@ -178,28 +178,28 @@ public class GuiThaumonomicon extends Screen {
         extractor.fill(36, 0, 37, this.height, 0xFF252530); // Clean vertical separator border
 
         // Draw category tabs on the left (unaffected by map zoom/pan)
-        int tabY = 30;
-        int tabWidth = 28;
-        int tabHeight = 28;
         thaumcraft.api.research.ResearchCategory hoveredCategory = null;
         java.util.Collection<thaumcraft.api.research.ResearchCategory> categories = thaumcraft.api.research.ResearchCategories.researchCategories.values();
+        int tabIndex = 0;
         for (thaumcraft.api.research.ResearchCategory cat : categories) {
             boolean isSelected = cat.key.equals(this.selectedCategory);
             
+            int tabY = thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.getTabY(tabIndex);
             // Draw hover highlight if mouse is over this tab
-            boolean isHovered = mouseX >= 5 && mouseX <= 33 && mouseY >= tabY && mouseY <= tabY + tabHeight;
+            boolean isHovered = thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.isTabHovered(mouseX, mouseY, tabIndex);
             if (isHovered) {
-                extractor.fill(5, tabY, 33, tabY + tabHeight, 0x1AFFFFFF); // Subtle white overlay
+                extractor.fill(thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.MIN_X, tabY, thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.MAX_X, tabY + thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.TAB_HEIGHT, 0x1AFFFFFF); // Subtle white overlay
                 hoveredCategory = cat;
             }
             
             // Draw elegant selected indicator dot/bar on the left
             if (isSelected) {
-                extractor.fill(2, tabY + 4, 4, tabY + tabHeight - 4, 0xFF9061F9); // Royal violet accent bar
+                int indY = thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.getSelectedIndicatorY(tabIndex);
+                extractor.fill(2, indY, 4, indY + thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.getSelectedIndicatorHeight(), 0xFF9061F9); // Royal violet accent bar
             }
             
-            int iconX = 11;
-            int iconY = tabY + 6;
+            int iconX = thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.getIconX();
+            int iconY = thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.getIconY(tabIndex);
             
             Identifier iconId = cat.icon;
             if (iconId != null) {
@@ -223,7 +223,7 @@ public class GuiThaumonomicon extends Screen {
                 }
             }
             
-            tabY += tabHeight + 4;
+            tabIndex++;
         }
         
         if (hoveredCategory != null) {
@@ -243,17 +243,15 @@ public class GuiThaumonomicon extends Screen {
         double mouseY = event.y();
         if (event.button() == 0) {
             // Check Category tabs clicks
-            int tabY = 30;
-            int tabWidth = 28;
-            int tabHeight = 28;
             java.util.Collection<thaumcraft.api.research.ResearchCategory> categories = thaumcraft.api.research.ResearchCategories.researchCategories.values();
+            int tabIndex = 0;
             for (thaumcraft.api.research.ResearchCategory cat : categories) {
-                if (mouseX >= 5 && mouseX <= 33 && mouseY >= tabY && mouseY <= tabY + tabHeight) {
+                if (thaumcraft.client.gui.logic.ThaumonomiconLayoutMathLogic.isTabHovered(mouseX, mouseY, tabIndex)) {
                     this.selectedCategory = cat.key;
                     net.minecraft.client.Minecraft.getInstance().getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     return true;
                 }
-                tabY += tabHeight + 4;
+                tabIndex++;
             }
 
             // Check Node clicks

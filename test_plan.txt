@@ -1,22 +1,4 @@
-1.  **Create `SpellTrailParticleLogic` class:**
-    *   Location: `src/main/java/thaumcraft/client/fx/logic/SpellTrailParticleLogic.java` (Or a suitable common package if `fx` is preferred there, given it's purely math logic, we can put it in `thaumcraft.common.casters.logic` or `thaumcraft.client.fx.logic`). Let's use `thaumcraft.common.casters.logic` or similar based on existing structure. Since it's about particles, `thaumcraft.client.fx.logic` makes sense.
-    *   This class must have zero Minecraft/Forge dependencies.
-    *   Implement `calculateLinearOffset(double progress, double totalDistance)` to compute standard linear path offsets.
-    *   Implement `calculateSpiralOffset(double progress, double totalDistance, double radius, double frequency)` to compute spiral path offsets using sine/cosine based on progress.
-    *   Implement `getElementalColor(String elementType)` to return an RGB gradient or array based on the requested element (Fire, Frost, Flux). We can use a simple custom struct or an array of `int[]` or `float[]` for colors.
-    *   Fire: Orange/Red (e.g., `[255, 128, 0]` to `[255, 0, 0]`)
-    *   Frost: Cyan/White (e.g., `[0, 255, 255]` to `[255, 255, 255]`)
-    *   Flux: Magenta/Black (e.g., `[255, 0, 255]` to `[0, 0, 0]`)
-
-2.  **Create `SpellTrailParticleLogicTest` class:**
-    *   Location: `src/test/java/thaumcraft/client/fx/logic/SpellTrailParticleLogicTest.java` (matching main).
-    *   Write tests for `calculateLinearOffset`.
-    *   Write tests for `calculateSpiralOffset`.
-    *   Write tests for `getElementalColor` mappings.
-
-3.  **Refine Implementation Details:**
-    *   `calculateSpiralOffset` could return a 3D coordinate delta (`double[] {x, y, z}`). If we assume motion is along Z, the spiral would be on the X, Y plane. A more general approach is returning the offset orthogonal to the flight path, but the prompt says "Calculates spiral and linear particle trail offsets". We can just return a parameterized `Vec3` equivalent (e.g., `double[]` or a custom `Vector3D` nested class since no MC imports).
-    *   Let's create a simple nested `Vector3` class or just use `double[]` `[x, y, z]` for simplicity.
-    *   Let's create a nested `RGBColor` class or use `int[]` `[r, g, b]` to avoid imports.
-
-4.  **Run tests locally** (`./gradlew test`) to ensure 100% pass rate.
+1. Implement ThaumonomiconLayoutMathLogic in `src/main/java/thaumcraft/client/gui/logic/ThaumonomiconLayoutMathLogic.java`.
+2. Refactor `GuiThaumonomicon.java` to use `ThaumonomiconLayoutMathLogic`.
+3. Create `ThaumonomiconLayoutMathLogicTest.java` in `src/test/java/thaumcraft/client/gui/logic/ThaumonomiconLayoutMathLogicTest.java` for JUnit 5 tests.
+4. Run tests with `./gradlew test` to make sure they pass 100%.
