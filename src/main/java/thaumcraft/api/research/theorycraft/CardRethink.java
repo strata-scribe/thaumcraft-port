@@ -2,17 +2,13 @@ package thaumcraft.api.research.theorycraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
-
+import thaumcraft.common.lib.research.theorycraft.logic.CardRethinkLogic;
 
 public class CardRethink extends TheorycraftCard {
 	
 	@Override
 	public boolean initialize(Player player, ResearchTableData data) {
-		int a=0;
-		for (String category:data.categoryTotals.keySet()) {
-			a+=data.getTotal(category);
-		}
-		return a>=10;
+		return CardRethinkLogic.checkInitialization(data.categoryTotals);
 	}
 
 	@Override
@@ -32,23 +28,21 @@ public class CardRethink extends TheorycraftCard {
 
 	@Override
 	public boolean activate(Player player, ResearchTableData data) {
-		if (!initialize(player,data)) return false;
-		int a=0;
-		for (String category:data.categoryTotals.keySet()) {
-			a+=data.getTotal(category);
-		}
-		a = Math.min(a, 10);
-		int tries = 0;
-		while (a>0 && tries < 1000) {
-			tries++;
-			for (String category:data.categoryTotals.keySet()) {
-				data.addTotal(category, -1);
-				a--;
-				if (a<=0 || !data.hasTotal(category)) break;
-			}
-		}
-		data.bonusDraws++;
-		data.addTotal("BASICS", player.getRandom().nextIntBetweenInclusive(1, 10));
+		CardRethinkLogic.RethinkResult result = CardRethinkLogic.calculateRethink(
+			data.categoryTotals,
+			data.bonusDraws,
+			player.getRandom().nextIntBetweenInclusive(1, 10),
+			data.inspirationStart,
+			data.inspiration
+		);
+
+		if (result == null) return false;
+
+		data.categoryTotals.clear();
+		data.categoryTotals.putAll(result.updatedTotals);
+		data.bonusDraws = result.bonusDraws;
+		data.addInspiration(result.refundedInspiration);
+
 		return true;
 	}
 	
