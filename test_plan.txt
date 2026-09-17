@@ -1,4 +1,4 @@
-1. Implement ThaumonomiconLayoutMathLogic in `src/main/java/thaumcraft/client/gui/logic/ThaumonomiconLayoutMathLogic.java`.
-2. Refactor `GuiThaumonomicon.java` to use `ThaumonomiconLayoutMathLogic`.
-3. Create `ThaumonomiconLayoutMathLogicTest.java` in `src/test/java/thaumcraft/client/gui/logic/ThaumonomiconLayoutMathLogicTest.java` for JUnit 5 tests.
-4. Run tests with `./gradlew test` to make sure they pass 100%.
+1. Implement `CardInspiredLogic.java` in `src/main/java/thaumcraft/common/lib/research/theorycraft/logic/`
+    * The class should be decoupled from Minecraft/Forge completely.
+    * It should have a static method, e.g., `calculateInspirationBonus(int warpLevel, int activeAids)`.
+    * Wait, I need to know the specific logic for Inspiration bonuses.
