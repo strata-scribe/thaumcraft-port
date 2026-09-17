@@ -61,7 +61,18 @@ public class CardStudy extends TheorycraftCard {
 	
 	@Override
 	public boolean activate(Player player, ResearchTableData data) {		
-		data.addTotal(cat, player.getRandom().nextIntBetweenInclusive(15, 25));		
+		thaumcraft.api.research.ResearchCategory rc = thaumcraft.api.research.ResearchCategories.getResearchCategory(cat);
+		int playerObservationLevel = 0;
+		if (rc != null) {
+			playerObservationLevel = thaumcraft.api.capabilities.ThaumcraftCapabilities.getKnowledge(player).getKnowledge(thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType.OBSERVATION, rc);
+		}
+
+		int itemRarity = player.getRandom().nextIntBetweenInclusive(0, 2);
+		int aspectDensity = player.getRandom().nextIntBetweenInclusive(1, 5);
+
+		int yield = thaumcraft.common.lib.research.theorycraft.logic.CardStudyLogic.calculateStudyYield(itemRarity, aspectDensity, playerObservationLevel);
+
+		data.addTotal(cat, yield);
 		return true;
 	}
 	
