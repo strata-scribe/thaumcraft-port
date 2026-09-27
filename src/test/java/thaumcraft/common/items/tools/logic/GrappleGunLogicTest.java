@@ -1,10 +1,10 @@
-package thaumcraft.common.items.tools;
+package thaumcraft.common.items.tools.logic;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import thaumcraft.common.items.tools.GrappleGunLogic.Vector3d;
-import thaumcraft.common.items.tools.GrappleGunLogic.ProjectileState;
+import thaumcraft.common.items.tools.logic.GrappleGunLogic.Vector3d;
+import thaumcraft.common.items.tools.logic.GrappleGunLogic.ProjectileState;
 
 public class GrappleGunLogicTest {
 
