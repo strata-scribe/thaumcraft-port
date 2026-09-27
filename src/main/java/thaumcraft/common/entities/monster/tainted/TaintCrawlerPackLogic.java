@@ -30,4 +30,24 @@ public final class TaintCrawlerPackLogic {
         float bonus = 0.20f * companionCount;
         return 1.0f + Math.min(bonus, 1.0f);
     }
+
+    /**
+     * Determines if a crawler should follow its pack leader based on distance.
+     *
+     * @param distanceToLeader The distance to the leader.
+     * @return true if the crawler should follow, false otherwise.
+     */
+    public static boolean isFollowingLeader(double distanceToLeader) {
+        return distanceToLeader <= 16.0;
+    }
+
+    /**
+     * Calculates the number of crawlers spawned when an egg sack bursts.
+     *
+     * @param sackSize The size or power of the egg sack.
+     * @return The number of crawlers to spawn in the burst.
+     */
+    public static int getSwarmBurstCount(int sackSize) {
+        return sackSize * 2;
+    }
 }
