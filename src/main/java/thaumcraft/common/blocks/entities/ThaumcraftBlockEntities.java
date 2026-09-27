@@ -136,9 +136,9 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.TileArcaneEar::new, ThaumcraftBlocks.arcaneEar.get())
     );
 
-    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.TileCondenser>> CONDENSER = BLOCK_ENTITIES.register(
+    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.FluxCondenserBlockEntity>> CONDENSER = BLOCK_ENTITIES.register(
             "condenser",
-            () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.TileCondenser::new, ThaumcraftBlocks.condenser.get())
+            () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.FluxCondenserBlockEntity::new, ThaumcraftBlocks.condenser.get())
     );
 
     public static final Supplier<BlockEntityType<CentrifugeBlockEntity>> CENTRIFUGE = BLOCK_ENTITIES.register(
