@@ -5,15 +5,17 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +25,8 @@ import thaumcraft.common.tiles.devices.BellowsBlockEntity;
 
 import com.mojang.serialization.MapCodec;
 
-public class BlockBellows extends HorizontalDirectionalBlock implements EntityBlock {
+public class BlockBellows extends BaseEntityBlock {
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final MapCodec<BlockBellows> CODEC = simpleCodec(BlockBellows::new);
 
     public BlockBellows(BlockBehaviour.Properties properties) {
@@ -32,7 +35,7 @@ public class BlockBellows extends HorizontalDirectionalBlock implements EntityBl
     }
 
     @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -49,7 +52,7 @@ public class BlockBellows extends HorizontalDirectionalBlock implements EntityBl
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BellowsBlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BellowsBlockEntity(pos, state);
     }
 
@@ -62,16 +65,15 @@ public class BlockBellows extends HorizontalDirectionalBlock implements EntityBl
         return createTickerHelper(type, ThaumcraftBlockEntities.BELLOWS.get(), BellowsBlockEntity::serverTick);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(
-            BlockEntityType<A> serverType, BlockEntityType<E> clientType, BlockEntityTicker<? super E> ticker) {
-        return clientType == serverType ? (BlockEntityTicker<A>) ticker : null;
-    }
-
     private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 }
