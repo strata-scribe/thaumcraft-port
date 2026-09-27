@@ -18,56 +18,79 @@ import thaumcraft.api.aura.AuraChunk;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.blocks.ThaumcraftBlocks;
 
-public class TileCondenser extends BlockEntity implements IEssentiaTransport {
+public class FluxCondenserBlockEntity extends BlockEntity implements IEssentiaTransport {
 
-    private final CondenserLogic logic = new CondenserLogic();
+    private FluxCondenserFiltrationLogic logic = new FluxCondenserFiltrationLogic(0, 0);
     private int ticks = 0;
 
     // Essentia export logic
     private Aspect essentiaType = null;
     private int essentiaAmount = 0;
 
-    public TileCondenser(BlockPos pos, BlockState state) {
+    public FluxCondenserBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.CONDENSER.get(), pos, state);
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, TileCondenser tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, FluxCondenserBlockEntity tile) {
         if (level.isClientSide()) return;
 
         tile.ticks++;
         if (tile.ticks % 5 != 0) return; // run every 5 ticks
 
         AuraChunk chunk = AuraHandler.getAuraChunk(level, new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4));
+        if (chunk == null) return;
 
-        tile.logic.tick(chunk, new CondenserLogic.BlockProvider() {
-            @Override
-            public boolean isLattice(int dx, int dy, int dz) {
-                BlockState s = level.getBlockState(pos.offset(dx, dy, dz));
-                return s.getBlock() == ThaumcraftBlocks.condenserlattice.get();
+        // Count lattices
+        int cleanCount = 0;
+        java.util.ArrayList<int[]> cleanLatticesPositions = new java.util.ArrayList<>();
+        for (int y = 1; y <= 3; y++) {
+            for (int x = -1; x <= 1; x++) {
+                for (int z = -1; z <= 1; z++) {
+                    BlockState s = level.getBlockState(pos.offset(x, y, z));
+                    if (s.getBlock() == ThaumcraftBlocks.condenserlattice.get()) {
+                        cleanCount++;
+                        cleanLatticesPositions.add(new int[]{x, y, z});
+                    }
+                }
             }
+        }
 
-            @Override
-            public boolean isDirtyLattice(int dx, int dz) {
-                return false; // For logic purposes, handled in makeDirty
-            }
+        // Use existing state to preserve vitiumResidue between ticks, but update clean count
+        tile.logic.setCleanLattices(cleanCount);
+        tile.logic.setCloggedLattices(0); // We only care about how many got clogged this tick
 
-            @Override
-            public void makeDirty(int dx, int dy, int dz) {
-                level.setBlockAndUpdate(pos.offset(dx, dy, dz), ThaumcraftBlocks.condenserlatticeDirty.get().defaultBlockState());
+        float flux = chunk.getFlux();
+        if (flux > 0.1f) {
+            java.util.Random rnd = new java.util.Random(level.getRandom().nextLong());
+            float extracted = tile.logic.processFlux(flux, rnd);
+            if (extracted > 0) {
+                chunk.setFlux(chunk.getFlux() - extracted);
+
+                int newlyClogged = tile.logic.getCloggedLattices();
+                if (newlyClogged > 0) {
+                    for (int i = 0; i < newlyClogged; i++) {
+                        if (!cleanLatticesPositions.isEmpty()) {
+                            int idx = level.getRandom().nextInt(cleanLatticesPositions.size());
+                            int[] chosen = cleanLatticesPositions.remove(idx);
+                            level.setBlockAndUpdate(pos.offset(chosen[0], chosen[1], chosen[2]), ThaumcraftBlocks.condenserlatticeDirty.get().defaultBlockState());
+                        }
+                    }
+                }
+
+                while (tile.logic.extractVitiumAspect()) {
+                    if (tile.essentiaType == null || (tile.essentiaType == Aspect.FLUX && tile.essentiaAmount < 1)) {
+                        tile.essentiaType = Aspect.FLUX;
+                        tile.essentiaAmount++;
+                        tile.setChanged();
+                    } else {
+                        // Drop vitium slag
+                        ItemStack slag = new ItemStack(ItemsTC.vitiumSlag);
+                        ItemEntity item = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, slag);
+                        level.addFreshEntity(item);
+                    }
+                }
             }
-        }, (success) -> {
-            // Check if we can output essentia
-            if (tile.essentiaType == null || (tile.essentiaType == Aspect.FLUX && tile.essentiaAmount < 1)) {
-                tile.essentiaType = Aspect.FLUX;
-                tile.essentiaAmount++;
-                tile.setChanged();
-            } else {
-                // Drop vitium slag
-                ItemStack slag = new ItemStack(ItemsTC.vitiumSlag);
-                ItemEntity item = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, slag);
-                level.addFreshEntity(item);
-            }
-        });
+        }
 
         // Push essentia downwards
         if (tile.essentiaAmount > 0) {
@@ -152,7 +175,9 @@ public class TileCondenser extends BlockEntity implements IEssentiaTransport {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.store("cost", com.mojang.serialization.Codec.INT, logic.getCost());
+        output.store("cleanLattices", com.mojang.serialization.Codec.INT, logic.getCleanLattices());
+        output.store("cloggedLattices", com.mojang.serialization.Codec.INT, logic.getCloggedLattices());
+        output.store("vitiumResidue", com.mojang.serialization.Codec.FLOAT, logic.getVitiumResidue());
         if (essentiaType != null) {
             output.store("essentiaType", com.mojang.serialization.Codec.STRING, essentiaType.getTag());
             output.store("essentiaAmount", com.mojang.serialization.Codec.INT, essentiaAmount);
@@ -162,7 +187,12 @@ public class TileCondenser extends BlockEntity implements IEssentiaTransport {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        logic.setCost(input.read("cost", com.mojang.serialization.Codec.INT).orElse(0));
+        int clean = input.read("cleanLattices", com.mojang.serialization.Codec.INT).orElse(0);
+        int clogged = input.read("cloggedLattices", com.mojang.serialization.Codec.INT).orElse(0);
+        float residue = input.read("vitiumResidue", com.mojang.serialization.Codec.FLOAT).orElse(0.0f);
+        logic = new FluxCondenserFiltrationLogic(clean, clogged);
+        logic.setVitiumResidue(residue);
+
         String aspectTag = input.read("essentiaType", com.mojang.serialization.Codec.STRING).orElse(null);
         if (aspectTag != null) {
             essentiaType = Aspect.getAspect(aspectTag);

@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
-import thaumcraft.common.tiles.devices.TileCondenser;
+import thaumcraft.common.tiles.devices.FluxCondenserBlockEntity;
 
 public class BlockCondenser extends Block implements EntityBlock {
 
@@ -21,7 +21,7 @@ public class BlockCondenser extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TileCondenser(pos, state);
+        return new FluxCondenserBlockEntity(pos, state);
     }
 
     @Nullable
@@ -29,6 +29,6 @@ public class BlockCondenser extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         if (level.isClientSide()) return null;
         return blockEntityType == ThaumcraftBlockEntities.CONDENSER.get() ?
-                (lvl, pos, st, be) -> TileCondenser.tick(lvl, pos, st, (TileCondenser) be) : null;
+                (lvl, pos, st, be) -> FluxCondenserBlockEntity.tick(lvl, pos, st, (FluxCondenserBlockEntity) be) : null;
     }
 }
