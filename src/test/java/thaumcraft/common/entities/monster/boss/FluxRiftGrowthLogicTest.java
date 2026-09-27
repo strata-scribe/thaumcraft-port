@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import thaumcraft.common.entities.monster.boss.FluxRiftGrowthLogic;
+import thaumcraft.common.entities.monster.boss.FluxRiftLogic;
 
 public class FluxRiftGrowthLogicTest {
 
@@ -121,5 +122,73 @@ public class FluxRiftGrowthLogicTest {
 
         float newStability = FluxRiftGrowthLogic.calculateStabilityDegradation(currentStability, ventedEssentiaAmount, dirtyEssentiaRatio);
         assertEquals(100.0f, newStability, 0.001f, "Stability should remain the same when vented amount is 0.");
+    }
+
+    // --- FluxRiftLogic Tests ---
+
+    @Test
+    public void testCalculateSizeGrowthWithPositiveFlux() {
+        float currentSize = 10.0f;
+        float drainedFlux = 20.0f;
+
+        // expected size = 10.0 + (20.0 * 0.01) = 10.2
+        float newSize = FluxRiftLogic.calculateSizeGrowth(currentSize, drainedFlux);
+        assertEquals(10.2f, newSize, 0.001f, "Size should increase proportionally to drained flux.");
+    }
+
+    @Test
+    public void testCalculateSizeGrowthWithZeroFlux() {
+        float currentSize = 10.0f;
+        float drainedFlux = 0.0f;
+
+        float newSize = FluxRiftLogic.calculateSizeGrowth(currentSize, drainedFlux);
+        assertEquals(10.0f, newSize, 0.001f, "Size should not increase when drained flux is zero.");
+    }
+
+    @Test
+    public void testCalculateSizeGrowthWithNegativeFlux() {
+        float currentSize = 10.0f;
+        float drainedFlux = -5.0f;
+
+        float newSize = FluxRiftLogic.calculateSizeGrowth(currentSize, drainedFlux);
+        assertEquals(10.0f, newSize, 0.001f, "Size should not increase when drained flux is negative.");
+    }
+
+    @Test
+    public void testCalculateStabilityDecay() {
+        float currentStability = 100.0f;
+        float riftSize = 20.0f;
+
+        // expected stability = 100.0 - (20.0 * 0.05) = 99.0
+        float newStability = FluxRiftLogic.calculateStabilityDecay(currentStability, riftSize);
+        assertEquals(99.0f, newStability, 0.001f, "Stability should decay proportionally to rift size.");
+    }
+
+    @Test
+    public void testShouldCollapseDueToLowStability() {
+        assertTrue(FluxRiftLogic.shouldCollapse(0.0f, 10.0f), "Should collapse if stability is 0.");
+        assertTrue(FluxRiftLogic.shouldCollapse(-5.0f, 10.0f), "Should collapse if stability is negative.");
+    }
+
+    @Test
+    public void testShouldCollapseDueToLargeSize() {
+        assertTrue(FluxRiftLogic.shouldCollapse(100.0f, 50.0f), "Should collapse if rift size is >= 50.");
+        assertTrue(FluxRiftLogic.shouldCollapse(100.0f, 60.0f), "Should collapse if rift size is >= 50.");
+    }
+
+    @Test
+    public void testShouldNotCollapse() {
+        assertFalse(FluxRiftLogic.shouldCollapse(10.0f, 40.0f), "Should not collapse if stability > 0 and size < 50.");
+    }
+
+    @Test
+    public void testShouldSpawnTaintSeed() {
+        assertTrue(FluxRiftLogic.shouldSpawnTaintSeed(20.0f), "Should spawn taint seed if size >= 20.");
+        assertTrue(FluxRiftLogic.shouldSpawnTaintSeed(30.0f), "Should spawn taint seed if size >= 20.");
+    }
+
+    @Test
+    public void testShouldNotSpawnTaintSeed() {
+        assertFalse(FluxRiftLogic.shouldSpawnTaintSeed(19.9f), "Should not spawn taint seed if size < 20.");
     }
 }
