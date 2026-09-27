@@ -12,6 +12,14 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.codec.ByteBufCodecs;
+import thaumcraft.api.crafting.logic.ShapedArcaneRecipeJsonLogic;
+import thaumcraft.common.crafting.ThaumcraftRecipes;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.ThaumcraftInvHelper;
 import thaumcraft.api.aspects.Aspect;
@@ -19,6 +27,170 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.items.ItemsTC;
 
 public class ShapedArcaneRecipe implements IArcaneRecipe {
+
+
+    public static final MapCodec<ShapedArcaneRecipe> CODEC = RecordCodecBuilder.<ShapedArcaneRecipeJsonLogic.RecipeData<Ingredient, ItemStack>>mapCodec(instance -> instance.group(
+            Codec.STRING.optionalFieldOf("group", "").forGetter(ShapedArcaneRecipeJsonLogic.RecipeData::getGroup),
+            Codec.STRING.fieldOf("research").forGetter(ShapedArcaneRecipeJsonLogic.RecipeData::getResearch),
+            Codec.INT.fieldOf("vis").forGetter(ShapedArcaneRecipeJsonLogic.RecipeData::getVis),
+            Codec.unboundedMap(Codec.STRING, Codec.INT).optionalFieldOf("crystals", java.util.Map.of()).forGetter(ShapedArcaneRecipeJsonLogic.RecipeData::getCrystals),
+            ItemStack.CODEC.fieldOf("result").forGetter(ShapedArcaneRecipeJsonLogic.RecipeData::getOutput),
+            Codec.STRING.listOf().fieldOf("pattern").forGetter(ShapedArcaneRecipeJsonLogic.RecipeData::getPattern),
+            Codec.unboundedMap(Codec.STRING, Ingredient.CODEC).fieldOf("key").forGetter(ShapedArcaneRecipeJsonLogic.RecipeData::getKey)
+    ).apply(instance, ShapedArcaneRecipeJsonLogic.RecipeData::new)).xmap(
+            data -> {
+                new ShapedArcaneRecipeJsonLogic().validate(data);
+                AspectList aspects = new AspectList();
+                if (data.getCrystals() != null) {
+                    data.getCrystals().forEach((k, v) -> aspects.add(Aspect.getAspect(k), v));
+                }
+
+                int width = data.getPattern().get(0).length();
+                int height = data.getPattern().size();
+                NonNullList<Ingredient> ingredients = NonNullList.withSize(width * height, Ingredient.of());
+
+                for (int r = 0; r < height; r++) {
+                    String row = data.getPattern().get(r);
+                    for (int c = 0; c < width; c++) {
+                        String key = String.valueOf(row.charAt(c));
+                        Ingredient ing = data.getKey().getOrDefault(key, Ingredient.of());
+                        ingredients.set(r * width + c, ing);
+                    }
+                }
+
+                return new ShapedArcaneRecipe(Identifier.tryParse(data.getGroup()), data.getResearch(), data.getVis(), aspects, width, height, ingredients, data.getOutput());
+            },
+            recipe -> {
+                java.util.Map<String, Integer> aspectMap = new java.util.LinkedHashMap<>();
+                if (recipe.getCrystals() != null && recipe.getCrystals().getAspects() != null) {
+                    for (Aspect a : recipe.getCrystals().getAspects()) {
+                        if (a != null) {
+                            aspectMap.put(a.getTag(), recipe.getCrystals().getAmount(a));
+                        }
+                    }
+                }
+
+                java.util.List<String> pattern = new java.util.ArrayList<>();
+                java.util.Map<String, Ingredient> keyMap = new java.util.LinkedHashMap<>();
+                int nextKey = 65; // 'A'
+
+                for (int r = 0; r < recipe.getRecipeHeight(); r++) {
+                    StringBuilder row = new StringBuilder();
+                    for (int c = 0; c < recipe.getRecipeWidth(); c++) {
+                        Ingredient ing = recipe.getIngredients().get(r * recipe.getRecipeWidth() + c);
+                        if (ing.isEmpty()) {
+                            row.append(" ");
+                        } else {
+                            String k = null;
+                            for (java.util.Map.Entry<String, Ingredient> entry : keyMap.entrySet()) {
+                                if (entry.getValue().equals(ing)) { // Simplistic check, Ingredient equals is usually object identity, might need improvement but usually suffices for serialization from memory
+                                    k = entry.getKey();
+                                    break;
+                                }
+                            }
+                            if (k == null) {
+                                k = String.valueOf((char)nextKey++);
+                                keyMap.put(k, ing);
+                            }
+                            row.append(k);
+                        }
+                    }
+                    pattern.add(row.toString());
+                }
+
+                return new ShapedArcaneRecipeJsonLogic.RecipeData<>(
+                        recipe.getGroup(),
+                        recipe.getResearch(),
+                        recipe.getVis(),
+                        aspectMap,
+                        recipe.recipeOutput instanceof ItemStack ? (ItemStack) recipe.recipeOutput : ItemStack.EMPTY,
+                        pattern,
+                        keyMap
+                );
+            }
+    );
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ShapedArcaneRecipe> STREAM_CODEC = StreamCodec.<RegistryFriendlyByteBuf, ShapedArcaneRecipeJsonLogic.RecipeData<Ingredient, ItemStack>, String, String, Integer, java.util.Map<String, Integer>, ItemStack, java.util.List<String>, java.util.Map<String, Ingredient>>composite(
+            ByteBufCodecs.STRING_UTF8, ShapedArcaneRecipeJsonLogic.RecipeData::getGroup,
+            ByteBufCodecs.STRING_UTF8, ShapedArcaneRecipeJsonLogic.RecipeData::getResearch,
+            ByteBufCodecs.INT, ShapedArcaneRecipeJsonLogic.RecipeData::getVis,
+            ByteBufCodecs.map(java.util.LinkedHashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.INT), ShapedArcaneRecipeJsonLogic.RecipeData::getCrystals,
+            ItemStack.STREAM_CODEC, ShapedArcaneRecipeJsonLogic.RecipeData::getOutput,
+            ByteBufCodecs.collection(java.util.ArrayList::new, ByteBufCodecs.STRING_UTF8), ShapedArcaneRecipeJsonLogic.RecipeData::getPattern,
+            ByteBufCodecs.map(java.util.LinkedHashMap::new, ByteBufCodecs.STRING_UTF8, Ingredient.CONTENTS_STREAM_CODEC), ShapedArcaneRecipeJsonLogic.RecipeData::getKey,
+            ShapedArcaneRecipeJsonLogic.RecipeData::new
+    ).map(
+            data -> {
+                AspectList aspects = new AspectList();
+                if (data.getCrystals() != null) {
+                    data.getCrystals().forEach((k, v) -> aspects.add(Aspect.getAspect(k), v));
+                }
+
+                int width = data.getPattern().get(0).length();
+                int height = data.getPattern().size();
+                NonNullList<Ingredient> ingredients = NonNullList.withSize(width * height, Ingredient.of());
+
+                for (int r = 0; r < height; r++) {
+                    String row = data.getPattern().get(r);
+                    for (int c = 0; c < width; c++) {
+                        String key = String.valueOf(row.charAt(c));
+                        Ingredient ing = data.getKey().getOrDefault(key, Ingredient.of());
+                        ingredients.set(r * width + c, ing);
+                    }
+                }
+
+                return new ShapedArcaneRecipe(Identifier.tryParse(data.getGroup()), data.getResearch(), data.getVis(), aspects, width, height, ingredients, data.getOutput());
+            },
+            recipe -> {
+                java.util.Map<String, Integer> aspectMap = new java.util.LinkedHashMap<>();
+                if (recipe.getCrystals() != null && recipe.getCrystals().getAspects() != null) {
+                    for (Aspect a : recipe.getCrystals().getAspects()) {
+                        if (a != null) {
+                            aspectMap.put(a.getTag(), recipe.getCrystals().getAmount(a));
+                        }
+                    }
+                }
+
+                java.util.List<String> pattern = new java.util.ArrayList<>();
+                java.util.Map<String, Ingredient> keyMap = new java.util.LinkedHashMap<>();
+                int nextKey = 65; // 'A'
+
+                for (int r = 0; r < recipe.getRecipeHeight(); r++) {
+                    StringBuilder row = new StringBuilder();
+                    for (int c = 0; c < recipe.getRecipeWidth(); c++) {
+                        Ingredient ing = recipe.getIngredients().get(r * recipe.getRecipeWidth() + c);
+                        if (ing.isEmpty()) {
+                            row.append(" ");
+                        } else {
+                            String k = null;
+                            for (java.util.Map.Entry<String, Ingredient> entry : keyMap.entrySet()) {
+                                if (entry.getValue().equals(ing)) {
+                                    k = entry.getKey();
+                                    break;
+                                }
+                            }
+                            if (k == null) {
+                                k = String.valueOf((char)nextKey++);
+                                keyMap.put(k, ing);
+                            }
+                            row.append(k);
+                        }
+                    }
+                    pattern.add(row.toString());
+                }
+
+                return new ShapedArcaneRecipeJsonLogic.RecipeData<>(
+                        recipe.getGroup(),
+                        recipe.getResearch(),
+                        recipe.getVis(),
+                        aspectMap,
+                        recipe.recipeOutput instanceof ItemStack ? (ItemStack) recipe.recipeOutput : ItemStack.EMPTY,
+                        pattern,
+                        keyMap
+                );
+            }
+    );
+
 	
 	private String research;
 	private int vis;
@@ -28,6 +200,18 @@ public class ShapedArcaneRecipe implements IArcaneRecipe {
 	private NonNullList<Ingredient> recipeItems;
 	private ItemStack recipeOutput;
 	private String group = "";
+
+
+    public ShapedArcaneRecipe(Identifier group, String res, int vis, AspectList crystals, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result) {
+        this.group = group != null ? group.toString() : "";
+        this.research = res;
+        this.vis = vis;
+        this.crystals = crystals;
+        this.width = width;
+        this.height = height;
+        this.recipeItems = ingredients;
+        this.recipeOutput = result;
+    }
 
 	public ShapedArcaneRecipe(Identifier group, String res, int vis, AspectList crystals, Block result, Object... recipe){ this(group, res, vis, crystals, new ItemStack(result), recipe); }
     public ShapedArcaneRecipe(Identifier group, String res, int vis, AspectList crystals, Item result, Object... recipe){ this(group, res, vis, crystals, new ItemStack(result), recipe); }
@@ -169,12 +353,12 @@ public class ShapedArcaneRecipe implements IArcaneRecipe {
 
 	@Override
 	public RecipeSerializer<? extends Recipe<RecipeInput>> getSerializer() {
-		return null;
+		return ThaumcraftRecipes.ARCANE_SHAPED.get();
 	}
 
 	@Override
 	public RecipeType<? extends Recipe<RecipeInput>> getType() {
-		return null;
+		return ThaumcraftRecipes.ARCANE_CRAFTING.get();
 	}
 
 	@Override

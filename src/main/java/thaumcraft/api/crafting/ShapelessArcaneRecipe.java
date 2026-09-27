@@ -20,6 +20,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import java.util.ArrayList;
 import java.util.List;
+import thaumcraft.common.crafting.ThaumcraftRecipes;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.ThaumcraftInvHelper;
 import thaumcraft.api.aspects.Aspect;
@@ -215,12 +216,12 @@ public class ShapelessArcaneRecipe implements IArcaneRecipe {
 
 	@Override
 	public RecipeSerializer<? extends Recipe<RecipeInput>> getSerializer() {
-		return null;
+		return ThaumcraftRecipes.ARCANE_SHAPELESS.get();
 	}
 
 	@Override
 	public RecipeType<? extends Recipe<RecipeInput>> getType() {
-		return null;
+		return ThaumcraftRecipes.ARCANE_CRAFTING.get();
 	}
 
 	@Override
