@@ -10,6 +10,7 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IAspectContainer;
 import thaumcraft.api.aspects.IEssentiaTransport;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
+import thaumcraft.common.tiles.essentia.logic.AlembicLogic;
 
 /**
  * Block entity for the Distillation Alembic — single-aspect essentia
@@ -17,7 +18,7 @@ import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
  *
  * <h3>Storage</h3>
  * <ul>
- *   <li>Holds one {@link Aspect} type at a time, up to {@value #MAX_AMOUNT}.</li>
+ *   <li>Holds one {@link Aspect} type at a time, up to {@link AlembicLogic#MAX_AMOUNT}.</li>
  *   <li>An optional {@link #aspectFilter} restricts which aspect is accepted.</li>
  * </ul>
  *
@@ -36,19 +37,10 @@ public class AlembicBlockEntity extends BlockEntity
         implements IAspectContainer, IEssentiaTransport {
 
     // -------------------------------------------------------------------------
-    // Constants
-    // -------------------------------------------------------------------------
-
-    /** Maximum essentia capacity. */
-    public static final int MAX_AMOUNT = 128;
-
-    // -------------------------------------------------------------------------
     // State
     // -------------------------------------------------------------------------
 
-    private Aspect aspect = null;
-    private Aspect aspectFilter = null;
-    private int amount = 0;
+    public final AlembicLogic logic = new AlembicLogic();
 
     /**
      * Direction ordinal of the face where a label is attached.
@@ -70,8 +62,8 @@ public class AlembicBlockEntity extends BlockEntity
 
     @Override
     public AspectList getAspects() {
-        return (aspect != null && amount > 0)
-                ? new AspectList().add(aspect, amount)
+        return (logic.getAspect() != null && logic.getAmount() > 0)
+                ? new AspectList().add(logic.getAspect(), logic.getAmount())
                 : new AspectList();
     }
 
@@ -87,34 +79,20 @@ public class AlembicBlockEntity extends BlockEntity
 
     @Override
     public int addToContainer(Aspect tag, int am) {
-        if (aspectFilter != null && tag != aspectFilter) return am;
-        if ((amount < MAX_AMOUNT && tag == aspect) || amount == 0) {
-            aspect = tag;
-            int added = Math.min(am, MAX_AMOUNT - amount);
-            amount += added;
-            am -= added;
+        int remainder = logic.addToContainer(tag, am);
+        if (remainder != am) {
+            setChanged();
         }
-        setChanged();
-        return am;
+        return remainder;
     }
 
     @Override
     public boolean takeFromContainer(Aspect tag, int am) {
-        if (amount == 0 || aspect == null) {
-            aspect = null;
-            amount = 0;
-            return false;
-        }
-        if (aspect == tag && amount >= am) {
-            amount -= am;
-            if (amount <= 0) {
-                aspect = null;
-                amount = 0;
-            }
+        boolean success = logic.takeFromContainer(tag, am);
+        if (success) {
             setChanged();
-            return true;
         }
-        return false;
+        return success;
     }
 
     @Deprecated
@@ -125,18 +103,18 @@ public class AlembicBlockEntity extends BlockEntity
 
     @Override
     public boolean doesContainerContainAmount(Aspect tag, int am) {
-        return tag == aspect && amount >= am;
+        return logic.doesContainerContainAmount(tag, am);
     }
 
     @Deprecated
     @Override
     public boolean doesContainerContain(AspectList ot) {
-        return amount > 0 && aspect != null && ot.getAmount(aspect) > 0;
+        return logic.getAmount() > 0 && logic.getAspect() != null && ot.getAmount(logic.getAspect()) > 0;
     }
 
     @Override
     public int containerContains(Aspect tag) {
-        return tag == aspect ? amount : 0;
+        return logic.containerContains(tag);
     }
 
     // -------------------------------------------------------------------------
@@ -175,12 +153,12 @@ public class AlembicBlockEntity extends BlockEntity
 
     @Override
     public Aspect getEssentiaType(Direction face) {
-        return aspect;
+        return logic.getAspect();
     }
 
     @Override
     public int getEssentiaAmount(Direction face) {
-        return amount;
+        return logic.getAmount();
     }
 
     @Override
@@ -202,20 +180,19 @@ public class AlembicBlockEntity extends BlockEntity
     // Accessors
     // -------------------------------------------------------------------------
 
-    public Aspect getStoredAspect() { return aspect; }
-    public int getAmount() { return amount; }
-    public int getMaxAmount() { return MAX_AMOUNT; }
+    public Aspect getStoredAspect() { return logic.getAspect(); }
+    public int getAmount() { return logic.getAmount(); }
+    public int getMaxAmount() { return AlembicLogic.MAX_AMOUNT; }
 
-    public Aspect getAspectFilter() { return aspectFilter; }
-    public void setAspectFilter(Aspect filter) { this.aspectFilter = filter; setChanged(); }
+    public Aspect getAspectFilter() { return logic.getAspectFilter(); }
+    public void setAspectFilter(Aspect filter) { logic.setAspectFilter(filter); setChanged(); }
 
     public int getFacing() { return facing; }
     public void setFacing(int facing) { this.facing = facing; setChanged(); }
 
     /** Clears all stored essentia without producing flux (for internal use). */
     public void clearEssentia() {
-        this.aspect = null;
-        this.amount = 0;
+        logic.clearEssentia();
         setChanged();
     }
 
@@ -226,29 +203,26 @@ public class AlembicBlockEntity extends BlockEntity
     @Override
     protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
         super.saveAdditional(output);
-        if (aspect != null) {
-            output.store("Aspect", com.mojang.serialization.Codec.STRING, aspect.getTag());
+        if (logic.getAspect() != null) {
+            output.store("Aspect", com.mojang.serialization.Codec.STRING, logic.getAspect().getTag());
         }
-        if (aspectFilter != null) {
-            output.store("AspectFilter", com.mojang.serialization.Codec.STRING, aspectFilter.getTag());
+        if (logic.getAspectFilter() != null) {
+            output.store("AspectFilter", com.mojang.serialization.Codec.STRING, logic.getAspectFilter().getTag());
         }
-        output.store("Amount", com.mojang.serialization.Codec.INT, amount);
+        output.store("Amount", com.mojang.serialization.Codec.INT, logic.getAmount());
         output.store("Facing", com.mojang.serialization.Codec.INT, facing);
     }
 
     @Override
     protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
         super.loadAdditional(input);
-        aspect = input.read("Aspect", com.mojang.serialization.Codec.STRING)
-                .map(Aspect::getAspect).orElse(null);
-        aspectFilter = input.read("AspectFilter", com.mojang.serialization.Codec.STRING)
-                .map(Aspect::getAspect).orElse(null);
-        amount = input.read("Amount", com.mojang.serialization.Codec.INT).orElse(0);
+        logic.setAspect(input.read("Aspect", com.mojang.serialization.Codec.STRING)
+                .map(Aspect::getAspect).orElse(null));
+        logic.setAspectFilter(input.read("AspectFilter", com.mojang.serialization.Codec.STRING)
+                .map(Aspect::getAspect).orElse(null));
+        logic.setAmount(input.read("Amount", com.mojang.serialization.Codec.INT).orElse(0));
         facing = input.read("Facing", com.mojang.serialization.Codec.INT)
                 .orElse(Direction.DOWN.ordinal());
-        // Guard: clamp
-        amount = Math.max(0, Math.min(MAX_AMOUNT, amount));
-        if (amount == 0) aspect = null;
     }
 
     // -------------------------------------------------------------------------
@@ -275,7 +249,7 @@ public class AlembicBlockEntity extends BlockEntity
         while (true) {
             BlockEntity te = level.getBlockEntity(pos.above(deep));
             if (te instanceof AlembicBlockEntity alembic) {
-                if (alembic.amount > 0 && alembic.aspect == aspect
+                if (alembic.getAmount() > 0 && alembic.getStoredAspect() == aspect
                         && alembic.addToContainer(aspect, 1) == 0) {
                     return true;
                 }
@@ -290,7 +264,7 @@ public class AlembicBlockEntity extends BlockEntity
         while (true) {
             BlockEntity te = level.getBlockEntity(pos.above(deep));
             if (te instanceof AlembicBlockEntity alembic) {
-                if ((alembic.aspectFilter == null || alembic.aspectFilter == aspect)
+                if ((alembic.getAspectFilter() == null || alembic.getAspectFilter() == aspect)
                         && alembic.addToContainer(aspect, 1) == 0) {
                     return true;
                 }
