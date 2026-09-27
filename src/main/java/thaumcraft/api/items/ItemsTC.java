@@ -87,6 +87,7 @@ public class ItemsTC {
 	
 	//Armor
 	public static Item goggles;	
+	public static Item thaumostaticHarness;
 	public static Item travellerBoots;	
 	public static Item thaumiumHelm;
 	public static Item thaumiumChest;
