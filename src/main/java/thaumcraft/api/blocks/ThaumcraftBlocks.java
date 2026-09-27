@@ -20,6 +20,9 @@ import thaumcraft.common.blocks.crafting.BlockInfusionMatrix;
 import thaumcraft.common.blocks.crafting.BlockPedestal;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.StairBlock;
 
 
 
@@ -34,10 +37,10 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> oreAmber = BLOCKS.registerSimpleBlock("ore_amber", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> oreCinnabar = BLOCKS.registerSimpleBlock("ore_cinnabar", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> oreQuartz = BLOCKS.registerSimpleBlock("ore_quartz", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> logGreatwood = BLOCKS.registerSimpleBlock("log_greatwood", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> logSilverwood = BLOCKS.registerSimpleBlock("log_silverwood", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> leafGreatwood = BLOCKS.registerSimpleBlock("leaf_greatwood", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> leafSilverwood = BLOCKS.registerSimpleBlock("leaf_silverwood", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<RotatedPillarBlock> logGreatwood = BLOCKS.registerBlock("log_greatwood", RotatedPillarBlock::new, () -> BlockBehaviour.Properties.of().sound(SoundType.WOOD).strength(2.5F));
+	public static DeferredBlock<RotatedPillarBlock> logSilverwood = BLOCKS.registerBlock("log_silverwood", RotatedPillarBlock::new, () -> BlockBehaviour.Properties.of().sound(SoundType.WOOD).strength(2.5F));
+	public static DeferredBlock<LeavesBlock> leafGreatwood = BLOCKS.registerBlock("leaf_greatwood", p -> new net.minecraft.world.level.block.TintedParticleLeavesBlock(0.01F, p), () -> BlockBehaviour.Properties.of().sound(SoundType.GRASS).strength(0.2F).noOcclusion().isSuffocating((s,g,p) -> false));
+	public static DeferredBlock<LeavesBlock> leafSilverwood = BLOCKS.registerBlock("leaf_silverwood", p -> new net.minecraft.world.level.block.TintedParticleLeavesBlock(0.01F, p), () -> BlockBehaviour.Properties.of().sound(SoundType.GRASS).strength(0.2F).noOcclusion().isSuffocating((s,g,p) -> false));
 	public static DeferredBlock<Block> saplingGreatwood = BLOCKS.registerSimpleBlock("sapling_greatwood", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> saplingSilverwood = BLOCKS.registerSimpleBlock("sapling_silverwood", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> shimmerleaf = BLOCKS.registerSimpleBlock("shimmerleaf", () -> BlockBehaviour.Properties.of());
@@ -62,12 +65,12 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> empty = BLOCKS.registerSimpleBlock("empty", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> amberBlock = BLOCKS.registerSimpleBlock("amber_block", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> amberBrick = BLOCKS.registerSimpleBlock("amber_brick", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> stairsArcane = BLOCKS.registerSimpleBlock("stairs_arcane", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> stairsArcaneBrick = BLOCKS.registerSimpleBlock("stairs_arcane_brick", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> stairsAncient = BLOCKS.registerSimpleBlock("stairs_ancient", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> stairsSilverwood = BLOCKS.registerSimpleBlock("stairs_silverwood", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> stairsGreatwood = BLOCKS.registerSimpleBlock("stairs_greatwood", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> stairsEldritch = BLOCKS.registerSimpleBlock("stairs_eldritch", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<StairBlock> stairsArcane = BLOCKS.registerBlock("stairs_arcane", p -> new StairBlock(stoneArcane.get().defaultBlockState(), p), () -> BlockBehaviour.Properties.ofFullCopy(stoneArcane.get()));
+	public static DeferredBlock<StairBlock> stairsArcaneBrick = BLOCKS.registerBlock("stairs_arcane_brick", p -> new StairBlock(stoneArcaneBrick.get().defaultBlockState(), p), () -> BlockBehaviour.Properties.ofFullCopy(stoneArcaneBrick.get()));
+	public static DeferredBlock<StairBlock> stairsAncient = BLOCKS.registerBlock("stairs_ancient", p -> new StairBlock(stoneAncient.get().defaultBlockState(), p), () -> BlockBehaviour.Properties.ofFullCopy(stoneAncient.get()));
+	public static DeferredBlock<StairBlock> stairsSilverwood = BLOCKS.registerBlock("stairs_silverwood", p -> new StairBlock(plankSilverwood.get().defaultBlockState(), p), () -> BlockBehaviour.Properties.ofFullCopy(plankSilverwood.get()));
+	public static DeferredBlock<StairBlock> stairsGreatwood = BLOCKS.registerBlock("stairs_greatwood", p -> new StairBlock(plankGreatwood.get().defaultBlockState(), p), () -> BlockBehaviour.Properties.ofFullCopy(plankGreatwood.get()));
+	public static DeferredBlock<StairBlock> stairsEldritch = BLOCKS.registerBlock("stairs_eldritch", p -> new StairBlock(stoneEldritchTile.get().defaultBlockState(), p), () -> BlockBehaviour.Properties.ofFullCopy(stoneEldritchTile.get()));
 	public static DeferredBlock<SlabBlock> slabGreatwood = BLOCKS.registerBlock("slab_greatwood", SlabBlock::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<SlabBlock> slabSilverwood = BLOCKS.registerBlock("slab_silverwood", SlabBlock::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<SlabBlock> slabArcaneStone = BLOCKS.registerBlock("slab_arcane_stone", SlabBlock::new, () -> BlockBehaviour.Properties.of());
