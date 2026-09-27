@@ -19,6 +19,8 @@ import thaumcraft.common.tiles.devices.HungryChestBlockEntity;
 import thaumcraft.common.tiles.devices.VoidSiphonBlockEntity;
 import thaumcraft.common.tiles.essentia.TileTube;
 import thaumcraft.common.tiles.essentia.CentrifugeBlockEntity;
+import thaumcraft.common.tiles.devices.VisBatteryBlockEntity;
+import thaumcraft.common.tiles.devices.RechargePedestalBlockEntity;
 
 public class ThaumcraftBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Thaumcraft.MODID);
@@ -142,6 +144,16 @@ public class ThaumcraftBlockEntities {
     public static final Supplier<BlockEntityType<CentrifugeBlockEntity>> CENTRIFUGE = BLOCK_ENTITIES.register(
             "centrifuge",
             () -> new BlockEntityType<>(CentrifugeBlockEntity::new, ThaumcraftBlocks.centrifuge.get())
+    );
+
+    public static final Supplier<BlockEntityType<VisBatteryBlockEntity>> VIS_BATTERY = BLOCK_ENTITIES.register(
+            "vis_battery",
+            () -> new BlockEntityType<>(VisBatteryBlockEntity::new, ThaumcraftBlocks.visBattery.get())
+    );
+
+    public static final Supplier<BlockEntityType<RechargePedestalBlockEntity>> RECHARGE_PEDESTAL = BLOCK_ENTITIES.register(
+            "recharge_pedestal",
+            () -> new BlockEntityType<>(RechargePedestalBlockEntity::new, ThaumcraftBlocks.rechargePedestal.get())
     );
 
 }
