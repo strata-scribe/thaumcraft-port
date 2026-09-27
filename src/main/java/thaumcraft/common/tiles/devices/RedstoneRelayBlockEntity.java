@@ -12,11 +12,11 @@ import thaumcraft.common.tiles.essentia.JarBlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public class TileRedstoneRelay extends BlockEntity {
+public class RedstoneRelayBlockEntity extends BlockEntity {
 
     private int tickCount = 0;
 
-    public TileRedstoneRelay(BlockPos pos, BlockState state) {
+    public RedstoneRelayBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.REDSTONE_RELAY.get(), pos, state);
     }
 
@@ -33,7 +33,7 @@ public class TileRedstoneRelay extends BlockEntity {
         output.store("TickCount", com.mojang.serialization.Codec.INT, this.tickCount);
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, TileRedstoneRelay tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, RedstoneRelayBlockEntity tile) {
         if (level.isClientSide()) {
             return;
         }
@@ -55,6 +55,32 @@ public class TileRedstoneRelay extends BlockEntity {
             int currentPower = state.getValue(BlockRedstoneRelay.POWER);
             if (currentPower != newPower) {
                 level.setBlockAndUpdate(pos, state.setValue(BlockRedstoneRelay.POWER, newPower).setValue(BlockRedstoneRelay.POWERED, newPower > 0));
+
+                thaumcraft.common.lib.RedstoneRelayLogic.transmitPower(new thaumcraft.common.lib.RedstoneRelayLogic.IEnvironment() {
+                    @Override
+                    public boolean isRedstoneRelay(int x, int y, int z) {
+                        return level.getBlockState(new BlockPos(x, y, z)).getBlock() instanceof BlockRedstoneRelay;
+                    }
+
+                    @Override
+                    public int getPower(int x, int y, int z) {
+                        return level.getBlockState(new BlockPos(x, y, z)).getValue(BlockRedstoneRelay.POWER);
+                    }
+
+                    @Override
+                    public void setPower(int x, int y, int z, int p) {
+                        BlockPos pPos = new BlockPos(x, y, z);
+                        BlockState targetState = level.getBlockState(pPos);
+                        level.setBlockAndUpdate(pPos, targetState.setValue(BlockRedstoneRelay.POWER, p).setValue(BlockRedstoneRelay.POWERED, p > 0));
+                    }
+
+                    @Override
+                    public boolean isLineOfSightBlocked(int x, int y, int z) {
+                        BlockPos pPos = new BlockPos(x, y, z);
+                        BlockState targetState = level.getBlockState(pPos);
+                        return !targetState.isAir() && targetState.isRedstoneConductor(level, pPos);
+                    }
+                }, pos.getX(), pos.getY(), pos.getZ(), newPower);
             }
         }
     }

@@ -47,23 +47,31 @@ public class BlockRedstoneRelay extends Block implements net.minecraft.world.lev
     }
 
     private void transmitPower(Level level, BlockPos pos, int power) {
-        // Transmit power wirelessly across line of sight to another relay
-        for (Direction dir : Direction.values()) {
-            for (int i = 1; i <= 16; i++) {
-                BlockPos targetPos = pos.relative(dir, i);
-                BlockState targetState = level.getBlockState(targetPos);
-
-                if (targetState.getBlock() instanceof BlockRedstoneRelay) {
-                    if (targetState.getValue(POWER) != power) {
-                        level.setBlockAndUpdate(targetPos, targetState.setValue(POWER, power).setValue(POWERED, power > 0));
-                    }
-                    break;
-                } else if (!targetState.isAir() && targetState.isRedstoneConductor(level, targetPos)) {
-                    // Line of sight blocked
-                    break;
-                }
+        thaumcraft.common.lib.RedstoneRelayLogic.transmitPower(new thaumcraft.common.lib.RedstoneRelayLogic.IEnvironment() {
+            @Override
+            public boolean isRedstoneRelay(int x, int y, int z) {
+                return level.getBlockState(new BlockPos(x, y, z)).getBlock() instanceof BlockRedstoneRelay;
             }
-        }
+
+            @Override
+            public int getPower(int x, int y, int z) {
+                return level.getBlockState(new BlockPos(x, y, z)).getValue(POWER);
+            }
+
+            @Override
+            public void setPower(int x, int y, int z, int p) {
+                BlockPos pPos = new BlockPos(x, y, z);
+                BlockState targetState = level.getBlockState(pPos);
+                level.setBlockAndUpdate(pPos, targetState.setValue(POWER, p).setValue(POWERED, p > 0));
+            }
+
+            @Override
+            public boolean isLineOfSightBlocked(int x, int y, int z) {
+                BlockPos pPos = new BlockPos(x, y, z);
+                BlockState targetState = level.getBlockState(pPos);
+                return !targetState.isAir() && targetState.isRedstoneConductor(level, pPos);
+            }
+        }, pos.getX(), pos.getY(), pos.getZ(), power);
     }
 
     @Override
@@ -84,13 +92,13 @@ public class BlockRedstoneRelay extends Block implements net.minecraft.world.lev
     @Nullable
     @Override
     public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new thaumcraft.common.tiles.devices.TileRedstoneRelay(pos, state);
+        return new thaumcraft.common.tiles.devices.RedstoneRelayBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends net.minecraft.world.level.block.entity.BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<T> getTicker(Level level, BlockState state, net.minecraft.world.level.block.entity.BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.REDSTONE_RELAY.get(), thaumcraft.common.tiles.devices.TileRedstoneRelay::tick);
+        return createTickerHelper(blockEntityType, thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.REDSTONE_RELAY.get(), thaumcraft.common.tiles.devices.RedstoneRelayBlockEntity::tick);
     }
 
     @SuppressWarnings("unchecked")
