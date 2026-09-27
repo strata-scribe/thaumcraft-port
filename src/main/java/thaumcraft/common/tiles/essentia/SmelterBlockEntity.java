@@ -224,7 +224,7 @@ public class SmelterBlockEntity extends BlockEntity {
      */
     public int computeSmeltTime(AspectList inputAspects) {
         int totalVis = inputAspects.visSize();
-        int baseTime = Math.max(1, (int)(totalVis * 2 * (1.0f - 0.125f * bellows)));
+        int baseTime = Math.max(1, (int)(totalVis * 2 * (1.0f - 0.25f * bellows)));
         return SmelterAuxLogic.calculateSmeltTime(baseTime, auxPumps);
     }
 

@@ -1,6 +1,22 @@
 package thaumcraft.common.lib;
 
 public class BellowsLogic {
+    public static float getNewInflation(float currentInflation, int direction) {
+        float f = currentInflation + (direction * (1.0f / 12.0f));
+        if (f > 0.999f) f = 1.0f;
+        if (f < 0.001f) f = 0.0f;
+        return Math.max(0.0f, Math.min(1.0f, f));
+    }
+
+    public static int getNewDirection(float currentInflation, int currentDirection) {
+        if (currentInflation <= 0.0f) {
+            return 1;
+        } else if (currentInflation >= 1.0f) {
+            return -1;
+        }
+        return currentDirection;
+    }
+
     public static int getAcceleratedFurnaceProgress(int currentProgress, int bellowsCount) {
         // Furnace normally progresses by 1. With 1 bellows, it gets +1 (total 2).
         return currentProgress + bellowsCount;
