@@ -18,7 +18,7 @@ import thaumcraft.api.aura.AuraChunk;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.blocks.ThaumcraftBlocks;
 
-public class TileCondenser extends BlockEntity implements IEssentiaTransport {
+public class FluxCondenserBlockEntity extends BlockEntity implements IEssentiaTransport {
 
     private final CondenserLogic logic = new CondenserLogic();
     private int ticks = 0;
@@ -27,11 +27,11 @@ public class TileCondenser extends BlockEntity implements IEssentiaTransport {
     private Aspect essentiaType = null;
     private int essentiaAmount = 0;
 
-    public TileCondenser(BlockPos pos, BlockState state) {
+    public FluxCondenserBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.CONDENSER.get(), pos, state);
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, TileCondenser tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, FluxCondenserBlockEntity tile) {
         if (level.isClientSide()) return;
 
         tile.ticks++;
