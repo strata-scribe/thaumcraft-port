@@ -17,7 +17,7 @@ public class CardSynthesis extends TheorycraftCard
     Aspect aspect1;
     Aspect aspect2;
     Aspect aspect3;
-    
+
     @Override
     public CompoundTag serialize() {
         CompoundTag nbt = super.serialize();
@@ -26,7 +26,7 @@ public class CardSynthesis extends TheorycraftCard
         if (aspect3 != null) nbt.putString("aspect3", aspect3.getTag());
         return nbt;
     }
-    
+
     @Override
     public void deserialize(CompoundTag nbt) {
         super.deserialize(nbt);
@@ -34,7 +34,7 @@ public class CardSynthesis extends TheorycraftCard
         aspect2 = Aspect.getAspect(nbt.getStringOr("aspect2", ""));
         aspect3 = Aspect.getAspect(nbt.getStringOr("aspect3", ""));
     }
-    
+
     @Override
     public boolean initialize(Player player, ResearchTableData data) {
         List<String[]> compoundAspects = new ArrayList<>();
@@ -51,37 +51,37 @@ public class CardSynthesis extends TheorycraftCard
         }
         return false;
     }
-    
+
     @Override
     public int getInspirationCost() {
         return 1;
     }
-    
+
     @Override
     public String getResearchCategory() {
         return "ALCHEMY";
     }
-    
+
     @Override
     public String getLocalizedName() {
         return Component.translatable("card.synthesis.name").getString();
     }
-    
+
     @Override
     public String getLocalizedText() {
         return Component.translatable("card.synthesis.text", ChatFormatting.BOLD + aspect1.getName() + ChatFormatting.RESET, ChatFormatting.BOLD + aspect2.getName() + ChatFormatting.RESET).getString();
     }
-    
+
     @Override
     public ItemStack[] getRequiredItems() {
         return new ItemStack[] { ThaumcraftApiHelper.makeCrystal(aspect1), ThaumcraftApiHelper.makeCrystal(aspect2) };
     }
-    
+
     @Override
     public boolean[] getRequiredItemsConsumed() {
         return new boolean[] { true, true };
     }
-    
+
     @Override
     public boolean activate(Player player, ResearchTableData data) {
         CardSynthesisLogic.ActivationResult actResult = CardSynthesisLogic.calculateActivation(getRandomFloat(player));
@@ -90,7 +90,8 @@ public class CardSynthesis extends TheorycraftCard
             data.addInspiration(actResult.bonusInspiration);
         }
 
-        givePlayerItem(player);
+        ItemStack res = ThaumcraftApiHelper.makeCrystal(aspect3);
+        givePlayerItem(player, res);
         return true;
     }
 
@@ -98,9 +99,8 @@ public class CardSynthesis extends TheorycraftCard
         return player.getRandom().nextFloat();
     }
 
-    protected void givePlayerItem(Player player) {
-        ItemStack res = ThaumcraftApiHelper.makeCrystal(aspect3);
-        if (player != null && !player.getInventory().add(res)) {
+    protected void givePlayerItem(Player player, ItemStack res) {
+        if (!player.getInventory().add(res)) {
             player.drop(res, true);
         }
     }
