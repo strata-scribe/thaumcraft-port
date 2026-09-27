@@ -62,4 +62,25 @@ public class CrimsonPortalSpawningLogic {
 
         return new CultistWaveMix(knights, clerics, praetors);
     }
+
+    /**
+     * Calculates the time in ticks until the next portal wave spawns.
+     *
+     * @param baseTimer the baseline spawn timer in ticks
+     * @param difficultyModifier a difficulty modifier (higher reduces the timer)
+     * @param playerWarp the nearby player's warp level
+     * @return the time in ticks until the next spawn
+     */
+    public static int calculateSpawnTimer(int baseTimer, double difficultyModifier, int playerWarp) {
+        double modifier = Math.max(0.1, difficultyModifier);
+        int timer = (int) (baseTimer / modifier);
+
+        // High warp reduces spawn timer slightly
+        if (playerWarp > 0) {
+            int warpReduction = Math.min(playerWarp * 2, baseTimer / 2);
+            timer -= warpReduction;
+        }
+
+        return Math.max(20, timer); // minimum 20 ticks
+    }
 }

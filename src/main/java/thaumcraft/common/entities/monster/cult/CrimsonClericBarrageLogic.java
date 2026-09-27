@@ -60,4 +60,33 @@ public class CrimsonClericBarrageLogic {
         // Return at least 1 tick interval
         return (int) Math.max(1, Math.round(baseInterval / modifier));
     }
+
+    /**
+     * Calculates the predicted target position based on velocity, distance, and projectile speed.
+     *
+     * @param targetX the target's current X position
+     * @param targetY the target's current Y position
+     * @param targetZ the target's current Z position
+     * @param targetVx the target's X velocity
+     * @param targetVy the target's Y velocity
+     * @param targetVz the target's Z velocity
+     * @param distance the distance to the target
+     * @param projectileSpeed the speed of the projectile
+     * @return A double array [x, y, z] representing the predicted position
+     */
+    public static double[] calculateAimLeading(double targetX, double targetY, double targetZ,
+                                               double targetVx, double targetVy, double targetVz,
+                                               double distance, double projectileSpeed) {
+        if (projectileSpeed <= 0) {
+            return new double[]{targetX, targetY, targetZ};
+        }
+
+        double timeToTarget = distance / projectileSpeed;
+
+        return new double[]{
+            targetX + (targetVx * timeToTarget),
+            targetY + (targetVy * timeToTarget),
+            targetZ + (targetVz * timeToTarget)
+        };
+    }
 }
