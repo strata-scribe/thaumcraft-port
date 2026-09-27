@@ -4,10 +4,10 @@ import net.minecraft.resources.Identifier;
 import thaumcraft.api.golems.EnumGolemTrait;
 
 
+import thaumcraft.api.golems.ThaumcraftGolemRegistries;
+
 public class GolemLeg
 {
-    protected static GolemLeg[] legs;
-    public byte id;
     public String key;
     public String[] research;
     public Identifier icon;
@@ -15,7 +15,6 @@ public class GolemLeg
     public EnumGolemTrait[] traits;
     public ILegFunction function;
     public PartModel model;
-    private static byte lastID;
     
     public GolemLeg(String key, String[] research, Identifier icon, PartModel model, Object[] comp, EnumGolemTrait[] tags) {
         this.key = key;
@@ -32,17 +31,6 @@ public class GolemLeg
         this.function = function;
     }
     
-    public static void register(GolemLeg thing) {
-        thing.id = GolemLeg.lastID;
-        ++GolemLeg.lastID;
-        if (thing.id >= GolemLeg.legs.length) {
-            GolemLeg[] temp = new GolemLeg[thing.id + 1];
-            System.arraycopy(GolemLeg.legs, 0, temp, 0, GolemLeg.legs.length);
-            GolemLeg.legs = temp;
-        }
-        GolemLeg.legs[thing.id] = thing;
-    }
-    
     public String getLocalizedName() {
         return net.minecraft.network.chat.Component.translatable("golem.leg." + key.toLowerCase()).getString();
     }
@@ -52,12 +40,9 @@ public class GolemLeg
     }
     
     public static GolemLeg[] getLegs() {
-        return GolemLeg.legs;
-    }
-    
-    static {
-        GolemLeg.legs = new GolemLeg[1];
-        GolemLeg.lastID = 0;
+        return ThaumcraftGolemRegistries.GOLEM_LEGS.getEntries().stream()
+                .map(net.neoforged.neoforge.registries.DeferredHolder::get)
+                .toArray(GolemLeg[]::new);
     }
     
     public interface ILegFunction extends IGenericFunction
