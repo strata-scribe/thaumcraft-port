@@ -11,6 +11,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -20,34 +21,41 @@ import thaumcraft.api.aura.AuraChunk;
 @EventBusSubscriber(modid = Thaumcraft.MODID)
 public class AuraHandler {
 
-    // Thread-safe map of Level -> ChunkPos -> AuraChunk
-    private static final Map<ResourceKey<Level>, Map<ChunkPos, AuraChunk>> AURA_CHUNKS = new ConcurrentHashMap<>();
-
     private static final Map<ResourceKey<Level>, Integer> TICK_COUNTERS = new ConcurrentHashMap<>();
     private static final int TICK_INTERVAL = 20;
 
-    public static AuraChunk getAuraChunk(ResourceKey<Level> dim, ChunkPos pos) {
-        Map<ChunkPos, AuraChunk> levelMap = AURA_CHUNKS.computeIfAbsent(dim, k -> new ConcurrentHashMap<>());
-        return levelMap.computeIfAbsent(pos, k -> new AuraChunk((short) 100, 100.0f, 0.0f));
+    public static AuraChunk getAuraChunk(Level dim, ChunkPos pos) {
+        if (!(dim instanceof ServerLevel)) {
+            return new AuraChunk((short) 100, 100.0f, 0.0f);
+        }
+        AuraSavedData data = ((ServerLevel) dim).getDataStorage().computeIfAbsent(AuraSavedData.TYPE);
+        return data.getChunks().computeIfAbsent(pos, k -> {
+            data.setDirty();
+            return new AuraChunk((short) 100, 100.0f, 0.0f);
+        });
     }
 
-    public static void addAuraChunk(ResourceKey<Level> dim, ChunkPos pos, AuraChunk chunk) {
-        AURA_CHUNKS.computeIfAbsent(dim, k -> new ConcurrentHashMap<>()).put(pos, chunk);
+    public static void addAuraChunk(Level dim, ChunkPos pos, AuraChunk chunk) {
+        if (!(dim instanceof ServerLevel)) return;
+        AuraSavedData data = ((ServerLevel) dim).getDataStorage().computeIfAbsent(AuraSavedData.TYPE);
+        data.getChunks().put(pos, chunk);
+        data.setDirty();
     }
 
-    public static Map<ChunkPos, AuraChunk> getAuraChunks(ResourceKey<Level> dim) {
-        return AURA_CHUNKS.computeIfAbsent(dim, k -> new ConcurrentHashMap<>());
+    public static Map<ChunkPos, AuraChunk> getAuraChunks(Level dim) {
+        if (!(dim instanceof ServerLevel)) return new ConcurrentHashMap<>();
+        AuraSavedData data = ((ServerLevel) dim).getDataStorage().computeIfAbsent(AuraSavedData.TYPE);
+        return data.getChunks();
     }
 
     public static void clear() {
-        AURA_CHUNKS.clear();
         TICK_COUNTERS.clear();
     }
 
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent.Post event) {
         Level level = event.getLevel();
-        if (level.isClientSide()) return;
+        if (level.isClientSide() || !(level instanceof ServerLevel)) return;
 
         ResourceKey<Level> dim = level.dimension();
         int ticks = TICK_COUNTERS.getOrDefault(dim, 0) + 1;
@@ -57,15 +65,17 @@ public class AuraHandler {
             return;
         }
 
-        performDiffusion(dim);
+        performDiffusion((ServerLevel) level);
     }
 
-    public static void performDiffusion(ResourceKey<Level> dim) {
-        Map<ChunkPos, AuraChunk> chunks = AURA_CHUNKS.get(dim);
+    public static void performDiffusion(ServerLevel level) {
+        AuraSavedData data = level.getDataStorage().computeIfAbsent(AuraSavedData.TYPE);
+        Map<ChunkPos, AuraChunk> chunks = data.getChunks();
         if (chunks == null || chunks.isEmpty()) return;
 
         // Take a snapshot of the chunks to process to avoid CMEs
         Set<ChunkPos> activeChunks = new HashSet<>(chunks.keySet());
+        boolean changed = false;
 
         for (ChunkPos pos : activeChunks) {
             AuraChunk chunk = chunks.get(pos);
@@ -82,6 +92,11 @@ public class AuraHandler {
             }
 
             AuraDiffusionSimulationLogic.diffuseChunk(chunk, neighbors);
+            changed = true;
+        }
+
+        if (changed) {
+            data.setDirty();
         }
     }
 }

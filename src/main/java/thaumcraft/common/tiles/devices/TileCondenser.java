@@ -37,7 +37,7 @@ public class TileCondenser extends BlockEntity implements IEssentiaTransport {
         tile.ticks++;
         if (tile.ticks % 5 != 0) return; // run every 5 ticks
 
-        AuraChunk chunk = AuraHandler.getAuraChunk(level.dimension(), new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4));
+        AuraChunk chunk = AuraHandler.getAuraChunk(level, new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4));
 
         tile.logic.tick(chunk, new CondenserLogic.BlockProvider() {
             @Override
