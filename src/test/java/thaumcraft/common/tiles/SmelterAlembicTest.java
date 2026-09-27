@@ -37,7 +37,7 @@ public class SmelterAlembicTest {
      * Lightweight alembic stub mirroring AlembicBlockEntity logic.
      */
     static class TestAlembic {
-        static final int MAX_AMOUNT = 128;
+        static final int MAX_AMOUNT = 32;
 
         Aspect aspect = null;
         Aspect aspectFilter = null;
@@ -403,23 +403,23 @@ public class SmelterAlembicTest {
 
         @Test
         void alembicAcceptsSameAspect() {
-            alembic.addToContainer(Aspect.FIRE, 50);
-            int left = alembic.addToContainer(Aspect.FIRE, 30);
+            alembic.addToContainer(Aspect.FIRE, 10);
+            int left = alembic.addToContainer(Aspect.FIRE, 10);
             assertEquals(0, left);
-            assertEquals(80, alembic.amount);
+            assertEquals(20, alembic.amount);
         }
 
         @Test
         void alembicCapacityEnforced() {
-            alembic.addToContainer(Aspect.EARTH, 100);
-            int left = alembic.addToContainer(Aspect.EARTH, 50);
-            assertEquals(22, left, "Should overflow by 22 (100+50-128=22)");
+            alembic.addToContainer(Aspect.EARTH, 20);
+            int left = alembic.addToContainer(Aspect.EARTH, 15);
+            assertEquals(3, left, "Should overflow by 3 (20+15-32=3)");
             assertEquals(TestAlembic.MAX_AMOUNT, alembic.amount);
         }
 
         @Test
         void capacityConstant() {
-            assertEquals(128, TestAlembic.MAX_AMOUNT);
+            assertEquals(32, TestAlembic.MAX_AMOUNT);
         }
     }
 
@@ -483,10 +483,10 @@ public class SmelterAlembicTest {
             TestAlembic a2 = new TestAlembic();
 
             // a1 has WATER (different), a2 is empty
-            a1.addToContainer(Aspect.WATER, 50);
+            a1.addToContainer(Aspect.WATER, 20);
 
             assertTrue(processAlembics(new TestAlembic[]{a1, a2}, Aspect.FIRE));
-            assertEquals(50, a1.amount, "a1 should remain unchanged (different aspect)");
+            assertEquals(20, a1.amount, "a1 should remain unchanged (different aspect)");
             assertEquals(1, a2.amount, "a2 should receive the FIRE");
             assertEquals(Aspect.FIRE, a2.aspect);
         }
@@ -623,16 +623,16 @@ public class SmelterAlembicTest {
 
         @Test
         void alembicComparatorHalfway() {
-            alembic.addToContainer(Aspect.FIRE, 64);
-            // (64/128 * 14) + 1 = 7 + 1 = 8
-            int expected = (int)(64 / (float) TestAlembic.MAX_AMOUNT * 14.0f) + 1;
+            alembic.addToContainer(Aspect.FIRE, 16);
+            // (16/32 * 14) + 1 = 7 + 1 = 8
+            int expected = (int)(16 / (float) TestAlembic.MAX_AMOUNT * 14.0f) + 1;
             assertEquals(expected, alembic.comparatorLevel());
         }
 
         @Test
         void alembicComparatorSingle() {
             alembic.addToContainer(Aspect.FIRE, 1);
-            // (1/128 * 14) + 1 = 0 + 1 = 1
+            // (1/32 * 14) + 1 = 0 + 1 = 1
             int expected = (int)(1 / (float) TestAlembic.MAX_AMOUNT * 14.0f) + 1;
             assertEquals(expected, alembic.comparatorLevel());
         }
@@ -648,7 +648,7 @@ public class SmelterAlembicTest {
         @Test
         void alembicStateRoundTrip() {
             // Simulate save → load cycle by verifying field consistency
-            alembic.addToContainer(Aspect.FIRE, 42);
+            alembic.addToContainer(Aspect.FIRE, 20);
             alembic.aspectFilter = Aspect.WATER;
             alembic.facing = 3; // SOUTH
 
@@ -667,7 +667,7 @@ public class SmelterAlembicTest {
 
             assertEquals(Aspect.FIRE, loaded.aspect);
             assertEquals(Aspect.WATER, loaded.aspectFilter);
-            assertEquals(42, loaded.amount);
+            assertEquals(20, loaded.amount);
             assertEquals(3, loaded.facing);
         }
 
