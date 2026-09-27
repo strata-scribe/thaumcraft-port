@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -19,13 +20,17 @@ import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.blocks.devices.logic.ArcaneEarNoteLogic;
 
 @EventBusSubscriber
-public class TileArcaneEar extends BlockEntity {
+public class ArcaneEarBlockEntity extends BlockEntity {
     private int note = 0;
     private NoteBlockInstrument instrument = NoteBlockInstrument.HARP;
     private int activeTicks = 0;
 
-    public TileArcaneEar(BlockPos pos, BlockState state) {
+    public ArcaneEarBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.ARCANE_EAR.get(), pos, state);
+    }
+
+    protected ArcaneEarBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     public void tune(Player player) {
@@ -49,7 +54,7 @@ public class TileArcaneEar extends BlockEntity {
         }
     }
 
-    public static void serverTick(Level level, BlockPos pos, BlockState state, TileArcaneEar be) {
+    public static void serverTick(Level level, BlockPos pos, BlockState state, ArcaneEarBlockEntity be) {
         if (be.activeTicks > 0) {
             be.activeTicks--;
             if (be.activeTicks == 0) {
@@ -95,12 +100,6 @@ public class TileArcaneEar extends BlockEntity {
             int note = event.getVanillaNoteId();
             NoteBlockInstrument instrument = event.getInstrument();
 
-            // Note: Efficiently querying block entities might be needed if lots of them exist,
-            // but for simplicity we can just iterate loaded tile entities or rely on a custom registry.
-            // In Neoforge, you can get BlockEntities from chunks, but iterating all in a radius might be costly.
-            // As a simple implementation for now, iterate block entities in chunk.
-            // But this runs on any block entity so better to iterate blockpos.
-            // Optimize search by checking chunk block entities
             int radius = 16;
             net.minecraft.world.phys.AABB area = new net.minecraft.world.phys.AABB(sourcePos).inflate(radius);
             int minX = net.minecraft.util.Mth.floor(area.minX) >> 4;
@@ -113,7 +112,7 @@ public class TileArcaneEar extends BlockEntity {
                     if (level.hasChunk(cx, cz)) {
                         net.minecraft.world.level.chunk.LevelChunk chunk = level.getChunk(cx, cz);
                         for (BlockEntity be : chunk.getBlockEntities().values()) {
-                            if (be instanceof TileArcaneEar ear && be.getBlockPos().closerThan(sourcePos, radius)) {
+                            if (be instanceof ArcaneEarBlockEntity ear && be.getBlockPos().closerThan(sourcePos, radius)) {
                                 if (ArcaneEarNoteLogic.matches(note, instrument.name(), ear.getNote(), ear.getInstrument().name())) {
                                     ear.trigger();
                                 }

@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
-import thaumcraft.common.tiles.devices.TileArcaneEar;
+import thaumcraft.common.tiles.devices.ArcaneEarBlockEntity;
 
 import com.mojang.serialization.MapCodec;
 
@@ -45,7 +45,7 @@ public class BlockArcaneEar extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TileArcaneEar(pos, state);
+        return new ArcaneEarBlockEntity(pos, state);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class BlockArcaneEar extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof TileArcaneEar ear) {
+        if (be instanceof ArcaneEarBlockEntity ear) {
             ear.tune(player);
             return InteractionResult.CONSUME;
         }
@@ -87,6 +87,6 @@ public class BlockArcaneEar extends BaseEntityBlock {
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(type, ThaumcraftBlockEntities.ARCANE_EAR.get(), TileArcaneEar::serverTick);
+        return createTickerHelper(type, ThaumcraftBlockEntities.ARCANE_EAR.get(), ArcaneEarBlockEntity::serverTick);
     }
 }

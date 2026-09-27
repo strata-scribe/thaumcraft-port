@@ -130,9 +130,9 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(AlembicBlockEntity::new, ThaumcraftBlocks.alembic.get())
     );
 
-    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.TileArcaneEar>> ARCANE_EAR = BLOCK_ENTITIES.register(
+    public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.ArcaneEarBlockEntity>> ARCANE_EAR = BLOCK_ENTITIES.register(
             "arcane_ear",
-            () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.TileArcaneEar::new, ThaumcraftBlocks.arcaneEar.get())
+            () -> new BlockEntityType<>(thaumcraft.common.tiles.devices.ArcaneEarBlockEntity::new, ThaumcraftBlocks.arcaneEar.get())
     );
 
     public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.FluxCondenserBlockEntity>> CONDENSER = BLOCK_ENTITIES.register(
