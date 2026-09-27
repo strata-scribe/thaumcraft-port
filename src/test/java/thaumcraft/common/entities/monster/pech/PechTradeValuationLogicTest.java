@@ -82,6 +82,30 @@ public class PechTradeValuationLogicTest {
     }
 
     @Test
+    public void testTradePoolSelectionBasedOnValueScore() {
+        // Test selection based on effective score exactly at the thresholds
+
+        // NONE (effective < 2.0)
+        assertEquals(PechTradeValuationLogic.BarterYield.NONE, PechTradeValuationLogic.determineBarterYield(2, 0.49));
+
+        // COMMON (2.0 <= effective < 5.0)
+        assertEquals(PechTradeValuationLogic.BarterYield.COMMON, PechTradeValuationLogic.determineBarterYield(2, 0.5));
+        assertEquals(PechTradeValuationLogic.BarterYield.COMMON, PechTradeValuationLogic.determineBarterYield(4, 0.74));
+
+        // UNCOMMON (5.0 <= effective < 10.0)
+        assertEquals(PechTradeValuationLogic.BarterYield.UNCOMMON, PechTradeValuationLogic.determineBarterYield(5, 0.5));
+        assertEquals(PechTradeValuationLogic.BarterYield.UNCOMMON, PechTradeValuationLogic.determineBarterYield(6, 0.5));
+
+        // RARE (10.0 <= effective < 20.0)
+        assertEquals(PechTradeValuationLogic.BarterYield.RARE, PechTradeValuationLogic.determineBarterYield(10, 0.5));
+        assertEquals(PechTradeValuationLogic.BarterYield.RARE, PechTradeValuationLogic.determineBarterYield(15, 0.5));
+
+        // ARTIFACT (20.0 <= effective)
+        assertEquals(PechTradeValuationLogic.BarterYield.ARTIFACT, PechTradeValuationLogic.determineBarterYield(20, 0.5));
+        assertEquals(PechTradeValuationLogic.BarterYield.ARTIFACT, PechTradeValuationLogic.determineBarterYield(30, 0.5));
+    }
+
+    @Test
     public void testDetermineBarterYield_ArtifactYield() {
         // Score = 20, Random = 0.5 -> Effective = 20 * 1.0 = 20.0 (>= 20.0)
         assertEquals(PechTradeValuationLogic.BarterYield.ARTIFACT, PechTradeValuationLogic.determineBarterYield(20, 0.5));
