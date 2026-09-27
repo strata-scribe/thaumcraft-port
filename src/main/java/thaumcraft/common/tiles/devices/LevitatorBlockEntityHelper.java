@@ -6,7 +6,7 @@ import net.minecraft.world.phys.AABB;
 
 import java.util.function.Predicate;
 
-public class TileLevitatorHelper {
+public class LevitatorBlockEntityHelper {
 
     public static final int MAX_RANGE = 10;
 

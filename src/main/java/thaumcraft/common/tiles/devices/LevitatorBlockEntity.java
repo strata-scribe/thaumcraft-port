@@ -17,9 +17,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
-public class TileLevitator extends BlockEntity {
+public class LevitatorBlockEntity extends BlockEntity {
 
-    public TileLevitator(BlockPos pos, BlockState state) {
+    public LevitatorBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.LEVITATOR.get(), pos, state);
     }
 
@@ -36,7 +36,7 @@ public class TileLevitator extends BlockEntity {
         // Any specific levitator data can be saved here.
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, TileLevitator tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, LevitatorBlockEntity tile) {
         AABB beamBox = getBeamBoxIfActive(pos, state, (p) -> {
             BlockState checkState = level.getBlockState(p);
             return checkState.isCollisionShapeFullBlock(level, p);
@@ -65,13 +65,13 @@ public class TileLevitator extends BlockEntity {
         }
 
         Direction facing = state.getValue(BlockLevitator.FACING);
-        int distance = TileLevitatorHelper.calculateBeamDistance(pos, facing, isSolid);
+        int distance = LevitatorBlockEntityHelper.calculateBeamDistance(pos, facing, isSolid);
 
         if (distance == 0) {
             return null;
         }
 
-        return TileLevitatorHelper.calculateBeamBox(pos, facing, distance);
+        return LevitatorBlockEntityHelper.calculateBeamBox(pos, facing, distance);
     }
 
     public static void applyLevitation(Entity entity, Direction facing, boolean inverted) {
