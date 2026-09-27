@@ -26,6 +26,18 @@ public class PechDialogueLogicTest {
     }
 
     @Test
+    public void testFriendshipProgressionTiers() {
+        // Wary (Angry) -> Neutral
+        assertEquals(Mood.NEUTRAL, PechDialogueLogic.evaluateMoodTransition(Mood.ANGRY, 12));
+
+        // Neutral -> Friendly
+        assertEquals(Mood.FRIENDLY, PechDialogueLogic.evaluateMoodTransition(Mood.NEUTRAL, 15));
+
+        // Stays Friendly with high value
+        assertEquals(Mood.FRIENDLY, PechDialogueLogic.evaluateMoodTransition(Mood.FRIENDLY, 20));
+    }
+
+    @Test
     public void testDialogueResponses() {
         // Angry responses
         assertEquals(-1, PechDialogueLogic.getDialogueResponse(Mood.ANGRY, 0));

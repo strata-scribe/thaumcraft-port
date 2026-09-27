@@ -37,4 +37,10 @@ public class PechBarterLogicTest {
         // Gold ingot (3) + 10 vis (5) = 8
         assertEquals(8, PechBarterLogic.getBarterValue(false, true, false, false, 10));
     }
+
+    @Test
+    public void testThaumcraftCrystalValue() {
+        // Crystal only (10 vis) = 5
+        assertEquals(5, PechBarterLogic.getBarterValue(false, false, false, false, 10));
+    }
 }
