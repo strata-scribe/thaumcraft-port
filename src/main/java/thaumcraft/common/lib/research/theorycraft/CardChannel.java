@@ -63,7 +63,7 @@ public class CardChannel extends TheorycraftCard
     
     @Override
     public boolean activate(Player player, ResearchTableData data) {
-        data.addTotal(getResearchCategory(), 25);
+        data.addTotal(getResearchCategory(), thaumcraft.common.lib.research.theorycraft.logic.CardChannelLogic.calculateAffinityBoost());
         return true;
     }
 }

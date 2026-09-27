@@ -79,46 +79,21 @@ public class CardCurio extends TheorycraftCard
     
     @Override
     public boolean activate(Player player, ResearchTableData data) {
-        data.addTotal("BASICS", 5);
+        String type = "arcane"; // Mock type, originally from curio item
+        thaumcraft.common.lib.research.theorycraft.logic.CardCurioLogic.ProgressionReward reward =
+                thaumcraft.common.lib.research.theorycraft.logic.CardCurioLogic.calculateProgressionRewards(player.getRandom().nextLong(), type);
+
+        data.addTotal("BASICS", reward.basicsBonus);
         String[] s = ResearchCategories.researchCategories.keySet().toArray(new String[0]);
-        data.addTotal(s[player.getRandom().nextInt(s.length)], 5);
-        String s2;
-        String type = s2 = "arcane";
-        switch (s2) {
-            case "arcane": {
-                data.addTotal("AUROMANCY", player.getRandom().nextIntBetweenInclusive(25, 35));
-                break;
-            }
-            case "preserved": {
-                data.addTotal("ALCHEMY", player.getRandom().nextIntBetweenInclusive(25, 35));
-                break;
-            }
-            case "ancient": {
-                data.addTotal("GOLEMANCY", player.getRandom().nextIntBetweenInclusive(25, 35));
-                break;
-            }
-            case "eldritch": {
-                data.addTotal("ELDRITCH", player.getRandom().nextIntBetweenInclusive(25, 35));
-                break;
-            }
-            case "knowledge": {
-                data.addTotal("INFUSION", player.getRandom().nextIntBetweenInclusive(25, 35));
-                break;
-            }
-            case "twisted": {
-                data.addTotal("ARTIFICE", player.getRandom().nextIntBetweenInclusive(25, 35));
-                break;
-            }
-            case "rites": {
-                data.addTotal("ELDRITCH", player.getRandom().nextIntBetweenInclusive(15, 20));
-                data.addTotal("AUROMANCY", player.getRandom().nextIntBetweenInclusive(10, 15));
-                break;
-            }
-            default: {
-                data.addTotal("BASICS", player.getRandom().nextIntBetweenInclusive(25, 35));
-                break;
-            }
+        data.addTotal(s[player.getRandom().nextInt(s.length)], reward.basicsBonus);
+
+        if (reward.category != null && !reward.category.isEmpty()) {
+            data.addTotal(reward.category, reward.categoryPoints);
         }
+        if (reward.secondaryCategory != null && !reward.secondaryCategory.isEmpty()) {
+            data.addTotal(reward.secondaryCategory, reward.secondaryPoints);
+        }
+
         if (player.getRandom().nextBoolean()) {
             // ++data.bonusDraws;
         }
