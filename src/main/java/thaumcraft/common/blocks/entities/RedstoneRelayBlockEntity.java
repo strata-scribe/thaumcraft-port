@@ -1,4 +1,4 @@
-package thaumcraft.common.tiles.devices;
+package thaumcraft.common.blocks.entities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -6,17 +6,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import thaumcraft.api.aura.AuraHelper;
 import thaumcraft.common.blocks.devices.BlockRedstoneRelay;
-import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.lib.LevitatorRelayLogic;
 import thaumcraft.common.tiles.essentia.JarBlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-public class TileRedstoneRelay extends BlockEntity {
+public class RedstoneRelayBlockEntity extends BlockEntity {
 
     private int tickCount = 0;
 
-    public TileRedstoneRelay(BlockPos pos, BlockState state) {
+    public RedstoneRelayBlockEntity(BlockPos pos, BlockState state) {
         super(ThaumcraftBlockEntities.REDSTONE_RELAY.get(), pos, state);
     }
 
@@ -33,7 +32,7 @@ public class TileRedstoneRelay extends BlockEntity {
         output.store("TickCount", com.mojang.serialization.Codec.INT, this.tickCount);
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, TileRedstoneRelay tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, RedstoneRelayBlockEntity tile) {
         if (level.isClientSide()) {
             return;
         }

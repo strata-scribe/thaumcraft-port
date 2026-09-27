@@ -4,7 +4,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -12,10 +14,18 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import org.jetbrains.annotations.Nullable;
+import thaumcraft.common.blocks.entities.RedstoneRelayBlockEntity;
+import com.mojang.serialization.MapCodec;
 
-public class BlockRedstoneRelay extends Block implements net.minecraft.world.level.block.EntityBlock {
+public class BlockRedstoneRelay extends BaseEntityBlock {
+    public static final MapCodec<BlockRedstoneRelay> CODEC = simpleCodec(BlockRedstoneRelay::new);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
 
     public BlockRedstoneRelay(Properties properties) {
         super(properties);
@@ -81,22 +91,21 @@ public class BlockRedstoneRelay extends Block implements net.minecraft.world.lev
         return state.getValue(POWER);
     }
 
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
     @Nullable
     @Override
     public net.minecraft.world.level.block.entity.BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new thaumcraft.common.tiles.devices.TileRedstoneRelay(pos, state);
+        return new RedstoneRelayBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends net.minecraft.world.level.block.entity.BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<T> getTicker(Level level, BlockState state, net.minecraft.world.level.block.entity.BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.REDSTONE_RELAY.get(), thaumcraft.common.tiles.devices.TileRedstoneRelay::tick);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Nullable
-    protected static <E extends net.minecraft.world.level.block.entity.BlockEntity, A extends net.minecraft.world.level.block.entity.BlockEntity> net.minecraft.world.level.block.entity.BlockEntityTicker<A> createTickerHelper(net.minecraft.world.level.block.entity.BlockEntityType<A> type, net.minecraft.world.level.block.entity.BlockEntityType<E> targetType, net.minecraft.world.level.block.entity.BlockEntityTicker<? super E> ticker) {
-        return targetType == type ? (net.minecraft.world.level.block.entity.BlockEntityTicker<A>) ticker : null;
+        return createTickerHelper(blockEntityType, thaumcraft.common.blocks.entities.ThaumcraftBlockEntities.REDSTONE_RELAY.get(), RedstoneRelayBlockEntity::tick);
     }
 
 }
