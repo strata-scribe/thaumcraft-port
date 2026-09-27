@@ -8,6 +8,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import org.jetbrains.annotations.Nullable;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IEssentiaContainerItem;
@@ -16,9 +18,15 @@ import thaumcraft.api.items.ThaumcraftItems;
 import thaumcraft.common.tiles.essentia.TileTubeFilter;
 
 public class BlockTubeFilter extends BlockTube {
+    public static final MapCodec<BlockTubeFilter> CODEC = simpleCodec(BlockTubeFilter::new);
 
     public BlockTubeFilter(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<BlockTubeFilter> codec() {
+        return CODEC;
     }
 
     @Nullable
