@@ -10,14 +10,14 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.SimpleContainer;
 import thaumcraft.api.blocks.ThaumcraftBlocks;
-import thaumcraft.common.tiles.devices.TileFocalManipulator;
+import thaumcraft.common.tiles.devices.FocalManipulatorBlockEntity;
 
 public class FocalManipulatorMenu extends AbstractContainerMenu {
 
-    private final TileFocalManipulator manipulator;
+    private final FocalManipulatorBlockEntity manipulator;
     private final ContainerLevelAccess access;
 
-    public FocalManipulatorMenu(int containerId, Inventory playerInventory, TileFocalManipulator manipulator, ContainerLevelAccess access) {
+    public FocalManipulatorMenu(int containerId, Inventory playerInventory, FocalManipulatorBlockEntity manipulator, ContainerLevelAccess access) {
         super(ThaumcraftMenus.FOCAL_MANIPULATOR.get(), containerId);
         this.manipulator = manipulator;
         this.access = access;
@@ -57,12 +57,12 @@ public class FocalManipulatorMenu extends AbstractContainerMenu {
             pos = playerInventory.player.blockPosition();
         }
 
-        TileFocalManipulator be = null;
-        if (playerInventory.player != null && playerInventory.player.level().getBlockEntity(pos) instanceof TileFocalManipulator found) {
+        FocalManipulatorBlockEntity be = null;
+        if (playerInventory.player != null && playerInventory.player.level().getBlockEntity(pos) instanceof FocalManipulatorBlockEntity found) {
             be = found;
         }
         if (be == null) {
-            be = new TileFocalManipulator(pos, ThaumcraftBlocks.focalManipulator.get().defaultBlockState());
+            be = new FocalManipulatorBlockEntity(pos, ThaumcraftBlocks.focalManipulator.get().defaultBlockState());
         }
 
         return new FocalManipulatorMenu(containerId, playerInventory, be,

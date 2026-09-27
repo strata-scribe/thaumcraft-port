@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-import thaumcraft.common.tiles.devices.TileFocalManipulator;
+import thaumcraft.common.tiles.devices.FocalManipulatorBlockEntity;
 
 public class BlockFocalManipulator extends Block implements EntityBlock {
 
@@ -41,14 +41,14 @@ public class BlockFocalManipulator extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TileFocalManipulator(pos, state);
+        return new FocalManipulatorBlockEntity(pos, state);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof TileFocalManipulator manipulator) {
+            if (blockEntity instanceof FocalManipulatorBlockEntity manipulator) {
                 serverPlayer.openMenu(manipulator, pos);
             }
         }

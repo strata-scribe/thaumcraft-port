@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.container.FocalManipulatorMenu;
 
-public class TileFocalManipulator extends BlockEntity implements Container, MenuProvider {
+public class FocalManipulatorBlockEntity extends BlockEntity implements Container, MenuProvider {
 
     public static final int FOCUS_SLOT = 0;
     public static final int CRYSTAL_SLOTS = 6;
@@ -26,7 +26,7 @@ public class TileFocalManipulator extends BlockEntity implements Container, Menu
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(TOTAL_SLOTS, ItemStack.EMPTY);
 
-    public TileFocalManipulator(BlockPos pos, BlockState blockState) {
+    public FocalManipulatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ThaumcraftBlockEntities.FOCAL_MANIPULATOR.get(), pos, blockState);
     }
 
