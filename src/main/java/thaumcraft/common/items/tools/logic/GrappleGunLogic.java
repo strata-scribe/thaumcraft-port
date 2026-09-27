@@ -1,4 +1,4 @@
-package thaumcraft.common.items.tools;
+package thaumcraft.common.items.tools.logic;
 
 import java.util.function.Predicate;
 
