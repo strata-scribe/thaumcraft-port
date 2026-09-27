@@ -1,16 +1,13 @@
-package thaumcraft.common.blocks.devices;
+package thaumcraft.common.tiles.devices;
 
 import org.junit.jupiter.api.Test;
+import thaumcraft.common.blocks.devices.logic.ArcaneEarNoteLogic;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ArcaneEarTest {
+public class ArcaneEarBlockEntityTest {
 
     @Test
     public void testArcaneEarLogic() {
-        // As Minecraft environments are difficult to mock for simple tests,
-        // we can write a plain Java POJO test testing the tuning cycling logic
-        // Since we can't easily instantiate TileArcaneEar, we simulate the state changes here.
-
         int note = 0;
         int instrumentIndex = 0; // 0 = HARP
 
@@ -35,12 +32,14 @@ public class ArcaneEarTest {
 
         // trigger
         powered = true;
-        int activeTicks = 20;
+        int activeTicks = ArcaneEarNoteLogic.getPulseLengthTicks();
 
         assertTrue(powered);
+        assertEquals(20, activeTicks);
 
         // tick
         activeTicks--;
+        assertTrue(activeTicks > 0);
 
         // fast forward
         activeTicks = 0;
@@ -49,5 +48,12 @@ public class ArcaneEarTest {
         }
 
         assertFalse(powered, "Should power off after ticks exhaust");
+    }
+
+    @Test
+    public void testMatchLogic() {
+        assertTrue(ArcaneEarNoteLogic.matches(5, "HARP", 5, "HARP"));
+        assertFalse(ArcaneEarNoteLogic.matches(5, "HARP", 6, "HARP"));
+        assertFalse(ArcaneEarNoteLogic.matches(5, "HARP", 5, "BASEDRUM"));
     }
 }
