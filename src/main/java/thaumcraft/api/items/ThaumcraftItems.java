@@ -55,7 +55,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> chunks = ITEMS.registerSimpleItem("chunks", p -> p);
     public static final DeferredItem<Item> tripleMeatTreat = ITEMS.registerSimpleItem("triple_meat_treat", p -> p);
     public static final DeferredItem<Item> brain = ITEMS.registerSimpleItem("brain", p -> p);
-    public static final DeferredItem<Item> phial = ITEMS.registerSimpleItem("phial", p -> p);
+    public static final DeferredItem<Item> phial = ITEMS.registerItem("phial", thaumcraft.common.items.consumables.ItemPhial::new);
     public static final DeferredItem<Item> label = ITEMS.registerSimpleItem("label", p -> p);
     public static final DeferredItem<Item> bottleTaint = ITEMS.registerSimpleItem("bottle_taint", p -> p);
     public static final DeferredItem<Item> vitiumSlag = ITEMS.registerSimpleItem("vitium_slag", p -> p);
