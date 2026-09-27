@@ -54,15 +54,34 @@ public class SealGather extends SealFiltered implements ISealConfigArea, ISealCo
 
         if (delay++ % 5 != 0) return;
 
-        AABB area = GolemHelper.getBoundsForArea(seal);
-        List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, area);
+        AABB mcArea = GolemHelper.getBoundsForArea(seal);
+        SealGatherLogic.BoundingBox area = new SealGatherLogic.BoundingBox(
+                mcArea.minX, mcArea.minY, mcArea.minZ,
+                mcArea.maxX, mcArea.maxY, mcArea.maxZ
+        );
 
-        for (ItemEntity ent : items) {
-            if (ent != null && ent.isAlive() && !ent.hasPickUpDelay() && !ent.getItem().isEmpty()) {
-                if (matchesFilter(ent.getItem())) {
-                    Task task = new Task(seal.getSealPos(), ent);
-                    task.setPriority(seal.getPriority());
-                    task.setLifespan((short) 300);
+        List<ItemEntity> mcItems = world.getEntitiesOfClass(ItemEntity.class, mcArea);
+
+        for (ItemEntity ent : mcItems) {
+            if (ent != null) {
+                SealGatherLogic.GatherTask gatherTask = SealGatherLogic.evaluateItemAndCreateTask(area, new SealGatherLogic.ItemAdapter() {
+                    @Override public Object getEntityReference() { return ent; }
+                    @Override public double getMinX() { return ent.getBoundingBox().minX; }
+                    @Override public double getMinY() { return ent.getBoundingBox().minY; }
+                    @Override public double getMinZ() { return ent.getBoundingBox().minZ; }
+                    @Override public double getMaxX() { return ent.getBoundingBox().maxX; }
+                    @Override public double getMaxY() { return ent.getBoundingBox().maxY; }
+                    @Override public double getMaxZ() { return ent.getBoundingBox().maxZ; }
+                    @Override public boolean isAlive() { return ent.isAlive(); }
+                    @Override public boolean hasPickUpDelay() { return ent.hasPickUpDelay(); }
+                    @Override public int getStackSize() { return ent.getItem().getCount(); }
+                    @Override public boolean matchesFilter() { return SealGather.this.matchesFilter(ent.getItem()); }
+                }, seal.getPriority());
+
+                if (gatherTask != null) {
+                    Task task = new Task(seal.getSealPos(), (ItemEntity) gatherTask.entityReference);
+                    task.setPriority(gatherTask.priority);
+                    task.setLifespan(gatherTask.lifespan);
                     TaskHandler.addTask(world.dimension(), task);
                     break;
                 }
