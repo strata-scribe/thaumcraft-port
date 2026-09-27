@@ -1,5 +1,7 @@
 package thaumcraft.common.items.tools;
 
+import thaumcraft.common.items.tools.logic.ThaumometerZoomLogic;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
