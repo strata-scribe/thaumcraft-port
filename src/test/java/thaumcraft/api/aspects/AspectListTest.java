@@ -244,4 +244,114 @@ public class AspectListTest {
         assertEquals(5, readList.getAmount(primal1));
         assertEquals(10, readList.getAmount(primal2));
     }
+
+    @Test
+    public void testSubtractingAspects() {
+        AspectList list = new AspectList();
+        list.add(primal1, 10);
+
+        // Subtracting more than we have using remove
+        list.remove(primal1, 15);
+        assertEquals(0, list.getAmount(primal1));
+        assertEquals(0, list.size());
+
+        // Reducing a non-existent aspect
+        assertFalse(list.reduce(primal2, 5));
+        assertEquals(0, list.getAmount(primal2));
+
+        // Removing a non-existent aspect
+        list.remove(primal2, 5);
+        assertEquals(0, list.getAmount(primal2));
+    }
+
+    @Test
+    public void testCodecSerializationUnregisteredAspect() {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("invalid_aspect_key", 5);
+        tag.putInt(primal1.getTag(), 10);
+
+        DataResult<AspectList> decodeResult = AspectList.CODEC.parse(NbtOps.INSTANCE, tag);
+        assertTrue(decodeResult.isSuccess());
+
+        AspectList decodedList = decodeResult.getOrThrow();
+        assertEquals(1, decodedList.size());
+        assertEquals(10, decodedList.getAmount(primal1));
+    }
+
+    @Test
+    public void testSortWithNulls() {
+        AspectList list = new AspectList();
+        list.add(primal1, 5);
+        list.add(null, 10);
+        list.add(primal2, 2);
+
+        Aspect[] sortedByName = list.getAspectsSortedByName();
+        assertEquals(3, sortedByName.length);
+
+        Aspect[] sortedByAmount = list.getAspectsSortedByAmount();
+        assertEquals(3, sortedByAmount.length);
+
+        Aspect[] sortedByPrimal = list.getAspectsSortedByPrimalAspectHierarchy();
+        assertEquals(3, sortedByPrimal.length);
+    }
+
+    @Test
+    public void testAddAndRemoveNullAspect() {
+        AspectList list = new AspectList();
+        list.add(null, 5);
+        assertEquals(5, list.getAmount(null));
+        list.remove((Aspect)null);
+        assertEquals(0, list.getAmount(null));
+    }
+
+    @Test
+    public void testMergeEmptyList() {
+        AspectList list1 = new AspectList();
+        list1.add(primal1, 5);
+
+        AspectList list2 = new AspectList();
+        list1.merge(list2);
+
+        assertEquals(1, list1.size());
+        assertEquals(5, list1.getAmount(primal1));
+
+        list2.merge(list1);
+        assertEquals(1, list2.size());
+        assertEquals(5, list2.getAmount(primal1));
+    }
+
+    @Test
+    public void testReadFromNBTInvalidKey() {
+        CompoundTag nbt = new CompoundTag();
+        net.minecraft.nbt.ListTag tlist = new net.minecraft.nbt.ListTag();
+
+        CompoundTag entry1 = new CompoundTag();
+        entry1.putString("key", primal1.getTag());
+        entry1.putInt("amount", 5);
+        tlist.add(entry1);
+
+        CompoundTag entry2 = new CompoundTag();
+        entry2.putString("key", "nonexistent_aspect");
+        entry2.putInt("amount", 10);
+        tlist.add(entry2);
+
+        nbt.put("Aspects", tlist);
+
+        AspectList list = new AspectList();
+        list.readFromNBT(nbt);
+
+        // Aspect.getAspect("nonexistent_aspect") will return null.
+        // It's still added as null -> 10.
+        assertEquals(2, list.size());
+        assertEquals(5, list.getAmount(primal1));
+        assertEquals(10, list.getAmount(null));
+    }
+
+    @Test
+    public void testConstructorWithItemStack() {
+        // Just verify constructor doesn't crash with null or empty
+        net.minecraft.world.item.ItemStack stack = net.minecraft.world.item.ItemStack.EMPTY;
+        AspectList list = new AspectList(stack);
+        assertNotNull(list);
+    }
 }
