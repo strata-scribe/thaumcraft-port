@@ -9,10 +9,10 @@ import thaumcraft.api.golems.EnumGolemTrait;
 import thaumcraft.api.golems.IGolemAPI;
 
 
+import thaumcraft.api.golems.ThaumcraftGolemRegistries;
+
 public class GolemArm
 {
-    protected static GolemArm[] arms;
-    public byte id;
     public String key;
     public String[] research;
     public Identifier icon;
@@ -20,7 +20,6 @@ public class GolemArm
     public EnumGolemTrait[] traits;
     public IArmFunction function;
     public PartModel model;
-    private static byte lastID;
     
     public GolemArm(String key, String[] research, Identifier icon, PartModel model, Object[] comp, EnumGolemTrait[] tags) {
         this.key = key;
@@ -37,17 +36,6 @@ public class GolemArm
         this.function = function;
     }
     
-    public static void register(GolemArm thing) {
-        thing.id = GolemArm.lastID;
-        ++GolemArm.lastID;
-        if (thing.id >= GolemArm.arms.length) {
-            GolemArm[] temp = new GolemArm[thing.id + 1];
-            System.arraycopy(GolemArm.arms, 0, temp, 0, GolemArm.arms.length);
-            GolemArm.arms = temp;
-        }
-        GolemArm.arms[thing.id] = thing;
-    }
-    
     public String getLocalizedName() {
         return net.minecraft.network.chat.Component.translatable("golem.arm." + key.toLowerCase()).getString();
     }
@@ -57,12 +45,9 @@ public class GolemArm
     }
     
     public static GolemArm[] getArms() {
-        return GolemArm.arms;
-    }
-    
-    static {
-        GolemArm.arms = new GolemArm[1];
-        GolemArm.lastID = 0;
+        return ThaumcraftGolemRegistries.GOLEM_ARMS.getEntries().stream()
+                .map(net.neoforged.neoforge.registries.DeferredHolder::get)
+                .toArray(GolemArm[]::new);
     }
     
     public interface IArmFunction extends IGenericFunction

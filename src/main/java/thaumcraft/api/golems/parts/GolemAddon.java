@@ -4,10 +4,10 @@ import net.minecraft.resources.Identifier;
 import thaumcraft.api.golems.EnumGolemTrait;
 
 
+import thaumcraft.api.golems.ThaumcraftGolemRegistries;
+
 public class GolemAddon
 {
-    protected static GolemAddon[] addons;
-    public byte id;
     public String key;
     public String[] research;
     public Identifier icon;
@@ -15,7 +15,6 @@ public class GolemAddon
     public EnumGolemTrait[] traits;
     public IAddonFunction function;
     public PartModel model;
-    private static byte lastID;
     
     public GolemAddon(String key, String[] research, Identifier icon, PartModel model, Object[] comp, EnumGolemTrait[] tags) {
         this.key = key;
@@ -32,17 +31,6 @@ public class GolemAddon
         this.function = function;
     }
     
-    public static void register(GolemAddon thing) {
-        thing.id = GolemAddon.lastID;
-        ++GolemAddon.lastID;
-        if (thing.id >= GolemAddon.addons.length) {
-            GolemAddon[] temp = new GolemAddon[thing.id + 1];
-            System.arraycopy(GolemAddon.addons, 0, temp, 0, GolemAddon.addons.length);
-            GolemAddon.addons = temp;
-        }
-        GolemAddon.addons[thing.id] = thing;
-    }
-    
     public String getLocalizedName() {
         return net.minecraft.network.chat.Component.translatable("golem.addon." + key.toLowerCase()).getString();
     }
@@ -52,12 +40,9 @@ public class GolemAddon
     }
     
     public static GolemAddon[] getAddons() {
-        return GolemAddon.addons;
-    }
-    
-    static {
-        GolemAddon.addons = new GolemAddon[1];
-        GolemAddon.lastID = 0;
+        return ThaumcraftGolemRegistries.GOLEM_ADDONS.getEntries().stream()
+                .map(net.neoforged.neoforge.registries.DeferredHolder::get)
+                .toArray(GolemAddon[]::new);
     }
     
     public interface IAddonFunction extends IGenericFunction
