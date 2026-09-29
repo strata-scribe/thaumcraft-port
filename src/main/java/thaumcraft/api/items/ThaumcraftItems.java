@@ -118,7 +118,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> crimsonPraetorLegs = ITEMS.registerSimpleItem("crimson_praetor_legs", p -> p);
     public static final DeferredItem<Item> baubles = ITEMS.registerSimpleItem("baubles", p -> p);
     public static final DeferredItem<Item> amuletVis = ITEMS.registerSimpleItem("amulet_vis", p -> p);
-    public static final DeferredItem<Item> charmVerdant = ITEMS.registerSimpleItem("charm_verdant", p -> p);
+    public static final DeferredItem<Item> charmVerdant = ITEMS.registerItem("charm_verdant", thaumcraft.common.items.curios.ItemVerdantCharm::new);
     public static final DeferredItem<Item> charmVoidseer = ITEMS.registerSimpleItem("charm_voidseer", p -> p);
     public static final DeferredItem<Item> bandCuriosity = ITEMS.registerSimpleItem("band_curiosity", p -> p);
     public static final DeferredItem<Item> ringCloud = ITEMS.registerItem("ring_cloud", thaumcraft.common.items.curios.ItemCloudRing::new);
