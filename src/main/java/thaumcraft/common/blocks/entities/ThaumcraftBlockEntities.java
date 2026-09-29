@@ -13,7 +13,7 @@ import thaumcraft.common.tiles.essentia.SmelterBlockEntity;
 import thaumcraft.common.tiles.essentia.AlembicBlockEntity;
 import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
 import thaumcraft.common.tiles.crafting.InfusionMatrixBlockEntity;
-import thaumcraft.common.tiles.devices.TileLevitator;
+import thaumcraft.common.tiles.devices.LevitatorBlockEntity;
 import thaumcraft.common.tiles.devices.HungryChestBlockEntity;
 import thaumcraft.common.tiles.devices.VoidSiphonBlockEntity;
 import thaumcraft.common.tiles.essentia.TileTube;
@@ -46,9 +46,9 @@ public class ThaumcraftBlockEntities {
             () -> new BlockEntityType<>(RedstoneRelayBlockEntity::new, ThaumcraftBlocks.redstoneRelay.get())
     );
 
-    public static final Supplier<BlockEntityType<TileLevitator>> LEVITATOR = BLOCK_ENTITIES.register(
+    public static final Supplier<BlockEntityType<LevitatorBlockEntity>> LEVITATOR = BLOCK_ENTITIES.register(
             "levitator",
-            () -> new BlockEntityType<>(TileLevitator::new, ThaumcraftBlocks.levitator.get())
+            () -> new BlockEntityType<>(LevitatorBlockEntity::new, ThaumcraftBlocks.levitator.get())
     );
 
     public static final Supplier<BlockEntityType<thaumcraft.common.tiles.devices.FocalManipulatorBlockEntity>> FOCAL_MANIPULATOR = BLOCK_ENTITIES.register(

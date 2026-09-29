@@ -1,11 +1,13 @@
 package thaumcraft.common.blocks.devices;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -16,9 +18,11 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
-import thaumcraft.common.tiles.devices.TileLevitator;
+import thaumcraft.common.tiles.devices.LevitatorBlockEntity;
 
-public class BlockLevitator extends Block implements EntityBlock {
+public class BlockLevitator extends BaseEntityBlock {
+
+    public static final MapCodec<BlockLevitator> CODEC = simpleCodec(BlockLevitator::new);
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -30,10 +34,19 @@ public class BlockLevitator extends Block implements EntityBlock {
     }
 
     @Override
+    protected MapCodec<BlockLevitator> codec() {
+        return CODEC;
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, POWERED, INVERTED);
     }
 
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
 
     @Override
     protected net.minecraft.world.InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, net.minecraft.world.entity.player.Player player, net.minecraft.world.phys.BlockHitResult hitResult) {
@@ -46,6 +59,7 @@ public class BlockLevitator extends Block implements EntityBlock {
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -70,18 +84,12 @@ public class BlockLevitator extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new TileLevitator(pos, state);
+        return new LevitatorBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, ThaumcraftBlockEntities.LEVITATOR.get(), TileLevitator::tick);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Nullable
-    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> type, BlockEntityType<E> targetType, BlockEntityTicker<? super E> ticker) {
-        return targetType == type ? (BlockEntityTicker<A>) ticker : null;
+        return createTickerHelper(blockEntityType, ThaumcraftBlockEntities.LEVITATOR.get(), LevitatorBlockEntity::tick);
     }
 }
