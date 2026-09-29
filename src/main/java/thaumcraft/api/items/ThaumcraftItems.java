@@ -121,7 +121,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> charmVerdant = ITEMS.registerSimpleItem("charm_verdant", p -> p);
     public static final DeferredItem<Item> charmVoidseer = ITEMS.registerSimpleItem("charm_voidseer", p -> p);
     public static final DeferredItem<Item> bandCuriosity = ITEMS.registerSimpleItem("band_curiosity", p -> p);
-    public static final DeferredItem<Item> ringCloud = ITEMS.registerSimpleItem("ring_cloud", p -> p);
+    public static final DeferredItem<Item> ringCloud = ITEMS.registerItem("ring_cloud", thaumcraft.common.items.curios.ItemCloudRing::new);
     public static final DeferredItem<Item> charmUndying = ITEMS.registerSimpleItem("charm_undying", p -> p);
     public static final DeferredItem<Item> creativePlacer = ITEMS.registerSimpleItem("creative_placer", p -> p);
     public static final DeferredItem<Item> creativeFluxSponge = ITEMS.registerSimpleItem("creative_flux_sponge", p -> p);
