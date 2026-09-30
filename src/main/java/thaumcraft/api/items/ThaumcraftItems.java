@@ -79,7 +79,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> voidPick = ITEMS.registerSimpleItem("void_pick", p -> p);
     public static final DeferredItem<Item> voidHoe = ITEMS.registerSimpleItem("void_hoe", p -> p);
     public static final DeferredItem<Item> crimsonBlade = ITEMS.registerSimpleItem("crimson_blade", p -> p);
-    public static final DeferredItem<Item> primalCrusher = ITEMS.registerSimpleItem("primal_crusher", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemPrimalCrusher> primalCrusher = ITEMS.registerItem("primal_crusher", thaumcraft.common.items.tools.ItemPrimalCrusher::new, p -> p.stacksTo(1).durability(500));
     public static final DeferredItem<Item> sanityChecker = ITEMS.registerSimpleItem("sanity_checker", p -> p);
     public static final DeferredItem<Item> resonator = ITEMS.registerSimpleItem("resonator", p -> p);
     public static final DeferredItem<Item> handMirror = ITEMS.registerSimpleItem("hand_mirror", p -> p);
