@@ -127,4 +127,12 @@ public class VisBatteryStorageLogic {
         if (deficit <= 0.0f) return 0.0f;
         return Math.min(dischargeRate, Math.min(deficit, storedVis));
     }
+
+    /**
+     * Calculates redstone comparator output signal (0 to 15) from a battery fill ratio (0.0 to 1.0).
+     */
+    public static int calculateComparatorSignal(float fillRatio) {
+        if (Float.isNaN(fillRatio) || fillRatio <= 0.0f) return 0;
+        return Math.min(15, (int) Math.floor(fillRatio * 15.0f));
+    }
 }

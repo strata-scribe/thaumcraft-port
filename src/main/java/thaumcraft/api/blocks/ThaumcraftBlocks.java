@@ -3,6 +3,8 @@ import java.util.HashMap;
 import net.minecraft.world.level.block.Block;
 import thaumcraft.common.blocks.devices.BlockHungryChest;
 import thaumcraft.common.blocks.devices.BlockVoidSiphon;
+import thaumcraft.common.blocks.devices.BlockVisBattery;
+import thaumcraft.common.blocks.devices.BlockRechargePedestal;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -146,7 +148,7 @@ public class ThaumcraftBlocks {
 	// public static DeferredBlock<Block> redstoneRelay = BLOCKS.registerSimpleBlock("redstone_relay", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> matrixSpeed = BLOCKS.registerSimpleBlock("matrix_speed", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> matrixCost = BLOCKS.registerSimpleBlock("matrix_cost", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> visBattery = BLOCKS.registerSimpleBlock("vis_battery", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockVisBattery> visBattery = BLOCKS.registerBlock("vis_battery", BlockVisBattery::new, () -> BlockBehaviour.Properties.of().noOcclusion().strength(0.5f, 1.5f).sound(SoundType.STONE));
 
 	public static HashMap<DyeColor, DeferredBlock<Block>> candles = new HashMap<>();
 	public static HashMap<DyeColor, DeferredBlock<Block>> banners = new HashMap<>();
@@ -174,7 +176,7 @@ public class ThaumcraftBlocks {
 			() -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> arcaneWorkbenchCharger = BLOCKS.registerSimpleBlock("arcane_workbench_charger", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> wandWorkbench = BLOCKS.registerSimpleBlock("wand_workbench", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> rechargePedestal = BLOCKS.registerSimpleBlock("recharge_pedestal", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<BlockRechargePedestal> rechargePedestal = BLOCKS.registerBlock("recharge_pedestal", BlockRechargePedestal::new, () -> BlockBehaviour.Properties.of().noOcclusion().strength(2.0f, 6.0f).sound(SoundType.STONE));
 	public static DeferredBlock<thaumcraft.common.blocks.research.BlockResearchTable> researchTable = BLOCKS.registerBlock("research_table", thaumcraft.common.blocks.research.BlockResearchTable::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tube = BLOCKS.registerBlock("tube", thaumcraft.common.blocks.essentia.BlockTube::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeVoid = BLOCKS.registerBlock("tube_void", thaumcraft.common.blocks.essentia.BlockVoidTube::new, () -> BlockBehaviour.Properties.of());

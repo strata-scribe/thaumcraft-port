@@ -274,4 +274,16 @@ public class VisBatteryStorageLogicTest {
         // NaN safety
         assertEquals(0.0f, VisBatteryStorageLogic.calculateDischargeAmount(Float.NaN, baseAura, 50.0f, 10.0f, false), 1e-6);
     }
+
+    @Test
+    public void testCalculateComparatorSignal() {
+        assertEquals(0, VisBatteryStorageLogic.calculateComparatorSignal(0.0f));
+        assertEquals(0, VisBatteryStorageLogic.calculateComparatorSignal(-0.5f));
+        assertEquals(0, VisBatteryStorageLogic.calculateComparatorSignal(Float.NaN));
+        assertEquals(1, VisBatteryStorageLogic.calculateComparatorSignal(0.1f));
+        assertEquals(7, VisBatteryStorageLogic.calculateComparatorSignal(0.5f));
+        assertEquals(14, VisBatteryStorageLogic.calculateComparatorSignal(0.95f));
+        assertEquals(15, VisBatteryStorageLogic.calculateComparatorSignal(1.0f));
+        assertEquals(15, VisBatteryStorageLogic.calculateComparatorSignal(1.5f));
+    }
 }
