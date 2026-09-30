@@ -70,7 +70,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> modules = ITEMS.registerSimpleItem("modules", p -> p);
     public static final DeferredItem<Item> visResonator = ITEMS.registerSimpleItem("vis_resonator", p -> p);
     public static final DeferredItem<Item> chunks = ITEMS.registerSimpleItem("chunks", p -> p);
-    public static final DeferredItem<Item> tripleMeatTreat = ITEMS.registerSimpleItem("triple_meat_treat", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.consumables.ItemTripleMeatTreat> tripleMeatTreat = ITEMS.registerItem("triple_meat_treat", thaumcraft.common.items.consumables.ItemTripleMeatTreat::new);
     public static final DeferredItem<Item> brain = ITEMS.registerSimpleItem("brain", p -> p);
     public static final DeferredItem<Item> phial = ITEMS.registerItem("phial", thaumcraft.common.items.consumables.ItemPhial::new);
     public static final DeferredItem<thaumcraft.common.items.curios.ItemLabel> label = ITEMS.registerItem("label", thaumcraft.common.items.curios.ItemLabel::new);
@@ -109,9 +109,9 @@ public class ThaumcraftItems {
     public static final DeferredItem<thaumcraft.common.items.armor.ItemThaumiumArmor> thaumiumChest = ITEMS.registerItem("thaumium_chest", p -> new thaumcraft.common.items.armor.ItemThaumiumArmor(net.minecraft.world.item.equipment.ArmorType.CHESTPLATE, p));
     public static final DeferredItem<thaumcraft.common.items.armor.ItemThaumiumArmor> thaumiumLegs = ITEMS.registerItem("thaumium_legs", p -> new thaumcraft.common.items.armor.ItemThaumiumArmor(net.minecraft.world.item.equipment.ArmorType.LEGGINGS, p));
     public static final DeferredItem<thaumcraft.common.items.armor.ItemThaumiumArmor> thaumiumBoots = ITEMS.registerItem("thaumium_boots", p -> new thaumcraft.common.items.armor.ItemThaumiumArmor(net.minecraft.world.item.equipment.ArmorType.BOOTS, p));
-    public static final DeferredItem<Item> clothChest = ITEMS.registerSimpleItem("cloth_chest", p -> p);
-    public static final DeferredItem<Item> clothLegs = ITEMS.registerSimpleItem("cloth_legs", p -> p);
-    public static final DeferredItem<Item> clothBoots = ITEMS.registerSimpleItem("cloth_boots", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.armor.ItemClothArmor> clothChest = ITEMS.registerItem("cloth_chest", p -> new thaumcraft.common.items.armor.ItemClothArmor(net.minecraft.world.item.equipment.ArmorType.CHESTPLATE, p));
+    public static final DeferredItem<thaumcraft.common.items.armor.ItemClothArmor> clothLegs = ITEMS.registerItem("cloth_legs", p -> new thaumcraft.common.items.armor.ItemClothArmor(net.minecraft.world.item.equipment.ArmorType.LEGGINGS, p));
+    public static final DeferredItem<thaumcraft.common.items.armor.ItemClothArmor> clothBoots = ITEMS.registerItem("cloth_boots", p -> new thaumcraft.common.items.armor.ItemClothArmor(net.minecraft.world.item.equipment.ArmorType.BOOTS, p));
     public static final DeferredItem<Item> fortressHelm = ITEMS.registerItem("fortress_helm", p -> new thaumcraft.common.items.armor.ItemFortressArmor(net.minecraft.world.item.equipment.ArmorType.HELMET, p));
     public static final DeferredItem<Item> fortressChest = ITEMS.registerItem("fortress_chest", p -> new thaumcraft.common.items.armor.ItemFortressArmor(net.minecraft.world.item.equipment.ArmorType.CHESTPLATE, p));
     public static final DeferredItem<Item> fortressLegs = ITEMS.registerItem("fortress_legs", p -> new thaumcraft.common.items.armor.ItemFortressArmor(net.minecraft.world.item.equipment.ArmorType.LEGGINGS, p));
@@ -152,7 +152,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<thaumcraft.common.items.casters.ItemFocus> focus2 = ITEMS.registerItem("focus2", p -> new thaumcraft.common.items.casters.ItemFocus(p, 25));
     public static final DeferredItem<thaumcraft.common.items.casters.ItemFocus> focus3 = ITEMS.registerItem("focus3", p -> new thaumcraft.common.items.casters.ItemFocus(p, 50));
     public static final DeferredItem<thaumcraft.common.items.casters.ItemFocusPouch> focusPouch = ITEMS.registerItem("focus_pouch", thaumcraft.common.items.casters.ItemFocusPouch::new);
-    public static final DeferredItem<Item> golemBell = ITEMS.registerSimpleItem("golem_bell", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemGolemBell> golemBell = ITEMS.registerItem("golem_bell", thaumcraft.common.items.tools.ItemGolemBell::new, p -> p.stacksTo(1));
     public static final DeferredItem<Item> golemPlacer = ITEMS.registerSimpleItem("golem_placer", p -> p);
     public static final DeferredItem<Item> seals = ITEMS.registerSimpleItem("seals", p -> p);
 
