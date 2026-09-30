@@ -1,19 +1,23 @@
 package thaumcraft.common.blocks.essentia;
 
-import javax.annotation.Nullable;
-
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +29,11 @@ import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IEssentiaContainerItem;
 import thaumcraft.api.items.ThaumcraftItems;
+import thaumcraft.common.blocks.essentia.logic.JarInteractionLogic;
 import thaumcraft.common.tiles.essentia.JarBlockEntity;
+import thaumcraft.common.tiles.essentia.JarLogic;
+
+import javax.annotation.Nullable;
 
 /**
  * Warded Jar block — a single-aspect essentia storage vessel.
@@ -33,41 +41,43 @@ import thaumcraft.common.tiles.essentia.JarBlockEntity;
  * <h3>VoxelShape (px = 1/16 block)</h3>
  * <ul>
  *   <li>Body: x=3..13, y=0..12, z=3..13</li>
- *   <li>Neck:  x=5..11, y=12..14, z=5..11</li>
- *   <li>Lid:   x=4..12, y=14..16, z=4..12</li>
+ *   <li>Neck: x=5..11, y=12..14, z=5..11</li>
+ *   <li>Lid:  x=4..12, y=14..16, z=4..12</li>
  * </ul>
  *
  * <h3>Interaction</h3>
  * <ul>
  *   <li>Empty phial → drain {@value #PHIAL_AMOUNT} essentia; give back filled phial.</li>
  *   <li>Filled phial → pour {@value #PHIAL_AMOUNT} essentia into jar.</li>
- *   <li>Label item → apply aspect filter from label's contained aspect.</li>
- *   <li>Sneak + empty hand → clear aspect filter.</li>
+ *   <li>Label item → apply aspect filter from label's contained aspect or current jar aspect.</li>
+ *   <li>Sneak + empty hand → clear aspect filter and return label item.</li>
  * </ul>
  *
  * <p>MC 1.21.4 / NeoForge 26.2 port of
  * {@code thaumcraft.common.blocks.essentia.BlockJar}.
  */
-public class BlockJar extends Block implements EntityBlock {
+public class BlockJar extends BaseEntityBlock {
+
+    public static final MapCodec<BlockJar> CODEC = simpleCodec(BlockJar::new);
 
     // -------------------------------------------------------------------------
     // VoxelShape definitions — coordinates in 1/16-block pixels
     // -------------------------------------------------------------------------
 
     /** Jar body: 10×12×10 px column */
-    private static final VoxelShape SHAPE_BODY =
+    public static final VoxelShape SHAPE_BODY =
             Block.box(3, 0, 3, 13, 12, 13);
 
     /** Narrow neck: 6×2×6 px */
-    private static final VoxelShape SHAPE_NECK =
+    public static final VoxelShape SHAPE_NECK =
             Block.box(5, 12, 5, 11, 14, 11);
 
     /** Lid cap: 8×2×8 px */
-    private static final VoxelShape SHAPE_LID =
+    public static final VoxelShape SHAPE_LID =
             Block.box(4, 14, 4, 12, 16, 12);
 
     /** Union of body + neck + lid. */
-    private static final VoxelShape SHAPE =
+    public static final VoxelShape SHAPE =
             Shapes.or(SHAPE_BODY, SHAPE_NECK, SHAPE_LID);
 
     // -------------------------------------------------------------------------
@@ -78,11 +88,21 @@ public class BlockJar extends Block implements EntityBlock {
     public static final int PHIAL_AMOUNT = 10;
 
     // -------------------------------------------------------------------------
-    // Constructor
+    // Constructor & Codec
     // -------------------------------------------------------------------------
 
     public BlockJar(BlockBehaviour.Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     // -------------------------------------------------------------------------
@@ -112,78 +132,125 @@ public class BlockJar extends Block implements EntityBlock {
     }
 
     // -------------------------------------------------------------------------
-    // Player interaction — item in hand
+    // Block removal & Item dropping
     // -------------------------------------------------------------------------
 
     /**
-     * Handles phial fill/drain and label application.
-     *
-     * <ul>
-     *   <li>Filled phial → pour essentia into jar (if jar accepts that aspect and has room).</li>
-     *   <li>Empty phial → draw {@value #PHIAL_AMOUNT} essentia out of jar into a new filled phial.</li>
-     *   <li>Label → set the jar's aspect filter to the label's contained aspect.</li>
-     * </ul>
+     * Drops label item if filtered when jar block is replaced,
+     * and updates neighbouring redstone comparator listeners.
      */
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (state != null && (newState == null || !state.is(newState.getBlock()))) {
+            JarBlockEntity jar = getJar(level, pos);
+            if (jar != null) {
+                if (jar.logic.getAspectFilter() != null) {
+                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                            new ItemStack(ThaumcraftItems.label.get()));
+                    jar.logic.setAspectFilter(null);
+                }
+                level.updateNeighbourForOutputSignal(pos, this);
+            }
+        }
+    }
+
+    @Override
+    public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
+        if (level instanceof Level world && !world.isClientSide()) {
+            JarBlockEntity jar = getJar(world, pos);
+            if (jar != null && jar.logic.getAspectFilter() != null) {
+                Containers.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                        new ItemStack(ThaumcraftItems.label.get()));
+                jar.logic.setAspectFilter(null);
+            }
+        }
+        super.destroy(level, pos, state);
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
+    }
+
+    // -------------------------------------------------------------------------
+    // Player interaction — item in hand
+    // -------------------------------------------------------------------------
+
     @Override
     protected InteractionResult useItemOn(
             ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player,
-            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+            InteractionHand hand, BlockHitResult hit) {
 
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         JarBlockEntity jar = getJar(level, pos);
         if (jar == null) return InteractionResult.PASS;
 
-        net.minecraft.world.item.Item heldItem = stack.getItem();
+        Item heldItem = stack.getItem();
 
         // --- Phial interaction ---
         if (heldItem == ThaumcraftItems.phial.get()) {
-            boolean isFilledPhial = stack.has(DataComponents.CUSTOM_DATA);
-
-            if (isFilledPhial) {
-                // Filled phial → pour into jar
-                IEssentiaContainerItem phialContainer = (IEssentiaContainerItem) heldItem;
+            if (heldItem instanceof IEssentiaContainerItem phialContainer) {
                 AspectList phialAspects = phialContainer.getAspects(stack);
-                if (phialAspects != null && phialAspects.size() > 0) {
+                boolean isFilled = phialAspects != null && phialAspects.size() > 0;
+                boolean isEmpty = !isFilled;
+
+                if (isFilled) {
                     Aspect aspect = phialAspects.getAspects()[0];
                     int amt = phialAspects.getAmount(aspect);
+                    boolean acceptsAspect = jar.doesContainerAccept(aspect)
+                            && (jar.getStoredAspect() == null || jar.getStoredAspect() == aspect);
 
-                    if (jar.logic.tryFillFromPhial(aspect, amt) == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
-                        jar.setChanged();
-                        // Replace filled phial with empty phial
-                        stack.shrink(1);
-                        giveOrDrop(level, pos, player, new ItemStack(ThaumcraftItems.phial.get()));
-                        level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY,
-                                SoundSource.BLOCKS, 0.5f, 1.0f);
-                        return InteractionResult.CONSUME;
+                    if (JarInteractionLogic.canFillFromPhial(true, acceptsAspect,
+                            jar.getAmount(), JarBlockEntity.CAPACITY, amt, jar.logic.isVoid())) {
+                        if (jar.logic.tryFillFromPhial(aspect, amt) == JarLogic.InteractionResult.SUCCESS) {
+                            jar.setChanged();
+                            if (player == null || !player.getAbilities().instabuild) {
+                                stack.shrink(1);
+                            }
+                            giveOrDrop(level, pos, player, new ItemStack(ThaumcraftItems.phial.get()));
+                            level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY,
+                                    SoundSource.BLOCKS, 0.5f, 1.0f);
+                            return InteractionResult.CONSUME;
+                        }
                     }
-                }
-            } else {
-                // Empty phial → drain from jar
-                Aspect stored = jar.getStoredAspect();
-                if (jar.logic.tryDrainToPhial() == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
-                    jar.setChanged();
-                    ItemStack filledPhial = new ItemStack(ThaumcraftItems.phial.get());
-                    IEssentiaContainerItem phialContainer = (IEssentiaContainerItem) ThaumcraftItems.phial.get();
-                    phialContainer.setAspects(filledPhial, new AspectList().add(stored, PHIAL_AMOUNT));
-                    stack.shrink(1);
-                    giveOrDrop(level, pos, player, filledPhial);
-                    level.playSound(null, pos, SoundEvents.BOTTLE_FILL,
-                            SoundSource.BLOCKS, 0.5f, 1.0f);
-                    return InteractionResult.CONSUME;
+                } else if (JarInteractionLogic.canDrainToPhial(isEmpty, jar.getAmount(), PHIAL_AMOUNT)) {
+                    Aspect stored = jar.getStoredAspect();
+                    if (stored != null) {
+                        if (jar.logic.tryDrainToPhial() == JarLogic.InteractionResult.SUCCESS) {
+                            jar.setChanged();
+                            ItemStack filledPhial = new ItemStack(ThaumcraftItems.phial.get());
+                            phialContainer.setAspects(filledPhial, new AspectList().add(stored, PHIAL_AMOUNT));
+                            if (player == null || !player.getAbilities().instabuild) {
+                                stack.shrink(1);
+                            }
+                            giveOrDrop(level, pos, player, filledPhial);
+                            level.playSound(null, pos, SoundEvents.BOTTLE_FILL,
+                                    SoundSource.BLOCKS, 0.5f, 1.0f);
+                            return InteractionResult.CONSUME;
+                        }
+                    }
                 }
             }
         }
 
         // --- Label interaction: apply aspect filter ---
-        if (heldItem == ThaumcraftItems.label.get()
-                && heldItem instanceof IEssentiaContainerItem labelContainer) {
-            AspectList labelAspects = labelContainer.getAspects(stack);
-            if (labelAspects != null && labelAspects.size() > 0) {
-                Aspect filterAspect = labelAspects.getAspects()[0];
-                if (jar.logic.applyLabel(filterAspect) == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
+        boolean isLabel = heldItem == ThaumcraftItems.label.get();
+        if (JarInteractionLogic.canApplyLabel(jar.getAspectFilter() != null, isLabel)) {
+            if (heldItem instanceof IEssentiaContainerItem labelContainer) {
+                AspectList labelAspects = labelContainer.getAspects(stack);
+                Aspect filterAspect = null;
+                if (labelAspects != null && labelAspects.size() > 0) {
+                    filterAspect = labelAspects.getAspects()[0];
+                } else if (jar.getAmount() > 0) {
+                    filterAspect = jar.getStoredAspect();
+                }
+
+                if (filterAspect != null && jar.logic.applyLabel(filterAspect) == JarLogic.InteractionResult.SUCCESS) {
                     jar.setChanged();
+                    if (player == null || !player.getAbilities().instabuild) {
+                        stack.shrink(1);
+                    }
                     level.playSound(null, pos, SoundEvents.BOOK_PAGE_TURN,
                             SoundSource.BLOCKS, 0.4f, 1.0f);
                     return InteractionResult.CONSUME;
@@ -199,7 +266,7 @@ public class BlockJar extends Block implements EntityBlock {
     // -------------------------------------------------------------------------
 
     /**
-     * Sneak + empty-hand right-click → clears the aspect filter.
+     * Sneak + empty-hand right-click → clears the aspect filter and returns the label.
      */
     @Override
     protected InteractionResult useWithoutItem(
@@ -208,10 +275,16 @@ public class BlockJar extends Block implements EntityBlock {
 
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
-        if (player.isShiftKeyDown()) {
-            JarBlockEntity jar = getJar(level, pos);
-            if (jar != null && jar.logic.removeLabel() == thaumcraft.common.tiles.essentia.JarLogic.InteractionResult.SUCCESS) {
+        JarBlockEntity jar = getJar(level, pos);
+        if (jar == null) return InteractionResult.PASS;
+
+        boolean isSneaking = player != null && player.isShiftKeyDown();
+        boolean hasFilter = jar.logic.getAspectFilter() != null;
+
+        if (JarInteractionLogic.canRemoveLabel(isSneaking, hasFilter)) {
+            if (jar.logic.removeLabel() == JarLogic.InteractionResult.SUCCESS) {
                 jar.setChanged();
+                giveOrDrop(level, pos, player, new ItemStack(ThaumcraftItems.label.get()));
                 level.playSound(null, pos, SoundEvents.BOOK_PAGE_TURN,
                         SoundSource.BLOCKS, 0.5f, 1.0f);
                 return InteractionResult.CONSUME;
@@ -230,17 +303,12 @@ public class BlockJar extends Block implements EntityBlock {
         return true;
     }
 
-    /**
-     * Returns 0–15 based on stored essentia:
-     * {@code (amount * 15) / CAPACITY}.
-     * This maps 0 → 0 and CAPACITY → 15.
-     */
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos,
-                                        net.minecraft.core.Direction direction) {
+                                        Direction direction) {
         JarBlockEntity jar = getJar(level, pos);
-        if (jar == null || jar.getAmount() <= 0) return 0;
-        return (jar.getAmount() * 15) / JarBlockEntity.CAPACITY;
+        if (jar == null) return 0;
+        return JarInteractionLogic.calculateComparatorSignal(jar.getAmount(), JarBlockEntity.CAPACITY);
     }
 
     // -------------------------------------------------------------------------
@@ -249,20 +317,19 @@ public class BlockJar extends Block implements EntityBlock {
 
     /** Returns the jar entity at {@code pos}, or {@code null}. */
     @Nullable
-    private static JarBlockEntity getJar(Level level, BlockPos pos) {
+    private static JarBlockEntity getJar(@Nullable LevelAccessor level, @Nullable BlockPos pos) {
+        if (level == null || pos == null) return null;
         BlockEntity be = level.getBlockEntity(pos);
         return be instanceof JarBlockEntity j ? j : null;
     }
 
     /**
      * Gives {@code stack} to {@code player}'s inventory; drops it near the block
-     * if the inventory is full.
+     * if the inventory is full or player is null.
      */
-    private static void giveOrDrop(Level level, BlockPos pos, Player player, ItemStack stack) {
-        if (!player.getInventory().add(stack)) {
-            ItemEntity entity = new ItemEntity(
-                    level, pos.getX() + 0.5, pos.getY() + 0.75, pos.getZ() + 0.5, stack);
-            level.addFreshEntity(entity);
+    private static void giveOrDrop(Level level, BlockPos pos, @Nullable Player player, ItemStack stack) {
+        if (player == null || !player.getInventory().add(stack)) {
+            Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.75, pos.getZ() + 0.5, stack);
         }
     }
 }
