@@ -64,4 +64,20 @@ public class VisBatteryStorageLogic {
         storedVis -= amountDischarged;
         return amountDischarged;
     }
+
+    public boolean isFull() {
+        return storedVis >= maxCapacity;
+    }
+
+    public boolean isEmpty() {
+        return storedVis <= 0.0f;
+    }
+
+    public float getFillRatio() {
+        return maxCapacity > 0.0f ? (storedVis / maxCapacity) : 0.0f;
+    }
+
+    public float getRemainingCapacity() {
+        return Math.max(0.0f, maxCapacity - storedVis);
+    }
 }

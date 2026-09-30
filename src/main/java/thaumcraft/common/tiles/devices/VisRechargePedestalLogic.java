@@ -35,4 +35,21 @@ public class VisRechargePedestalLogic {
         float discount = Math.max(0.0f, Math.min(1.0f, visDiscount));
         return rawVisCost * (1.0f - discount);
     }
+
+    /**
+     * Checks if recharge can proceed given available aura and missing charge.
+     */
+    public static boolean canRecharge(int auraAvailable, int itemMissingCharge) {
+        return auraAvailable > 0 && itemMissingCharge > 0;
+    }
+
+    /**
+     * Estimates remaining ticks to fully charge the item at the given transfer rate.
+     * Returns 0 if item is already charged, or Integer.MAX_VALUE if transferRate <= 0.
+     */
+    public static int calculateRemainingTicks(int itemMissingCharge, int transferRate) {
+        if (itemMissingCharge <= 0) return 0;
+        if (transferRate <= 0) return Integer.MAX_VALUE;
+        return (itemMissingCharge + transferRate - 1) / transferRate;
+    }
 }

@@ -113,4 +113,35 @@ public class VisBatteryStorageLogicTest {
         discharged = battery.dischargeToMachine(-5.0f);
         assertEquals(0.0f, discharged);
     }
+
+    @Test
+    public void testCapacityAndFillStatus() {
+        VisBatteryStorageLogic battery = new VisBatteryStorageLogic(100.0f, 10.0f, 20.0f);
+
+        assertTrue(battery.isEmpty());
+        assertFalse(battery.isFull());
+        assertEquals(0.0f, battery.getFillRatio(), 1e-6);
+        assertEquals(100.0f, battery.getRemainingCapacity(), 1e-6);
+
+        battery.setStoredVis(50.0f);
+        assertFalse(battery.isEmpty());
+        assertFalse(battery.isFull());
+        assertEquals(0.5f, battery.getFillRatio(), 1e-6);
+        assertEquals(50.0f, battery.getRemainingCapacity(), 1e-6);
+
+        battery.setStoredVis(100.0f);
+        assertFalse(battery.isEmpty());
+        assertTrue(battery.isFull());
+        assertEquals(1.0f, battery.getFillRatio(), 1e-6);
+        assertEquals(0.0f, battery.getRemainingCapacity(), 1e-6);
+    }
+
+    @Test
+    public void testZeroCapacityFillRatio() {
+        VisBatteryStorageLogic zeroBattery = new VisBatteryStorageLogic(0.0f, 5.0f, 5.0f);
+        assertTrue(zeroBattery.isEmpty());
+        assertTrue(zeroBattery.isFull());
+        assertEquals(0.0f, zeroBattery.getFillRatio(), 1e-6);
+        assertEquals(0.0f, zeroBattery.getRemainingCapacity(), 1e-6);
+    }
 }

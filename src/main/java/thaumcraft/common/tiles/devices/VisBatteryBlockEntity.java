@@ -13,12 +13,86 @@ public class VisBatteryBlockEntity extends BlockEntity {
     private final VisBatteryStorageLogic logic;
 
     public VisBatteryBlockEntity(BlockPos pos, BlockState state) {
+        this(pos, state, 1000.0f, 1.0f, 1.0f);
+    }
+
+    public VisBatteryBlockEntity(BlockPos pos, BlockState state, float maxCapacity, float siphonRate, float dischargeRate) {
         super(ThaumcraftBlockEntities.VIS_BATTERY.get(), pos, state);
-        this.logic = new VisBatteryStorageLogic(1000f, 1f, 1f);
+        this.logic = new VisBatteryStorageLogic(maxCapacity, siphonRate, dischargeRate);
     }
 
     public VisBatteryStorageLogic getLogic() {
         return logic;
+    }
+
+    public float getStoredVis() {
+        return logic.getStoredVis();
+    }
+
+    public void setStoredVis(float storedVis) {
+        logic.setStoredVis(storedVis);
+        setChanged();
+    }
+
+    public float getMaxCapacity() {
+        return logic.getMaxCapacity();
+    }
+
+    public boolean isFull() {
+        return logic.isFull();
+    }
+
+    public boolean isEmpty() {
+        return logic.isEmpty();
+    }
+
+    public float getFillRatio() {
+        return logic.getFillRatio();
+    }
+
+    public float getRemainingCapacity() {
+        return logic.getRemainingCapacity();
+    }
+
+    public float siphonFromAura(float availableAuraVis) {
+        float drawn = logic.siphonFromAura(availableAuraVis);
+        if (drawn > 0.0f) {
+            setChanged();
+        }
+        return drawn;
+    }
+
+    public float dischargeToMachine(float requestedVis) {
+        float discharged = logic.dischargeToMachine(requestedVis);
+        if (discharged > 0.0f) {
+            setChanged();
+        }
+        return discharged;
+    }
+
+    public void tickBattery(net.minecraft.world.level.Level level, BlockPos pos) {
+        if (level == null || level.isClientSide()) return;
+        float currentVis = thaumcraft.api.aura.AuraHelper.getVis(level, pos);
+        int baseAura = thaumcraft.api.aura.AuraHelper.getAuraBase(level, pos);
+        if (currentVis > (float) baseAura) {
+            float excess = currentVis - (float) baseAura;
+            float needed = logic.getRemainingCapacity();
+            if (needed > 0.0f && excess > 0.0f) {
+                float toDrain = Math.min(logic.getSiphonRate(), Math.min(excess, needed));
+                if (toDrain > 0.0f) {
+                    float drained = thaumcraft.api.aura.AuraHelper.drainVis(level, pos, toDrain, false);
+                    if (drained > 0.0f) {
+                        siphonFromAura(drained);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void serverTick(net.minecraft.world.level.Level level, BlockPos pos, BlockState state, VisBatteryBlockEntity blockEntity) {
+        if (blockEntity != null) {
+            blockEntity.tickBattery(level, pos);
+        }
     }
 
     @Override

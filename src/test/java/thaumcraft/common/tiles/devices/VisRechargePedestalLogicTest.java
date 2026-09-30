@@ -1,7 +1,7 @@
 package thaumcraft.common.tiles.devices;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VisRechargePedestalLogicTest {
 
@@ -52,5 +52,30 @@ public class VisRechargePedestalLogicTest {
     public void testApplyVisDiscountZeroOrNegativeCost() {
         assertEquals(0.0f, VisRechargePedestalLogic.applyVisDiscount(0.0f, 0.1f), 0.001f);
         assertEquals(0.0f, VisRechargePedestalLogic.applyVisDiscount(-5.0f, 0.1f), 0.001f);
+    }
+
+    @Test
+    public void testCanRecharge() {
+        assertTrue(VisRechargePedestalLogic.canRecharge(10, 5));
+        assertTrue(VisRechargePedestalLogic.canRecharge(1, 1));
+        assertFalse(VisRechargePedestalLogic.canRecharge(0, 5));
+        assertFalse(VisRechargePedestalLogic.canRecharge(10, 0));
+        assertFalse(VisRechargePedestalLogic.canRecharge(-1, 5));
+        assertFalse(VisRechargePedestalLogic.canRecharge(5, -2));
+    }
+
+    @Test
+    public void testCalculateRemainingTicks() {
+        // Exact division
+        assertEquals(2, VisRechargePedestalLogic.calculateRemainingTicks(10, 5));
+        // Ceiling division
+        assertEquals(3, VisRechargePedestalLogic.calculateRemainingTicks(11, 5));
+        assertEquals(1, VisRechargePedestalLogic.calculateRemainingTicks(1, 5));
+        // Zero missing charge
+        assertEquals(0, VisRechargePedestalLogic.calculateRemainingTicks(0, 5));
+        assertEquals(0, VisRechargePedestalLogic.calculateRemainingTicks(-5, 5));
+        // Zero or negative transfer rate
+        assertEquals(Integer.MAX_VALUE, VisRechargePedestalLogic.calculateRemainingTicks(10, 0));
+        assertEquals(Integer.MAX_VALUE, VisRechargePedestalLogic.calculateRemainingTicks(10, -1));
     }
 }
