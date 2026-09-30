@@ -25,14 +25,14 @@ public class ThaumcraftItems {
     public static final DeferredItem<net.minecraft.world.item.BlockItem> smelterVentItem = ITEMS.registerSimpleBlockItem("smelter_vent", thaumcraft.api.blocks.ThaumcraftBlocks.smelterVent);
     public static final DeferredItem<net.minecraft.world.item.BlockItem> alembicItem = ITEMS.registerSimpleBlockItem("alembic", thaumcraft.api.blocks.ThaumcraftBlocks.alembic);
     public static final DeferredItem<Item> thaumonomicon = ITEMS.registerItem("thaumonomicon", thaumcraft.common.items.curios.ItemThaumonomicon::new, p -> p.stacksTo(1));
-    public static final DeferredItem<Item> curio = ITEMS.registerSimpleItem("curio", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.curios.ItemCurio> curio = ITEMS.registerItem("curio", thaumcraft.common.items.curios.ItemCurio::new);
     public static final DeferredItem<Item> lootBag = ITEMS.registerItem("loot_bag", p -> new thaumcraft.common.items.curios.ItemLootBag(p, 0));
-    public static final DeferredItem<Item> primordialPearl = ITEMS.registerSimpleItem("primordial_pearl", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.curios.ItemPrimordialPearl> primordialPearl = ITEMS.registerItem("primordial_pearl", thaumcraft.common.items.curios.ItemPrimordialPearl::new, p -> p.stacksTo(1).durability(8));
     public static final DeferredItem<Item> eldritchEye = ITEMS.registerSimpleItem("eldritch_eye", p -> p);
     public static final DeferredItem<Item> runedTablet = ITEMS.registerSimpleItem("runed_tablet", p -> p);
     public static final DeferredItem<Item> pechWand = ITEMS.registerSimpleItem("pech_wand", p -> p);
     public static final DeferredItem<Item> celestialNotes = ITEMS.registerSimpleItem("celestial_notes", p -> p);
-    public static final DeferredItem<Item> alumentum = ITEMS.registerSimpleItem("alumentum", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.consumables.ItemAlumentum> alumentum = ITEMS.registerItem("alumentum", thaumcraft.common.items.consumables.ItemAlumentum::new);
     public static final DeferredItem<Item> amber = ITEMS.registerSimpleItem("amber", p -> p);
     public static final DeferredItem<Item> quicksilver = ITEMS.registerSimpleItem("quicksilver", p -> p);
     public static final DeferredItem<Item> ingots = ITEMS.registerSimpleItem("ingots", p -> p);
@@ -144,7 +144,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> creativeFluxSponge = ITEMS.registerSimpleItem("creative_flux_sponge", p -> p);
     public static final DeferredItem<thaumcraft.common.items.curios.ItemBathSalts> bathSalts = ITEMS.registerItem("bath_salts", thaumcraft.common.items.curios.ItemBathSalts::new);
     public static final DeferredItem<Item> sanitySoap = ITEMS.registerItem("sanity_soap", thaumcraft.common.items.tools.ItemSanitizingSoap::new);
-    public static final DeferredItem<Item> turretPlacer = ITEMS.registerSimpleItem("turret_placer", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemTurretPlacer> turretPlacer = ITEMS.registerItem("turret_placer", thaumcraft.common.items.tools.ItemTurretPlacer::new, p -> p.stacksTo(16));
     public static final DeferredItem<Item> enchantedPlaceholder = ITEMS.registerSimpleItem("enchanted_placeholder", p -> p);
     public static final DeferredItem<Item> casterBasic = ITEMS.registerSimpleItem("caster_basic", p -> p);
     public static final DeferredItem<Item> casterGauntlet = ITEMS.registerItem("caster_gauntlet", thaumcraft.common.items.casters.CasterGauntletItem::new, p -> p.stacksTo(1));
