@@ -73,11 +73,11 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> tripleMeatTreat = ITEMS.registerSimpleItem("triple_meat_treat", p -> p);
     public static final DeferredItem<Item> brain = ITEMS.registerSimpleItem("brain", p -> p);
     public static final DeferredItem<Item> phial = ITEMS.registerItem("phial", thaumcraft.common.items.consumables.ItemPhial::new);
-    public static final DeferredItem<Item> label = ITEMS.registerSimpleItem("label", p -> p);
-    public static final DeferredItem<Item> bottleTaint = ITEMS.registerSimpleItem("bottle_taint", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.curios.ItemLabel> label = ITEMS.registerItem("label", thaumcraft.common.items.curios.ItemLabel::new);
+    public static final DeferredItem<thaumcraft.common.items.consumables.ItemBottleTaint> bottleTaint = ITEMS.registerItem("bottle_taint", thaumcraft.common.items.consumables.ItemBottleTaint::new);
     public static final DeferredItem<Item> vitiumSlag = ITEMS.registerSimpleItem("vitium_slag", p -> p);
     public static final DeferredItem<Item> jarBrace = ITEMS.registerSimpleItem("jar_brace", p -> p);
-    public static final DeferredItem<Item> causalityCollapser = ITEMS.registerSimpleItem("causality_collapser", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemCausalityCollapser> causalityCollapser = ITEMS.registerItem("causality_collapser", thaumcraft.common.items.tools.ItemCausalityCollapser::new);
     public static final DeferredItem<Item> scribingTools = ITEMS.registerSimpleItem("scribing_tools", p -> p);
     public static final DeferredItem<thaumcraft.common.items.tools.ItemThaumometer> thaumometer = ITEMS.registerItem("thaumometer", thaumcraft.common.items.tools.ItemThaumometer::new);
     public static final DeferredItem<Item> thaumiumAxe = ITEMS.registerSimpleItem("thaumium_axe", p -> p);
@@ -151,7 +151,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<thaumcraft.common.items.casters.ItemFocus> focus1 = ITEMS.registerItem("focus1", p -> new thaumcraft.common.items.casters.ItemFocus(p, 15));
     public static final DeferredItem<thaumcraft.common.items.casters.ItemFocus> focus2 = ITEMS.registerItem("focus2", p -> new thaumcraft.common.items.casters.ItemFocus(p, 25));
     public static final DeferredItem<thaumcraft.common.items.casters.ItemFocus> focus3 = ITEMS.registerItem("focus3", p -> new thaumcraft.common.items.casters.ItemFocus(p, 50));
-    public static final DeferredItem<Item> focusPouch = ITEMS.registerSimpleItem("focus_pouch", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.casters.ItemFocusPouch> focusPouch = ITEMS.registerItem("focus_pouch", thaumcraft.common.items.casters.ItemFocusPouch::new);
     public static final DeferredItem<Item> golemBell = ITEMS.registerSimpleItem("golem_bell", p -> p);
     public static final DeferredItem<Item> golemPlacer = ITEMS.registerSimpleItem("golem_placer", p -> p);
     public static final DeferredItem<Item> seals = ITEMS.registerSimpleItem("seals", p -> p);
