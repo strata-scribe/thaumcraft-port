@@ -15,6 +15,10 @@ public class ItemGrappleGun extends Item {
         super(properties);
     }
 
+    public ItemGrappleGun() {
+        this(new Item.Properties().stacksTo(1));
+    }
+
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide()) {

@@ -20,6 +20,10 @@ public class ItemGoggles extends Item implements IGoggles, IRevealer {
         super(properties.equippable(EquipmentSlot.HEAD));
     }
 
+    public ItemGoggles() {
+        this(new Item.Properties().stacksTo(1));
+    }
+
     @Override
     public boolean showIngamePopups(ItemStack itemstack, LivingEntity player) {
         return true;

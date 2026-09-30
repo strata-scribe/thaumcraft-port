@@ -22,6 +22,10 @@ public class ItemThaumometer extends Item {
         super(properties);
     }
 
+    public ItemThaumometer() {
+        this(new Item.Properties().stacksTo(1));
+    }
+
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);

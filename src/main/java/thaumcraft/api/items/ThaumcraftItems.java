@@ -79,7 +79,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> jarBrace = ITEMS.registerSimpleItem("jar_brace", p -> p);
     public static final DeferredItem<Item> causalityCollapser = ITEMS.registerSimpleItem("causality_collapser", p -> p);
     public static final DeferredItem<Item> scribingTools = ITEMS.registerSimpleItem("scribing_tools", p -> p);
-    public static final DeferredItem<Item> thaumometer = ITEMS.registerSimpleItem("thaumometer", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemThaumometer> thaumometer = ITEMS.registerItem("thaumometer", thaumcraft.common.items.tools.ItemThaumometer::new);
     public static final DeferredItem<Item> thaumiumAxe = ITEMS.registerSimpleItem("thaumium_axe", p -> p);
     public static final DeferredItem<Item> thaumiumSword = ITEMS.registerSimpleItem("thaumium_sword", p -> p);
     public static final DeferredItem<Item> thaumiumShovel = ITEMS.registerSimpleItem("thaumium_shovel", p -> p);
@@ -97,13 +97,13 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> voidHoe = ITEMS.registerSimpleItem("void_hoe", p -> p);
     public static final DeferredItem<Item> crimsonBlade = ITEMS.registerSimpleItem("crimson_blade", p -> p);
     public static final DeferredItem<thaumcraft.common.items.tools.ItemPrimalCrusher> primalCrusher = ITEMS.registerItem("primal_crusher", thaumcraft.common.items.tools.ItemPrimalCrusher::new, p -> p.stacksTo(1).durability(500));
-    public static final DeferredItem<Item> sanityChecker = ITEMS.registerSimpleItem("sanity_checker", p -> p);
-    public static final DeferredItem<Item> resonator = ITEMS.registerSimpleItem("resonator", p -> p);
-    public static final DeferredItem<Item> handMirror = ITEMS.registerSimpleItem("hand_mirror", p -> p);
-    public static final DeferredItem<Item> grappleGun = ITEMS.registerSimpleItem("grapple_gun", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemSanityChecker> sanityChecker = ITEMS.registerItem("sanity_checker", thaumcraft.common.items.tools.ItemSanityChecker::new);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemResonator> resonator = ITEMS.registerItem("resonator", thaumcraft.common.items.tools.ItemResonator::new);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemHandMirror> handMirror = ITEMS.registerItem("hand_mirror", thaumcraft.common.items.tools.ItemHandMirror::new);
+    public static final DeferredItem<thaumcraft.common.items.tools.ItemGrappleGun> grappleGun = ITEMS.registerItem("grapple_gun", thaumcraft.common.items.tools.ItemGrappleGun::new);
     public static final DeferredItem<Item> grappleGunTip = ITEMS.registerSimpleItem("grapple_gun_tip", p -> p);
     public static final DeferredItem<Item> grappleGunSpool = ITEMS.registerSimpleItem("grapple_gun_spool", p -> p);
-    public static final DeferredItem<Item> goggles = ITEMS.registerSimpleItem("goggles", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.armor.ItemGoggles> goggles = ITEMS.registerItem("goggles", thaumcraft.common.items.armor.ItemGoggles::new);
     public static final DeferredItem<Item> travellerBoots = ITEMS.registerItem("traveller_boots", thaumcraft.common.items.armor.ItemBootsTraveller::new);
     public static final DeferredItem<Item> thaumiumHelm = ITEMS.registerSimpleItem("thaumium_helm", p -> p);
     public static final DeferredItem<Item> thaumiumChest = ITEMS.registerSimpleItem("thaumium_chest", p -> p);
