@@ -181,7 +181,7 @@ public class ThaumcraftBlocks {
 	public static DeferredBlock<Block> tube = BLOCKS.registerBlock("tube", thaumcraft.common.blocks.essentia.BlockTube::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeVoid = BLOCKS.registerBlock("tube_void", thaumcraft.common.blocks.essentia.BlockVoidTube::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeValve = BLOCKS.registerSimpleBlock("tube_valve", () -> BlockBehaviour.Properties.of());
-	public static DeferredBlock<Block> tubeRestrict = BLOCKS.registerSimpleBlock("tube_restrict", () -> BlockBehaviour.Properties.of());
+	public static DeferredBlock<thaumcraft.common.blocks.essentia.BlockTubeRestrict> tubeRestrict = BLOCKS.registerBlock("tube_restrict", thaumcraft.common.blocks.essentia.BlockTubeRestrict::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeOneway = BLOCKS.registerSimpleBlock("tube_oneway", () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<thaumcraft.common.blocks.essentia.BlockTubeFilter> tubeFilter = BLOCKS.registerBlock("tube_filter", thaumcraft.common.blocks.essentia.BlockTubeFilter::new, () -> BlockBehaviour.Properties.of());
 	public static DeferredBlock<Block> tubeBuffer = BLOCKS.registerSimpleBlock("tube_buffer", () -> BlockBehaviour.Properties.of());

@@ -1,23 +1,24 @@
 package thaumcraft.common.blocks.essentia;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import com.mojang.serialization.MapCodec;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import org.jetbrains.annotations.Nullable;
+import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IEssentiaContainerItem;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.api.items.ThaumcraftItems;
+import thaumcraft.common.blocks.essentia.logic.TubeConnectionLogic;
 import thaumcraft.common.tiles.essentia.TileTubeFilter;
 
 public class BlockTubeFilter extends BlockTube {
+
     public static final MapCodec<BlockTubeFilter> CODEC = simpleCodec(BlockTubeFilter::new);
 
     public BlockTubeFilter(Properties properties) {
@@ -25,7 +26,7 @@ public class BlockTubeFilter extends BlockTube {
     }
 
     @Override
-    protected MapCodec<BlockTubeFilter> codec() {
+    protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
     }
 
@@ -40,16 +41,18 @@ public class BlockTubeFilter extends BlockTube {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof TileTubeFilter filterTile) {
             ItemStack heldItem = player.getMainHandItem();
-            if (heldItem.isEmpty() && player.isCrouching()) {
+            Aspect currentFilter = filterTile.getFilteredLogic().getAspectFilter();
+            boolean hasFilter = currentFilter != null;
+            boolean isHandEmpty = heldItem.isEmpty();
+            boolean isCrouching = player.isCrouching();
+
+            if (TubeConnectionLogic.canClearFilter(isCrouching, isHandEmpty, hasFilter)) {
                 if (level.isClientSide()) return InteractionResult.SUCCESS;
 
-                Aspect filter = filterTile.getFilteredLogic().getAspectFilter();
-                if (filter != null) {
-                    filterTile.getFilteredLogic().setAspectFilter(null);
-                    filterTile.setChanged();
-                    level.sendBlockUpdated(pos, state, state, 3);
-                    return InteractionResult.CONSUME;
-                }
+                filterTile.getFilteredLogic().setAspectFilter(null);
+                filterTile.setChanged();
+                level.sendBlockUpdated(pos, state, state, 3);
+                return InteractionResult.CONSUME;
             } else if (!heldItem.isEmpty()) {
                 Aspect aspectToFilter = null;
                 if (heldItem.getItem() instanceof IEssentiaContainerItem container) {
@@ -59,7 +62,7 @@ public class BlockTubeFilter extends BlockTube {
                     }
                 }
 
-                if (aspectToFilter != null) {
+                if (TubeConnectionLogic.canApplyFilter(hasFilter, aspectToFilter != null)) {
                     if (level.isClientSide()) return InteractionResult.SUCCESS;
                     filterTile.getFilteredLogic().setAspectFilter(aspectToFilter);
                     filterTile.setChanged();
