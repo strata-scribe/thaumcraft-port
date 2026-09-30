@@ -36,8 +36,25 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> amber = ITEMS.registerSimpleItem("amber", p -> p);
     public static final DeferredItem<Item> quicksilver = ITEMS.registerSimpleItem("quicksilver", p -> p);
     public static final DeferredItem<Item> ingots = ITEMS.registerSimpleItem("ingots", p -> p);
+    public static final DeferredItem<Item> ingotThaumium = ITEMS.registerSimpleItem("ingot_thaumium", p -> p);
+    public static final DeferredItem<Item> ingotVoid = ITEMS.registerSimpleItem("ingot_void", p -> p);
+    public static final DeferredItem<Item> ingotBrass = ITEMS.registerSimpleItem("ingot_brass", p -> p);
+
     public static final DeferredItem<Item> nuggets = ITEMS.registerSimpleItem("nuggets", p -> p);
+    public static final DeferredItem<Item> nuggetThaumium = ITEMS.registerSimpleItem("nugget_thaumium", p -> p);
+    public static final DeferredItem<Item> nuggetVoid = ITEMS.registerSimpleItem("nugget_void", p -> p);
+    public static final DeferredItem<Item> nuggetBrass = ITEMS.registerSimpleItem("nugget_brass", p -> p);
+    public static final DeferredItem<Item> nuggetQuartz = ITEMS.registerSimpleItem("nugget_quartz", p -> p);
+
     public static final DeferredItem<Item> clusters = ITEMS.registerSimpleItem("clusters", p -> p);
+    public static final DeferredItem<Item> clusterIron = ITEMS.registerSimpleItem("cluster_iron", p -> p);
+    public static final DeferredItem<Item> clusterGold = ITEMS.registerSimpleItem("cluster_gold", p -> p);
+    public static final DeferredItem<Item> clusterCopper = ITEMS.registerSimpleItem("cluster_copper", p -> p);
+    public static final DeferredItem<Item> clusterTin = ITEMS.registerSimpleItem("cluster_tin", p -> p);
+    public static final DeferredItem<Item> clusterSilver = ITEMS.registerSimpleItem("cluster_silver", p -> p);
+    public static final DeferredItem<Item> clusterLead = ITEMS.registerSimpleItem("cluster_lead", p -> p);
+    public static final DeferredItem<Item> clusterCinnabar = ITEMS.registerSimpleItem("cluster_cinnabar", p -> p);
+    public static final DeferredItem<Item> clusterQuartz = ITEMS.registerSimpleItem("cluster_quartz", p -> p);
     public static final DeferredItem<Item> crystalEssence = ITEMS.registerItem("crystal_essence", p -> new ItemGenericEssentiaContainer(p, 1));
     public static final DeferredItem<Item> tallow = ITEMS.registerSimpleItem("tallow", p -> p);
     public static final DeferredItem<Item> fabric = ITEMS.registerSimpleItem("fabric", p -> p);

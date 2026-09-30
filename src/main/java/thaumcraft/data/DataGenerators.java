@@ -15,6 +15,7 @@ import thaumcraft.data.recipes.CrucibleRecipeProvider;
 import thaumcraft.data.recipes.InfusionRecipeProvider;
 import thaumcraft.data.tags.ThaumcraftBiomeTagProvider;
 import thaumcraft.data.tags.ThaumcraftBlockTagProvider;
+import thaumcraft.data.tags.ThaumcraftItemTagProvider;
 
 @EventBusSubscriber(modid = Thaumcraft.MODID)
 public class DataGenerators {
@@ -54,5 +55,6 @@ public class DataGenerators {
         ThaumcraftBlockTagProvider blockTags = new ThaumcraftBlockTagProvider(packOutput, lookupProvider);
         generator.addProvider(true, blockTags);
         generator.addProvider(true, new ThaumcraftBiomeTagProvider(packOutput, lookupProvider));
+        generator.addProvider(true, new ThaumcraftItemTagProvider(packOutput, lookupProvider));
     }
 }

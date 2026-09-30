@@ -13,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DataGeneratorsTest {
 
     @Test
+    public void testClassExists() {
+        assertNotNull(DataGenerators.class, "DataGenerators class must exist");
+    }
+
+    @Test
     public void testEventBusSubscriberAnnotation() {
         assertTrue(DataGenerators.class.isAnnotationPresent(EventBusSubscriber.class),
             "DataGenerators must be annotated with @EventBusSubscriber");
