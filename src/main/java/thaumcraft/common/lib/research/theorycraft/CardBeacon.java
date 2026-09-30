@@ -29,7 +29,7 @@ public class CardBeacon extends TheorycraftCard
     
     @Override
     public boolean activate(Player player, ResearchTableData data) {
-        // ++data.bonusDraws;
+        ++data.bonusDraws;
         ++data.penaltyStart;
         return true;
     }

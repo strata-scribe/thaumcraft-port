@@ -33,7 +33,7 @@ public class CardTruth extends TheorycraftCard
     @Override
     public boolean activate(Player player, ResearchTableData data) {
         data.addTotal("ELDRITCH", player.getRandom().nextIntBetweenInclusive(10, 25));
-        // ++data.bonusDraws;
+        ++data.bonusDraws;
         ThaumcraftApi.internalMethods.addWarpToPlayer(player, 3, IPlayerWarp.EnumWarpType.TEMPORARY);
         return true;
     }

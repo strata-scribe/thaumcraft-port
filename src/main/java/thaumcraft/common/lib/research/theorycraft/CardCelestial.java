@@ -111,7 +111,7 @@ public class CardCelestial extends TheorycraftCard
             ++data.penaltyStart;
         }
         if (moon) {
-            // ++data.bonusDraws;
+            ++data.bonusDraws;
         }
         return true;
     }

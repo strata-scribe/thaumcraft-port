@@ -17,6 +17,7 @@ public class ConfigResearch {
             ThaumcraftApi.registerResearchLocation(Identifier.fromNamespaceAndPath("thaumcraft", "research/" + cat.toLowerCase()));
         }
         ThaumcraftApi.registerResearchLocation(Identifier.fromNamespaceAndPath("thaumcraft", "research/scans"));
+        ResearchManager.initTheorycraft();
     }
     
     public static void postInit() {

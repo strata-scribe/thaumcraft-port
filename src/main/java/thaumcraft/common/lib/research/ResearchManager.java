@@ -40,6 +40,8 @@ import thaumcraft.api.research.ResearchStage;
 // import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.lib.network.PacketHandler;
 // import thaumcraft.common.lib.network.misc.PacketKnowledgeGain;
+import thaumcraft.api.research.theorycraft.TheorycraftManager;
+import thaumcraft.common.lib.research.theorycraft.*;
 
 
 public class ResearchManager
@@ -295,6 +297,54 @@ public class ResearchManager
         else {
             Thaumcraft.LOGGER.warn("Could not add invalid research entry " + ri.getKey());
         }
+    }
+
+    public static void initTheorycraft() {
+        TheorycraftManager.registerCard(CardAwareness.class);
+        TheorycraftManager.registerCard(CardBeacon.class);
+        TheorycraftManager.registerCard(CardCalibrate.class);
+        TheorycraftManager.registerCard(CardCelestial.class);
+        TheorycraftManager.registerCard(CardChannel.class);
+        TheorycraftManager.registerCard(CardConcentrate.class);
+        TheorycraftManager.registerCard(CardCurio.class);
+        TheorycraftManager.registerCard(CardDarkWhispers.class);
+        TheorycraftManager.registerCard(CardDragonEgg.class);
+        TheorycraftManager.registerCard(CardEnchantment.class);
+        TheorycraftManager.registerCard(CardFocus.class);
+        TheorycraftManager.registerCard(CardGlyphs.class);
+        TheorycraftManager.registerCard(CardInfuse.class);
+        TheorycraftManager.registerCard(CardMeasure.class);
+        TheorycraftManager.registerCard(CardMindOverMatter.class);
+        TheorycraftManager.registerCard(CardPortal.class);
+        TheorycraftManager.registerCard(CardReactions.class);
+        TheorycraftManager.registerCard(CardRealization.class);
+        TheorycraftManager.registerCard(CardRevelation.class);
+        TheorycraftManager.registerCard(CardScripting.class);
+        TheorycraftManager.registerCard(CardSculpting.class);
+        TheorycraftManager.registerCard(CardSpellbinding.class);
+        TheorycraftManager.registerCard(CardSynergy.class);
+        TheorycraftManager.registerCard(CardSynthesis.class);
+        TheorycraftManager.registerCard(CardTinker.class);
+        TheorycraftManager.registerCard(CardTruth.class);
+
+        TheorycraftManager.registerAid(new AidBasicAlchemy());
+        TheorycraftManager.registerAid(new AidBasicArtifice());
+        TheorycraftManager.registerAid(new AidBasicAuromancy());
+        TheorycraftManager.registerAid(new AidBasicEldritch());
+        TheorycraftManager.registerAid(new AidBasicGolemancy());
+        TheorycraftManager.registerAid(new AidBasicInfusion());
+        TheorycraftManager.registerAid(new AidBeacon());
+        TheorycraftManager.registerAid(new AidBrainInAJar());
+        TheorycraftManager.registerAid(new AidDragonEgg());
+        TheorycraftManager.registerAid(new AidEnchantmentTable());
+        TheorycraftManager.registerAid(new AidGlyphedStone());
+        TheorycraftManager.registerAid(new AidPortal.AidPortalEnd());
+        TheorycraftManager.registerAid(new AidPortal.AidPortalNether());
+    }
+
+    public static void clearTheorycraft() {
+        TheorycraftManager.cards.clear();
+        TheorycraftManager.aids.clear();
     }
     
     static {

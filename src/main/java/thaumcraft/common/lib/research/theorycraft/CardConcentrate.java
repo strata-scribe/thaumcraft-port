@@ -64,7 +64,7 @@ public class CardConcentrate extends TheorycraftCard
     @Override
     public boolean activate(Player player, ResearchTableData data) {
         data.addTotal(getResearchCategory(), 15);
-        // ++data.bonusDraws;
+        ++data.bonusDraws;
         if (player.getRandom().nextFloat() < 0.33) {
             data.addInspiration(1);
         }

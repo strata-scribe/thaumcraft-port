@@ -95,10 +95,10 @@ public class CardCurio extends TheorycraftCard
         }
 
         if (player.getRandom().nextBoolean()) {
-            // ++data.bonusDraws;
+            ++data.bonusDraws;
         }
         if (player.getRandom().nextBoolean()) {
-            // ++data.bonusDraws;
+            ++data.bonusDraws;
         }
         return true;
     }

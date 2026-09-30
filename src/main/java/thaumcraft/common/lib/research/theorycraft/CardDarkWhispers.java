@@ -52,7 +52,7 @@ public class CardDarkWhispers extends TheorycraftCard
         data.addTotal("ELDRITCH", player.getRandom().nextIntBetweenInclusive(Math.max(1, l / 5), Math.max(5, l / 2)));
         ThaumcraftApi.internalMethods.addWarpToPlayer(player, Math.max(1, (int)Math.sqrt(l)), IPlayerWarp.EnumWarpType.NORMAL);
         if (player.getRandom().nextBoolean()) {
-            // ++data.bonusDraws;
+            ++data.bonusDraws;
         }
         return true;
     }

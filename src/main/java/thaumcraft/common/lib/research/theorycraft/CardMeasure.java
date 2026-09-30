@@ -30,7 +30,7 @@ public class CardMeasure extends TheorycraftCard
     @Override
     public boolean activate(Player player, ResearchTableData data) {
         data.addTotal(getResearchCategory(), 15);
-        // ++data.bonusDraws;
+        ++data.bonusDraws;
         return true;
     }
 }
