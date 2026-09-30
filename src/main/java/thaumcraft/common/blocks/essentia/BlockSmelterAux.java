@@ -1,5 +1,6 @@
 package thaumcraft.common.blocks.essentia;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -9,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import thaumcraft.common.blocks.essentia.logic.SmelterAttachmentLogic;
 
 /**
  * Smelter Auxiliary Pump block — attaches to the side of a smelter to
@@ -22,14 +24,21 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  */
 public class BlockSmelterAux extends Block {
 
+    public static final MapCodec<BlockSmelterAux> CODEC = simpleCodec(BlockSmelterAux::new);
+
     // -------------------------------------------------------------------------
-    // Constructor
+    // Constructor & Codec
     // -------------------------------------------------------------------------
 
     public BlockSmelterAux(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected MapCodec<? extends Block> codec() {
+        return CODEC;
     }
 
     // -------------------------------------------------------------------------
@@ -63,12 +72,16 @@ public class BlockSmelterAux extends Block {
         BlockPos smelterPos = pos.relative(facing.getOpposite());
         BlockState smelterState = level.getBlockState(smelterPos);
 
-        if (!(smelterState.getBlock() instanceof BlockSmelter)) return false;
+        boolean isSmelter = smelterState.getBlock() instanceof BlockSmelter;
+        Direction smelterFacing = (isSmelter && smelterState.hasProperty(BlockStateProperties.HORIZONTAL_FACING))
+                ? smelterState.getValue(BlockStateProperties.HORIZONTAL_FACING)
+                : null;
 
-        // Cannot attach to the smelter's front face
-        Direction smelterFacing = smelterState.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        return facing != smelterFacing;
+        return SmelterAttachmentLogic.canAttachToSmelter(
+                facing != null ? facing.getName() : null,
+                smelterFacing != null ? smelterFacing.getName() : null,
+                isSmelter
+        );
     }
 
 }
-

@@ -17,6 +17,7 @@ import thaumcraft.api.items.ThaumcraftItems;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.blocks.essentia.SmelterTier;
 import thaumcraft.common.tiles.essentia.logic.SmelterAuxLogic;
+import thaumcraft.common.tiles.essentia.logic.SmelterLogic;
 
 import java.util.Random;
 
@@ -61,6 +62,11 @@ public class SmelterBlockEntity extends BlockEntity {
     private final AspectList aspects = new AspectList();
     /** Cached total essentia in the buffer. */
     private int vis = 0;
+
+    /** Input item waiting to be smelted into essentia. */
+    private ItemStack itemInput = ItemStack.EMPTY;
+    /** Fuel item powering the smelter. */
+    private ItemStack fuelInput = ItemStack.EMPTY;
 
     // -------------------------------------------------------------------------
     // Burning engine
@@ -223,9 +229,9 @@ public class SmelterBlockEntity extends BlockEntity {
      * @return smelt duration in ticks
      */
     public int computeSmeltTime(AspectList inputAspects) {
+        if (inputAspects == null) return 1;
         int totalVis = inputAspects.visSize();
-        int baseTime = Math.max(1, (int)(totalVis * 2 * (1.0f - 0.25f * bellows)));
-        return SmelterAuxLogic.calculateSmeltTime(baseTime, auxPumps);
+        return SmelterLogic.calculateCookTime(totalVis * 2, bellows, auxPumps);
     }
 
     /**
@@ -362,6 +368,12 @@ public class SmelterBlockEntity extends BlockEntity {
     public void setFurnaceCookTime(int cookTime) { this.furnaceCookTime = cookTime; }
     public void setBellows(int bellows) { this.bellows = bellows; }
 
+    public ItemStack getItemInput() { return itemInput; }
+    public void setItemInput(ItemStack itemInput) { this.itemInput = itemInput == null ? ItemStack.EMPTY : itemInput; }
+
+    public ItemStack getFuelInput() { return fuelInput; }
+    public void setFuelInput(ItemStack fuelInput) { this.fuelInput = fuelInput == null ? ItemStack.EMPTY : fuelInput; }
+
     // -------------------------------------------------------------------------
     // Neighbour scan
     // -------------------------------------------------------------------------
@@ -412,6 +424,8 @@ public class SmelterBlockEntity extends BlockEntity {
         output.store("SmeltTime", com.mojang.serialization.Codec.INT, smeltTime);
         output.store("SpeedBoost", com.mojang.serialization.Codec.BOOL, speedBoost);
         output.store("Vis", com.mojang.serialization.Codec.INT, vis);
+        output.store("ItemInput", ItemStack.OPTIONAL_CODEC, itemInput);
+        output.store("FuelInput", ItemStack.OPTIONAL_CODEC, fuelInput);
         // Serialize the multi-aspect buffer using AspectList's Codec
         output.store("Aspects", AspectList.CODEC, aspects);
     }
@@ -425,6 +439,8 @@ public class SmelterBlockEntity extends BlockEntity {
         smeltTime = input.read("SmeltTime", com.mojang.serialization.Codec.INT).orElse(100);
         speedBoost = input.read("SpeedBoost", com.mojang.serialization.Codec.BOOL).orElse(false);
         vis = input.read("Vis", com.mojang.serialization.Codec.INT).orElse(0);
+        itemInput = input.read("ItemInput", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        fuelInput = input.read("FuelInput", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
 
         AspectList loaded = input.read("Aspects", AspectList.CODEC).orElse(null);
         aspects.aspects.clear();

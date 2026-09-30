@@ -1,5 +1,6 @@
 package thaumcraft.common.blocks.essentia;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import thaumcraft.common.blocks.essentia.logic.SmelterAttachmentLogic;
 
 /**
  * Smelter Vent block — attaches to the side of a smelter to filter
@@ -25,6 +27,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public class BlockSmelterVent extends Block {
 
+    public static final MapCodec<BlockSmelterVent> CODEC = simpleCodec(BlockSmelterVent::new);
+
     // -------------------------------------------------------------------------
     // Directional VoxelShapes (half-block depth on the attached face)
     // -------------------------------------------------------------------------
@@ -35,13 +39,18 @@ public class BlockSmelterVent extends Block {
     private static final VoxelShape SHAPE_EAST  = Block.box(8, 2, 2, 16, 14, 14);
 
     // -------------------------------------------------------------------------
-    // Constructor
+    // Constructor & Codec
     // -------------------------------------------------------------------------
 
     public BlockSmelterVent(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected MapCodec<? extends Block> codec() {
+        return CODEC;
     }
 
     // -------------------------------------------------------------------------
@@ -73,10 +82,16 @@ public class BlockSmelterVent extends Block {
         BlockPos smelterPos = pos.relative(facing.getOpposite());
         BlockState smelterState = level.getBlockState(smelterPos);
 
-        if (!(smelterState.getBlock() instanceof BlockSmelter)) return false;
+        boolean isSmelter = smelterState.getBlock() instanceof BlockSmelter;
+        Direction smelterFacing = (isSmelter && smelterState.hasProperty(BlockStateProperties.HORIZONTAL_FACING))
+                ? smelterState.getValue(BlockStateProperties.HORIZONTAL_FACING)
+                : null;
 
-        Direction smelterFacing = smelterState.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        return facing != smelterFacing;
+        return SmelterAttachmentLogic.canAttachToSmelter(
+                facing != null ? facing.getName() : null,
+                smelterFacing != null ? smelterFacing.getName() : null,
+                isSmelter
+        );
     }
 
     // -------------------------------------------------------------------------

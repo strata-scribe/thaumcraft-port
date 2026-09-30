@@ -1,15 +1,19 @@
 package thaumcraft.common.blocks.essentia;
 
-import javax.annotation.Nullable;
-
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -21,6 +25,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import thaumcraft.api.aura.AuraHelper;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.tiles.essentia.SmelterBlockEntity;
+import thaumcraft.common.tiles.essentia.logic.SmelterLogic;
+
+import javax.annotation.Nullable;
 
 /**
  * Essentia Smelter block — decomposes items into their component aspects.
@@ -38,10 +45,12 @@ import thaumcraft.common.tiles.essentia.SmelterBlockEntity;
  * <p>MC 1.21.4 / NeoForge 26.2 port of
  * {@code thaumcraft.common.blocks.essentia.BlockSmelter}.
  */
-public class BlockSmelter extends Block implements EntityBlock {
+public class BlockSmelter extends BaseEntityBlock {
+
+    public static final MapCodec<BlockSmelter> CODEC = simpleCodec(BlockSmelter::new);
 
     // -------------------------------------------------------------------------
-    // Constructor
+    // Constructor & Codec
     // -------------------------------------------------------------------------
 
     public BlockSmelter(BlockBehaviour.Properties properties) {
@@ -49,6 +58,16 @@ public class BlockSmelter extends Block implements EntityBlock {
         registerDefaultState(stateDefinition.any()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH)
                 .setValue(BlockStateProperties.LIT, false));
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     // -------------------------------------------------------------------------
@@ -83,21 +102,8 @@ public class BlockSmelter extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        if (type != ThaumcraftBlockEntities.SMELTER.get()) return null;
-        return (lvl, p, s, be) -> SmelterBlockEntity.serverTick(lvl, p, s, (SmelterBlockEntity) be);
+        return createTickerHelper(type, ThaumcraftBlockEntities.SMELTER.get(), SmelterBlockEntity::serverTick);
     }
-
-    // -------------------------------------------------------------------------
-    // Light emission — lit smelters glow
-    // -------------------------------------------------------------------------
-
-    /**
-     * Emits light level 13 when lit, matching furnace behaviour.
-     * Note: registered via {@code BlockBehaviour.Properties.lightLevel()} in
-     * the block registration, but this override ensures correctness.
-     */
-    // Light level is controlled via the Properties builder at registration time:
-    // .lightLevel(state -> state.getValue(BlockStateProperties.LIT) ? 13 : 0)
 
     // -------------------------------------------------------------------------
     // Interaction
@@ -114,6 +120,56 @@ public class BlockSmelter extends Block implements EntityBlock {
     }
 
     // -------------------------------------------------------------------------
+    // Removal & Inventory Drop
+    // -------------------------------------------------------------------------
+
+    /**
+     * Drops inventory when the block is replaced by another block type,
+     * and updates neighbouring redstone comparator listeners.
+     */
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        String oldId = state != null ? String.valueOf(state.getBlock()) : null;
+        String newId = newState != null ? String.valueOf(newState.getBlock()) : null;
+        if (SmelterLogic.shouldDropInventory(oldId, newId)) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof SmelterBlockEntity smelter) {
+                if (smelter.getItemInput() != null && !smelter.getItemInput().isEmpty()) {
+                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, smelter.getItemInput());
+                    smelter.setItemInput(ItemStack.EMPTY);
+                }
+                if (smelter.getFuelInput() != null && !smelter.getFuelInput().isEmpty()) {
+                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, smelter.getFuelInput());
+                    smelter.setFuelInput(ItemStack.EMPTY);
+                }
+                level.updateNeighbourForOutputSignal(pos, this);
+            }
+        }
+    }
+
+    @Override
+    public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
+        if (level instanceof Level world && !world.isClientSide()) {
+            BlockEntity be = world.getBlockEntity(pos);
+            if (be instanceof SmelterBlockEntity smelter) {
+                if (smelter.getItemInput() != null && !smelter.getItemInput().isEmpty()) {
+                    Containers.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, smelter.getItemInput());
+                    smelter.setItemInput(ItemStack.EMPTY);
+                }
+                if (smelter.getFuelInput() != null && !smelter.getFuelInput().isEmpty()) {
+                    Containers.dropItemStack(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, smelter.getFuelInput());
+                    smelter.setFuelInput(ItemStack.EMPTY);
+                }
+            }
+        }
+        super.destroy(level, pos, state);
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
+    }
+
+    // -------------------------------------------------------------------------
     // Comparator
     // -------------------------------------------------------------------------
 
@@ -127,10 +183,7 @@ public class BlockSmelter extends Block implements EntityBlock {
                                         BlockPos pos, Direction direction) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof SmelterBlockEntity smelter) {
-            int vis = smelter.getVis();
-            int cap = smelter.getTier().getCapacity();
-            if (vis <= 0 || cap <= 0) return 0;
-            return Math.min(15, (vis * 15) / cap);
+            return SmelterLogic.calculateComparatorSignal(smelter.getVis(), smelter.getTier().getCapacity());
         }
         return 0;
     }
@@ -141,7 +194,7 @@ public class BlockSmelter extends Block implements EntityBlock {
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos,
-                                   Block block, @javax.annotation.Nullable net.minecraft.world.level.redstone.Orientation orientation, boolean isMoving) {
+                                   Block block, @Nullable net.minecraft.world.level.redstone.Orientation orientation, boolean isMoving) {
         super.neighborChanged(state, level, pos, block, orientation, isMoving);
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof SmelterBlockEntity smelter) {
