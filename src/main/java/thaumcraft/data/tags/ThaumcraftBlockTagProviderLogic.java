@@ -33,10 +33,10 @@ public class ThaumcraftBlockTagProviderLogic {
         List<String> tags = new ArrayList<>();
         if (blockName == null) return tags;
 
-        if (isOre(blockName)) tags.add("forge:ores");
+        if (isOre(blockName)) tags.add("c:ores");
         if (isLog(blockName)) tags.add("minecraft:logs");
         if (isLeaves(blockName)) tags.add("minecraft:leaves");
-        if (isStone(blockName)) tags.add("forge:stone");
+        if (isStone(blockName)) tags.add("c:stones");
         if (isWarded(blockName)) tags.add("thaumcraft:warded");
 
         return tags;

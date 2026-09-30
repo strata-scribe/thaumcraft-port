@@ -56,7 +56,7 @@ public class ThaumcraftBlockTagProviderLogicTest {
     public void testGenerateTagsForBlock() {
         List<String> tagsOre = ThaumcraftBlockTagProviderLogic.generateTagsForBlock("iron_ore");
         assertEquals(1, tagsOre.size());
-        assertTrue(tagsOre.contains("forge:ores"));
+        assertTrue(tagsOre.contains("c:ores"));
 
         List<String> tagsLog = ThaumcraftBlockTagProviderLogic.generateTagsForBlock("greatwood_log");
         assertEquals(1, tagsLog.size());
@@ -68,12 +68,12 @@ public class ThaumcraftBlockTagProviderLogicTest {
 
         List<String> tagsStone = ThaumcraftBlockTagProviderLogic.generateTagsForBlock("arcane_stone");
         assertEquals(1, tagsStone.size());
-        assertTrue(tagsStone.contains("forge:stone"));
+        assertTrue(tagsStone.contains("c:stones"));
 
         List<String> tagsWarded = ThaumcraftBlockTagProviderLogic.generateTagsForBlock("warded_stone");
         assertEquals(2, tagsWarded.size()); // It should match both stone and warded
         assertTrue(tagsWarded.contains("thaumcraft:warded"));
-        assertTrue(tagsWarded.contains("forge:stone"));
+        assertTrue(tagsWarded.contains("c:stones"));
 
         List<String> tagsEmpty = ThaumcraftBlockTagProviderLogic.generateTagsForBlock("dirt");
         assertTrue(tagsEmpty.isEmpty());
