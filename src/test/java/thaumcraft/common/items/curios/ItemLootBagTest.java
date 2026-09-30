@@ -76,4 +76,50 @@ public class ItemLootBagTest {
         assertEquals(300, uncommonCount, "Expected 300 uncommon rolls for Rare Bag");
         assertEquals(701, rareCount, "Expected 701 rare rolls for Rare Bag");
     }
+
+    @Test
+    public void testClassStructureAndConstructors() throws Exception {
+        Class<?> clazz = Class.forName("thaumcraft.common.items.curios.ItemLootBag", false, getClass().getClassLoader());
+        assertEquals("net.minecraft.world.item.Item", clazz.getSuperclass().getName());
+
+        boolean hasTwoArgConstructor = false;
+        boolean hasOneArgConstructor = false;
+        for (var ctor : clazz.getDeclaredConstructors()) {
+            Class<?>[] params = ctor.getParameterTypes();
+            if (params.length == 2 && params[0].getName().equals("net.minecraft.world.item.Item$Properties") && params[1] == int.class) {
+                hasTwoArgConstructor = true;
+            } else if (params.length == 1 && params[0].getName().equals("net.minecraft.world.item.Item$Properties")) {
+                hasOneArgConstructor = true;
+            }
+        }
+        assertTrue(hasTwoArgConstructor, "ItemLootBag must provide (Item.Properties, int) constructor");
+        assertTrue(hasOneArgConstructor, "ItemLootBag must provide (Item.Properties) default constructor");
+
+        boolean hasGetRarityTier = false;
+        for (var method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals("getRarityTier") && method.getReturnType() == int.class) {
+                hasGetRarityTier = true;
+                break;
+            }
+        }
+        assertTrue(hasGetRarityTier, "ItemLootBag must provide getRarityTier() accessor");
+    }
+
+    @Test
+    public void testRarityTierAssignmentsAndLogic() {
+        // Rarity 0 = Common
+        LootBagRarityRollLogic.LootBagResult commonLow = LootBagRarityRollLogic.calculateLootBagResult(0.1, 0.5, 0);
+        assertEquals(LootBagRarityRollLogic.LootTier.COMMON, commonLow.treasureTier);
+        assertTrue(commonLow.goldCoins >= 1 && commonLow.goldCoins <= 3);
+
+        // Rarity 1 = Uncommon
+        LootBagRarityRollLogic.LootBagResult uncommonMid = LootBagRarityRollLogic.calculateLootBagResult(0.5, 0.5, 1);
+        assertEquals(LootBagRarityRollLogic.LootTier.UNCOMMON, uncommonMid.treasureTier);
+        assertTrue(uncommonMid.goldCoins >= 3 && uncommonMid.goldCoins <= 6);
+
+        // Rarity 2 = Rare
+        LootBagRarityRollLogic.LootBagResult rareHigh = LootBagRarityRollLogic.calculateLootBagResult(0.8, 0.5, 2);
+        assertEquals(LootBagRarityRollLogic.LootTier.RARE, rareHigh.treasureTier);
+        assertTrue(rareHigh.goldCoins >= 6 && rareHigh.goldCoins <= 10);
+    }
 }

@@ -21,6 +21,14 @@ public class ItemLootBag extends Item {
         this.rarityTier = rarityTier;
     }
 
+    public ItemLootBag(Properties properties) {
+        this(properties, 0);
+    }
+
+    public int getRarityTier() {
+        return rarityTier;
+    }
+
     @Override
     public InteractionResult use(Level world, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);

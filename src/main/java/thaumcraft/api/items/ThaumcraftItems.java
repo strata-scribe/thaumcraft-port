@@ -26,7 +26,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<net.minecraft.world.item.BlockItem> alembicItem = ITEMS.registerSimpleBlockItem("alembic", thaumcraft.api.blocks.ThaumcraftBlocks.alembic);
     public static final DeferredItem<Item> thaumonomicon = ITEMS.registerItem("thaumonomicon", thaumcraft.common.items.curios.ItemThaumonomicon::new, p -> p.stacksTo(1));
     public static final DeferredItem<Item> curio = ITEMS.registerSimpleItem("curio", p -> p);
-    public static final DeferredItem<Item> lootBag = ITEMS.registerSimpleItem("loot_bag", p -> p);
+    public static final DeferredItem<Item> lootBag = ITEMS.registerItem("loot_bag", p -> new thaumcraft.common.items.curios.ItemLootBag(p, 0));
     public static final DeferredItem<Item> primordialPearl = ITEMS.registerSimpleItem("primordial_pearl", p -> p);
     public static final DeferredItem<Item> eldritchEye = ITEMS.registerSimpleItem("eldritch_eye", p -> p);
     public static final DeferredItem<Item> runedTablet = ITEMS.registerSimpleItem("runed_tablet", p -> p);
@@ -45,7 +45,7 @@ public class ThaumcraftItems {
     public static final DeferredItem<Item> mechanismComplex = ITEMS.registerSimpleItem("mechanism_complex", p -> p);
     public static final DeferredItem<Item> plate = ITEMS.registerSimpleItem("plate", p -> p);
     public static final DeferredItem<Item> voidSeed = ITEMS.registerSimpleItem("void_seed", p -> p);
-    public static final DeferredItem<Item> salisMundus = ITEMS.registerSimpleItem("salis_mundus", p -> p);
+    public static final DeferredItem<Item> salisMundus = ITEMS.registerItem("salis_mundus", thaumcraft.common.items.curios.ItemSalisMundus::new);
     public static final DeferredItem<Item> mirroredGlass = ITEMS.registerSimpleItem("mirrored_glass", p -> p);
     public static final DeferredItem<Item> filter = ITEMS.registerSimpleItem("filter", p -> p);
     public static final DeferredItem<Item> mind = ITEMS.registerSimpleItem("mind", p -> p);
