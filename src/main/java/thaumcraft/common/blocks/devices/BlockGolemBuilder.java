@@ -1,9 +1,14 @@
 package thaumcraft.common.blocks.devices;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -12,10 +17,22 @@ import org.jetbrains.annotations.Nullable;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.blocks.entities.TileGolemBuilder;
 
-public class BlockGolemBuilder extends Block implements EntityBlock {
+public class BlockGolemBuilder extends BaseEntityBlock {
+
+    public static final MapCodec<BlockGolemBuilder> CODEC = simpleCodec(BlockGolemBuilder::new);
 
     public BlockGolemBuilder(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Nullable
@@ -35,9 +52,33 @@ public class BlockGolemBuilder extends Block implements EntityBlock {
         });
     }
 
-    @SuppressWarnings("unchecked")
-    @Nullable
-    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> serverType, BlockEntityType<E> clientType, BlockEntityTicker<? super E> ticker) {
-        return clientType == serverType ? (BlockEntityTicker<A>) ticker : null;
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        if (level.getBlockEntity(pos) instanceof TileGolemBuilder tile) {
+            return tile.isCrafting() ? 15 : 0;
+        }
+        return 0;
+    }
+
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (state != null && (newState == null || !state.is(newState.getBlock()))) {
+            level.updateNeighbourForOutputSignal(pos, this);
+        }
+    }
+
+    @Override
+    public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
+        super.destroy(level, pos, state);
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 }
+

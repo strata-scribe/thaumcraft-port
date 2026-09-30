@@ -1,5 +1,6 @@
 package thaumcraft.common.blocks.world;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -11,8 +12,15 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class PavingStoneTravelBlock extends Block {
 
+    public static final MapCodec<PavingStoneTravelBlock> CODEC = simpleCodec(PavingStoneTravelBlock::new);
+
     public PavingStoneTravelBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends Block> codec() {
+        return CODEC;
     }
 
     @Override

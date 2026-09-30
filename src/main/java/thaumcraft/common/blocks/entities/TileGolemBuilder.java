@@ -121,8 +121,7 @@ public class TileGolemBuilder extends BlockEntity {
     public void setAddon(GolemAddon addon) { this.addon = addon; }
 
     public int getConstructionTime() { return constructionTime; }
-    public int getMaxConstructionTime() { return maxConstructionTime; }
-    public boolean isCrafting() { return isCrafting; }
+    public boolean isCrafting() { return this.isCrafting; }
 
     public int getVisCost() {
         return GolemBuilderLogic.getVisCost(material, head, arm, leg, addon);
