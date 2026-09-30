@@ -134,12 +134,12 @@ public class ThaumcraftItems {
     public static final DeferredItem<thaumcraft.common.items.armor.ItemCrimsonPraetorArmor> crimsonPraetorChest = ITEMS.registerItem("crimson_praetor_chest", p -> new thaumcraft.common.items.armor.ItemCrimsonPraetorArmor(net.minecraft.world.item.equipment.ArmorType.CHESTPLATE, p));
     public static final DeferredItem<thaumcraft.common.items.armor.ItemCrimsonPraetorArmor> crimsonPraetorLegs = ITEMS.registerItem("crimson_praetor_legs", p -> new thaumcraft.common.items.armor.ItemCrimsonPraetorArmor(net.minecraft.world.item.equipment.ArmorType.LEGGINGS, p));
     public static final DeferredItem<Item> baubles = ITEMS.registerSimpleItem("baubles", p -> p);
-    public static final DeferredItem<Item> amuletVis = ITEMS.registerSimpleItem("amulet_vis", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.baubles.ItemAmuletVis> amuletVis = ITEMS.registerItem("amulet_vis", thaumcraft.common.items.baubles.ItemAmuletVis::new);
     public static final DeferredItem<Item> charmVerdant = ITEMS.registerItem("charm_verdant", thaumcraft.common.items.curios.ItemVerdantCharm::new);
-    public static final DeferredItem<Item> charmVoidseer = ITEMS.registerSimpleItem("charm_voidseer", p -> p);
-    public static final DeferredItem<Item> bandCuriosity = ITEMS.registerSimpleItem("band_curiosity", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.baubles.ItemCharmVoidseer> charmVoidseer = ITEMS.registerItem("charm_voidseer", thaumcraft.common.items.baubles.ItemCharmVoidseer::new);
+    public static final DeferredItem<thaumcraft.common.items.baubles.ItemBandCuriosity> bandCuriosity = ITEMS.registerItem("band_curiosity", thaumcraft.common.items.baubles.ItemBandCuriosity::new);
     public static final DeferredItem<Item> ringCloud = ITEMS.registerItem("ring_cloud", thaumcraft.common.items.curios.ItemCloudRing::new);
-    public static final DeferredItem<Item> charmUndying = ITEMS.registerSimpleItem("charm_undying", p -> p);
+    public static final DeferredItem<thaumcraft.common.items.baubles.ItemCharmUndying> charmUndying = ITEMS.registerItem("charm_undying", thaumcraft.common.items.baubles.ItemCharmUndying::new);
     public static final DeferredItem<Item> creativePlacer = ITEMS.registerSimpleItem("creative_placer", p -> p);
     public static final DeferredItem<Item> creativeFluxSponge = ITEMS.registerSimpleItem("creative_flux_sponge", p -> p);
     public static final DeferredItem<thaumcraft.common.items.curios.ItemBathSalts> bathSalts = ITEMS.registerItem("bath_salts", thaumcraft.common.items.curios.ItemBathSalts::new);
