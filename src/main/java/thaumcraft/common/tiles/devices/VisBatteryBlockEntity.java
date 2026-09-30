@@ -72,18 +72,35 @@ public class VisBatteryBlockEntity extends BlockEntity {
 
     public void tickBattery(net.minecraft.world.level.Level level, BlockPos pos) {
         if (level == null || level.isClientSide()) return;
+        boolean powered = level.hasNeighborSignal(pos);
         float currentVis = thaumcraft.api.aura.AuraHelper.getVis(level, pos);
         int baseAura = thaumcraft.api.aura.AuraHelper.getAuraBase(level, pos);
-        if (currentVis > (float) baseAura) {
-            float excess = currentVis - (float) baseAura;
-            float needed = logic.getRemainingCapacity();
-            if (needed > 0.0f && excess > 0.0f) {
-                float toDrain = Math.min(logic.getSiphonRate(), Math.min(excess, needed));
-                if (toDrain > 0.0f) {
-                    float drained = thaumcraft.api.aura.AuraHelper.drainVis(level, pos, toDrain, false);
-                    if (drained > 0.0f) {
-                        siphonFromAura(drained);
-                    }
+
+        if (powered) {
+            float toDischarge = VisBatteryStorageLogic.calculateDischargeAmount(currentVis, baseAura, logic.getStoredVis(), logic.getDischargeRate(), true);
+            if (toDischarge > 0.0f) {
+                float discharged = dischargeToMachine(toDischarge);
+                if (discharged > 0.0f) {
+                    thaumcraft.api.aura.AuraHelper.addVis(level, pos, discharged);
+                }
+            }
+            return;
+        }
+
+        if (VisBatteryStorageLogic.shouldAbsorb(currentVis, baseAura, false)) {
+            float toAbsorb = VisBatteryStorageLogic.calculateAbsorbAmount(currentVis, baseAura, logic.getRemainingCapacity(), logic.getSiphonRate());
+            if (toAbsorb > 0.0f) {
+                float drained = thaumcraft.api.aura.AuraHelper.drainVis(level, pos, toAbsorb, false);
+                if (drained > 0.0f) {
+                    siphonFromAura(drained);
+                }
+            }
+        } else if (VisBatteryStorageLogic.shouldDischarge(currentVis, baseAura, false, logic.getStoredVis())) {
+            float toDischarge = VisBatteryStorageLogic.calculateDischargeAmount(currentVis, baseAura, logic.getStoredVis(), logic.getDischargeRate(), false);
+            if (toDischarge > 0.0f) {
+                float discharged = dischargeToMachine(toDischarge);
+                if (discharged > 0.0f) {
+                    thaumcraft.api.aura.AuraHelper.addVis(level, pos, discharged);
                 }
             }
         }
@@ -104,7 +121,10 @@ public class VisBatteryBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        float storedVis = input.read("storedVis", com.mojang.serialization.Codec.FLOAT).orElse(0.0f);
+        float storedVis = input.read("storedVis", com.mojang.serialization.Codec.FLOAT)
+                .or(() -> input.read("vis", com.mojang.serialization.Codec.FLOAT))
+                .or(() -> input.read("charge", com.mojang.serialization.Codec.FLOAT))
+                .orElse(0.0f);
         logic.setStoredVis(storedVis);
     }
 }

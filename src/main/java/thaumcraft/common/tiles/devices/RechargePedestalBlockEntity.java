@@ -50,7 +50,7 @@ public class RechargePedestalBlockEntity extends BlockEntity {
         IRechargable rechargeable = (IRechargable) item.getItem();
         int maxCharge = rechargeable.getMaxCharge(item, null);
         int currentCharge = RechargeHelper.getCharge(item);
-        int missingCharge = maxCharge - currentCharge;
+        int missingCharge = VisRechargePedestalLogic.calculateMissingCharge(maxCharge, currentCharge);
 
         if (missingCharge <= 0) return;
 
@@ -59,8 +59,9 @@ public class RechargePedestalBlockEntity extends BlockEntity {
 
         if (transferRate > 0) {
             float drained = AuraHelper.drainVis(level, pos, transferRate, false);
-            if (drained > 0) {
-                RechargeHelper.rechargeItemBlindly(item, null, (int) drained);
+            int chargeToAdd = VisRechargePedestalLogic.calculateEffectiveCharge(transferRate, drained);
+            if (chargeToAdd > 0) {
+                RechargeHelper.rechargeItemBlindly(item, null, chargeToAdd);
                 setChanged();
             }
         }
@@ -76,6 +77,7 @@ public class RechargePedestalBlockEntity extends BlockEntity {
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         output.store("Item", ItemStack.OPTIONAL_CODEC, item);
+        output.store("PedestalItem", ItemStack.OPTIONAL_CODEC, item);
     }
 
     @Override

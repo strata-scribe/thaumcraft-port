@@ -144,4 +144,134 @@ public class VisBatteryStorageLogicTest {
         assertEquals(0.0f, zeroBattery.getFillRatio(), 1e-6);
         assertEquals(0.0f, zeroBattery.getRemainingCapacity(), 1e-6);
     }
+
+    @Test
+    public void testNaNAndInfinitySanitization() {
+        VisBatteryStorageLogic nanBattery = new VisBatteryStorageLogic(Float.NaN, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY);
+        assertEquals(0.0f, nanBattery.getMaxCapacity());
+        assertEquals(0.0f, nanBattery.getSiphonRate());
+        assertEquals(0.0f, nanBattery.getDischargeRate());
+
+        VisBatteryStorageLogic normalBattery = new VisBatteryStorageLogic(100.0f, 10.0f, 20.0f);
+        normalBattery.setStoredVis(50.0f);
+
+        // NaN inputs must be rejected without mutating storedVis
+        normalBattery.setStoredVis(Float.NaN);
+        assertEquals(50.0f, normalBattery.getStoredVis());
+
+        normalBattery.setStoredVis(Float.POSITIVE_INFINITY);
+        assertEquals(50.0f, normalBattery.getStoredVis());
+
+        assertEquals(0.0f, normalBattery.siphonFromAura(Float.NaN));
+        assertEquals(50.0f, normalBattery.getStoredVis());
+
+        assertEquals(0.0f, normalBattery.siphonFromAura(Float.POSITIVE_INFINITY));
+        assertEquals(50.0f, normalBattery.getStoredVis());
+
+        assertEquals(0.0f, normalBattery.dischargeToMachine(Float.NaN));
+        assertEquals(50.0f, normalBattery.getStoredVis());
+
+        assertEquals(0.0f, normalBattery.dischargeToMachine(Float.POSITIVE_INFINITY));
+        assertEquals(50.0f, normalBattery.getStoredVis());
+    }
+
+    @Test
+    public void testShouldAbsorbThreshold() {
+        float baseAura = 100.0f;
+
+        // Exactly at or below 95% threshold -> do not absorb
+        assertFalse(VisBatteryStorageLogic.shouldAbsorb(95.0f, baseAura, false));
+        assertFalse(VisBatteryStorageLogic.shouldAbsorb(90.0f, baseAura, false));
+
+        // Above 95% threshold -> absorb
+        assertTrue(VisBatteryStorageLogic.shouldAbsorb(96.0f, baseAura, false));
+        assertTrue(VisBatteryStorageLogic.shouldAbsorb(120.0f, baseAura, false));
+
+        // Redstone signal inhibits absorption regardless of aura
+        assertFalse(VisBatteryStorageLogic.shouldAbsorb(120.0f, baseAura, true));
+
+        // NaN safety
+        assertFalse(VisBatteryStorageLogic.shouldAbsorb(Float.NaN, baseAura, false));
+        assertFalse(VisBatteryStorageLogic.shouldAbsorb(120.0f, Float.NaN, false));
+    }
+
+    @Test
+    public void testShouldDischargeThreshold() {
+        float baseAura = 100.0f;
+
+        // Empty battery never discharges
+        assertFalse(VisBatteryStorageLogic.shouldDischarge(50.0f, baseAura, false, 0.0f));
+        assertFalse(VisBatteryStorageLogic.shouldDischarge(50.0f, baseAura, true, 0.0f));
+
+        // Redstone signal forces rapid discharge if battery contains vis
+        assertTrue(VisBatteryStorageLogic.shouldDischarge(90.0f, baseAura, true, 10.0f));
+        assertTrue(VisBatteryStorageLogic.shouldDischarge(50.0f, baseAura, true, 10.0f));
+
+        // Unpowered: discharges only below 75% threshold
+        assertFalse(VisBatteryStorageLogic.shouldDischarge(75.0f, baseAura, false, 10.0f));
+        assertFalse(VisBatteryStorageLogic.shouldDischarge(80.0f, baseAura, false, 10.0f));
+        assertTrue(VisBatteryStorageLogic.shouldDischarge(74.0f, baseAura, false, 10.0f));
+        assertTrue(VisBatteryStorageLogic.shouldDischarge(10.0f, baseAura, false, 10.0f));
+
+        // NaN safety
+        assertFalse(VisBatteryStorageLogic.shouldDischarge(Float.NaN, baseAura, false, 10.0f));
+        assertFalse(VisBatteryStorageLogic.shouldDischarge(50.0f, Float.NaN, false, 10.0f));
+        assertFalse(VisBatteryStorageLogic.shouldDischarge(50.0f, baseAura, false, Float.NaN));
+    }
+
+    @Test
+    public void testCalculateAbsorbAmount() {
+        float baseAura = 100.0f; // 95% threshold is 95.0
+
+        // Excess 10 (105 - 95), remaining capacity 50, siphon rate 5 -> limited by rate
+        assertEquals(5.0f, VisBatteryStorageLogic.calculateAbsorbAmount(105.0f, baseAura, 50.0f, 5.0f), 1e-6);
+
+        // Excess 3 (98 - 95), remaining capacity 50, siphon rate 5 -> limited by excess
+        assertEquals(3.0f, VisBatteryStorageLogic.calculateAbsorbAmount(98.0f, baseAura, 50.0f, 5.0f), 1e-6);
+
+        // Excess 10 (105 - 95), remaining capacity 2, siphon rate 5 -> limited by capacity
+        assertEquals(2.0f, VisBatteryStorageLogic.calculateAbsorbAmount(105.0f, baseAura, 2.0f, 5.0f), 1e-6);
+
+        // At or below threshold -> 0
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateAbsorbAmount(95.0f, baseAura, 50.0f, 5.0f), 1e-6);
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateAbsorbAmount(80.0f, baseAura, 50.0f, 5.0f), 1e-6);
+
+        // Zero capacity or rate -> 0
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateAbsorbAmount(110.0f, baseAura, 0.0f, 5.0f), 1e-6);
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateAbsorbAmount(110.0f, baseAura, 50.0f, 0.0f), 1e-6);
+
+        // NaN safety
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateAbsorbAmount(Float.NaN, baseAura, 50.0f, 5.0f), 1e-6);
+    }
+
+    @Test
+    public void testCalculateDischargeAmount() {
+        float baseAura = 100.0f; // 75% threshold is 75.0
+
+        // Powered rapid discharge: 2x rate (10 * 2 = 20), stored 50 -> 20
+        assertEquals(20.0f, VisBatteryStorageLogic.calculateDischargeAmount(80.0f, baseAura, 50.0f, 10.0f, true), 1e-6);
+
+        // Powered rapid discharge: 2x rate (10 * 2 = 20), stored 15 -> limited by stored (15)
+        assertEquals(15.0f, VisBatteryStorageLogic.calculateDischargeAmount(80.0f, baseAura, 15.0f, 10.0f, true), 1e-6);
+
+        // Unpowered: deficit 25 (75 - 50), stored 50, rate 10 -> limited by rate (10)
+        assertEquals(10.0f, VisBatteryStorageLogic.calculateDischargeAmount(50.0f, baseAura, 50.0f, 10.0f, false), 1e-6);
+
+        // Unpowered: deficit 5 (75 - 70), stored 50, rate 10 -> limited by deficit (5)
+        assertEquals(5.0f, VisBatteryStorageLogic.calculateDischargeAmount(70.0f, baseAura, 50.0f, 10.0f, false), 1e-6);
+
+        // Unpowered: deficit 25 (75 - 50), stored 8, rate 10 -> limited by stored (8)
+        assertEquals(8.0f, VisBatteryStorageLogic.calculateDischargeAmount(50.0f, baseAura, 8.0f, 10.0f, false), 1e-6);
+
+        // Unpowered: at or above 75% threshold -> 0
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateDischargeAmount(75.0f, baseAura, 50.0f, 10.0f, false), 1e-6);
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateDischargeAmount(80.0f, baseAura, 50.0f, 10.0f, false), 1e-6);
+
+        // Zero stored or rate -> 0
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateDischargeAmount(50.0f, baseAura, 0.0f, 10.0f, false), 1e-6);
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateDischargeAmount(50.0f, baseAura, 50.0f, 0.0f, false), 1e-6);
+
+        // NaN safety
+        assertEquals(0.0f, VisBatteryStorageLogic.calculateDischargeAmount(Float.NaN, baseAura, 50.0f, 10.0f, false), 1e-6);
+    }
 }

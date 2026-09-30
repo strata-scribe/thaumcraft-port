@@ -77,5 +77,48 @@ public class VisRechargePedestalLogicTest {
         // Zero or negative transfer rate
         assertEquals(Integer.MAX_VALUE, VisRechargePedestalLogic.calculateRemainingTicks(10, 0));
         assertEquals(Integer.MAX_VALUE, VisRechargePedestalLogic.calculateRemainingTicks(10, -1));
+        // Large values without 32-bit integer overflow
+        assertEquals(1073741824, VisRechargePedestalLogic.calculateRemainingTicks(Integer.MAX_VALUE, 2));
+        assertEquals(Integer.MAX_VALUE, VisRechargePedestalLogic.calculateRemainingTicks(Integer.MAX_VALUE, 1));
+    }
+
+    @Test
+    public void testApplyVisDiscountNaN() {
+        assertEquals(0.0f, VisRechargePedestalLogic.applyVisDiscount(Float.NaN, 0.1f), 0.001f);
+        assertEquals(0.0f, VisRechargePedestalLogic.applyVisDiscount(10.0f, Float.NaN), 0.001f);
+        assertEquals(0.0f, VisRechargePedestalLogic.applyVisDiscount(Float.NaN, Float.NaN), 0.001f);
+    }
+
+    @Test
+    public void testCanRechargeWithTransferRate() {
+        assertTrue(VisRechargePedestalLogic.canRecharge(10, 5, 2));
+        assertFalse(VisRechargePedestalLogic.canRecharge(10, 5, 0));
+        assertFalse(VisRechargePedestalLogic.canRecharge(10, 5, -1));
+        assertFalse(VisRechargePedestalLogic.canRecharge(0, 5, 2));
+        assertFalse(VisRechargePedestalLogic.canRecharge(10, 0, 2));
+    }
+
+    @Test
+    public void testCalculateMissingCharge() {
+        assertEquals(80, VisRechargePedestalLogic.calculateMissingCharge(100, 20));
+        assertEquals(0, VisRechargePedestalLogic.calculateMissingCharge(100, 100));
+        assertEquals(0, VisRechargePedestalLogic.calculateMissingCharge(100, 120));
+        assertEquals(100, VisRechargePedestalLogic.calculateMissingCharge(100, -10));
+        assertEquals(0, VisRechargePedestalLogic.calculateMissingCharge(0, 0));
+        assertEquals(0, VisRechargePedestalLogic.calculateMissingCharge(-50, 0));
+    }
+
+    @Test
+    public void testCalculateEffectiveCharge() {
+        assertEquals(5, VisRechargePedestalLogic.calculateEffectiveCharge(5, 5.0f));
+        assertEquals(3, VisRechargePedestalLogic.calculateEffectiveCharge(5, 3.8f));
+        assertEquals(5, VisRechargePedestalLogic.calculateEffectiveCharge(5, 10.0f));
+        // Fractional vis < 1.0 cannot charge
+        assertEquals(0, VisRechargePedestalLogic.calculateEffectiveCharge(5, 0.7f));
+        assertEquals(0, VisRechargePedestalLogic.calculateEffectiveCharge(5, 0.0f));
+        assertEquals(0, VisRechargePedestalLogic.calculateEffectiveCharge(5, -1.0f));
+        assertEquals(0, VisRechargePedestalLogic.calculateEffectiveCharge(0, 5.0f));
+        assertEquals(0, VisRechargePedestalLogic.calculateEffectiveCharge(-1, 5.0f));
+        assertEquals(0, VisRechargePedestalLogic.calculateEffectiveCharge(5, Float.NaN));
     }
 }
