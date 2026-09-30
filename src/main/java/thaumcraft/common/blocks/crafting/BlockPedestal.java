@@ -2,18 +2,23 @@ package thaumcraft.common.blocks.crafting;
 
 import javax.annotation.Nullable;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,6 +27,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import thaumcraft.api.crafting.IInfusionStabiliserExt;
+import thaumcraft.common.blocks.crafting.logic.PedestalInteractionLogic;
 import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
 
 /**
@@ -38,7 +44,9 @@ import thaumcraft.common.tiles.crafting.PedestalBlockEntity;
  * <p>MC 26.1.2 / NeoForge 26.2 port of
  * {@code thaumcraft.common.blocks.devices.BlockPedestal}.</p>
  */
-public class BlockPedestal extends Block implements EntityBlock, IInfusionStabiliserExt {
+public class BlockPedestal extends BaseEntityBlock implements IInfusionStabiliserExt {
+
+    public static final MapCodec<BlockPedestal> CODEC = simpleCodec(BlockPedestal::new);
 
     // -------------------------------------------------------------------------
     // VoxelShape
@@ -50,11 +58,21 @@ public class BlockPedestal extends Block implements EntityBlock, IInfusionStabil
     private static final VoxelShape SHAPE = Shapes.or(SHAPE_BASE, SHAPE_STEM, SHAPE_DISH);
 
     // -------------------------------------------------------------------------
-    // Constructor
+    // Constructor & Codec
     // -------------------------------------------------------------------------
 
     public BlockPedestal(BlockBehaviour.Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     // -------------------------------------------------------------------------
@@ -85,18 +103,21 @@ public class BlockPedestal extends Block implements EntityBlock, IInfusionStabil
     protected InteractionResult useItemOn(
             ItemStack stack, BlockState state, Level level,
             BlockPos pos, Player player,
-            net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+            InteractionHand hand, BlockHitResult hit) {
 
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         PedestalBlockEntity ped = getPedestal(level, pos);
         if (ped == null) return InteractionResult.PASS;
 
-        // Player has item and pedestal is empty → place 1 item
-        if (!stack.isEmpty() && !ped.hasItem()) {
+        boolean isSneaking = player != null && player.isShiftKeyDown();
+        // Player has item and pedestal is empty and not sneaking → place 1 item
+        if (PedestalInteractionLogic.canPlaceItem(ped.hasItem(), stack.isEmpty(), isSneaking)) {
             ItemStack toPlace = stack.copyWithCount(1);
             ped.setItem(toPlace);
-            stack.shrink(1);
+            if (player == null || !player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
             level.playSound(null, pos, SoundEvents.ITEM_PICKUP,
                     SoundSource.BLOCKS, 0.2f,
                     ((level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.7f + 1.0f) * 1.6f);
@@ -120,11 +141,14 @@ public class BlockPedestal extends Block implements EntityBlock, IInfusionStabil
         PedestalBlockEntity ped = getPedestal(level, pos);
         if (ped == null) return InteractionResult.PASS;
 
-        if (ped.hasItem()) {
+        boolean isHandEmpty = player == null || player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty();
+        boolean isSneaking = player != null && player.isShiftKeyDown();
+
+        if (PedestalInteractionLogic.canExtractItem(ped.hasItem(), isHandEmpty, isSneaking)) {
             ItemStack extracted = ped.getItem().copy();
             ped.setItem(ItemStack.EMPTY);
             // Give to player or spawn in world
-            if (!player.getInventory().add(extracted)) {
+            if (player == null || !player.getInventory().add(extracted)) {
                 Containers.dropItemStack(level,
                         pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
                         extracted);
@@ -139,8 +163,25 @@ public class BlockPedestal extends Block implements EntityBlock, IInfusionStabil
     }
 
     // -------------------------------------------------------------------------
-    // Block removal — drop stored item
+    // Block removal & Item dropping
     // -------------------------------------------------------------------------
+
+    /**
+     * Drops container contents when the block is replaced by another block type,
+     * and updates neighbouring redstone comparator listeners.
+     */
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (state != null && (newState == null || !state.is(newState.getBlock()))) {
+            PedestalBlockEntity ped = getPedestal(level, pos);
+            if (ped != null && ped.hasItem()) {
+                Containers.dropItemStack(level,
+                        pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                        ped.getItem());
+                ped.setItem(ItemStack.EMPTY);
+                level.updateNeighbourForOutputSignal(pos, this);
+            }
+        }
+    }
 
     @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
@@ -154,6 +195,26 @@ public class BlockPedestal extends Block implements EntityBlock, IInfusionStabil
             }
         }
         super.destroy(level, pos, state);
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean isMoving) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
+    }
+
+    // -------------------------------------------------------------------------
+    // Redstone comparator output
+    // -------------------------------------------------------------------------
+
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        PedestalBlockEntity ped = getPedestal(level, pos);
+        return PedestalInteractionLogic.calculateComparatorSignal(ped != null && ped.hasItem());
     }
 
     // -------------------------------------------------------------------------
@@ -175,10 +236,9 @@ public class BlockPedestal extends Block implements EntityBlock, IInfusionStabil
     public boolean hasSymmetryPenalty(Level world, BlockPos pos1, BlockPos pos2) {
         PedestalBlockEntity ped1 = getPedestal(world, pos1);
         PedestalBlockEntity ped2 = getPedestal(world, pos2);
-        if (ped1 != null && ped2 != null) {
-            return ped1.hasItem() != ped2.hasItem();
-        }
-        return false;
+        boolean p1Has = ped1 != null && ped1.hasItem();
+        boolean p2Has = ped2 != null && ped2.hasItem();
+        return PedestalInteractionLogic.hasSymmetryPenalty(p1Has, p2Has);
     }
 
     @Override

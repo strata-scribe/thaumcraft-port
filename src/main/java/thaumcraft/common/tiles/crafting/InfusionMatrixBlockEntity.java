@@ -645,6 +645,9 @@ public class InfusionMatrixBlockEntity extends BlockEntity implements IAspectCon
     // Accessors for testing
     // -------------------------------------------------------------------------
 
+    /** @return true if currently crafting. */
+    public boolean isCrafting() { return this.crafting; }
+
     /** @return the discovered pedestal positions (read-only view). */
     public List<BlockPos> getPedestals() { return pedestals; }
 
