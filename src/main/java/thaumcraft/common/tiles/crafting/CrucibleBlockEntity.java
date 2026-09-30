@@ -27,7 +27,9 @@ import thaumcraft.api.aspects.IAspectContainer;
 import thaumcraft.api.aura.AuraHelper;
 import thaumcraft.api.crafting.CrucibleRecipe;
 import thaumcraft.common.tiles.crafting.logic.CrucibleBoilingLogic;
+import thaumcraft.common.tiles.crafting.logic.CrucibleEnvironmentLogic;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 
 /**
@@ -138,7 +140,8 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
      */
     private static boolean isHeatSource(BlockState state) {
         String blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
-        return CrucibleBoilingLogic.isHeatSource(blockId);
+        boolean isLit = state.hasProperty(BlockStateProperties.LIT) ? state.getValue(BlockStateProperties.LIT) : true;
+        return CrucibleEnvironmentLogic.isHeatSource(blockId, isLit);
     }
 
     // -------------------------------------------------------------------------
@@ -430,4 +433,20 @@ public class CrucibleBlockEntity extends BlockEntity implements IAspectContainer
 
     /** @return {@code true} if heat is at or above the boiling threshold (151). */
     public boolean isBoiling() { return heat >= 151; }
+
+    public void setHeat(short heat) {
+        this.heat = heat;
+    }
+
+    public void resetDecayDelay() {
+        this.ticksWithoutCrafting = 0L;
+    }
+
+    public void setTicksWithoutCrafting(long ticks) {
+        this.ticksWithoutCrafting = ticks;
+    }
+
+    public long getTicksWithoutCrafting() {
+        return this.ticksWithoutCrafting;
+    }
 }

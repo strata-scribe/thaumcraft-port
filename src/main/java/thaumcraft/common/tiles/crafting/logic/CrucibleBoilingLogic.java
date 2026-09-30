@@ -13,14 +13,7 @@ public class CrucibleBoilingLogic {
      * @return true if the block is a valid heat source.
      */
     public static boolean isHeatSource(String blockId) {
-        if (blockId == null) return false;
-
-        return blockId.equals("minecraft:fire") ||
-               blockId.equals("minecraft:lava") ||
-               blockId.equals("minecraft:magma_block") ||
-               blockId.equals("minecraft:campfire") ||
-               blockId.equals("minecraft:soul_campfire") ||
-               blockId.equals("thaumcraft:nitor");
+        return CrucibleEnvironmentLogic.isHeatSource(blockId);
     }
 
     /**

@@ -21,25 +21,9 @@ public class BellowsBlockEntity extends BlockEntity {
     private int delay = 0;
     public float inflation = 1.0f;
     public int direction = 1;
-    private static Field crucibleHeatField;
-    private static Field crucibleDecayField;
     private static Field furnaceCookTimeField;
 
     static {
-        try {
-            crucibleHeatField = CrucibleBlockEntity.class.getDeclaredField("heat");
-            crucibleHeatField.setAccessible(true);
-        } catch (Exception e) {
-            System.err.println("Failed to reflect Crucible heat field: " + e.getMessage());
-        }
-
-        try {
-            crucibleDecayField = CrucibleBlockEntity.class.getDeclaredField("ticksWithoutCrafting");
-            crucibleDecayField.setAccessible(true);
-        } catch (Exception e) {
-            System.err.println("Failed to reflect Crucible decay field: " + e.getMessage());
-        }
-
         try {
             // Using "cookingProgress" as per feedback.
             furnaceCookTimeField = AbstractFurnaceBlockEntity.class.getDeclaredField("cookingProgress");
@@ -83,27 +67,17 @@ public class BellowsBlockEntity extends BlockEntity {
                 }
             } else if (targetBE instanceof CrucibleBlockEntity crucible) {
                 // Accelerate crucible heat (every 2 ticks to maintain original heating speed, or can be every tick)
-                if (delay % 2 == 0 && crucibleHeatField != null) {
-                    try {
-                        short currentHeat = (short) crucibleHeatField.get(crucible);
-                        short newHeat = BellowsLogic.getAcceleratedCrucibleHeat(currentHeat, 1);
-                        if (newHeat != currentHeat) {
-                            crucibleHeatField.set(crucible, newHeat);
-                            crucible.setChanged();
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Failed to accelerate Crucible: " + e.getMessage());
+                if (delay % 2 == 0) {
+                    short currentHeat = crucible.getHeat();
+                    short newHeat = BellowsLogic.getAcceleratedCrucibleHeat(currentHeat, 1);
+                    if (newHeat != currentHeat) {
+                        crucible.setHeat(newHeat);
+                        crucible.setChanged();
                     }
                 }
 
                 // Agitate attached crucible to speed up aspect dissolution by preventing decay
-                if (crucibleDecayField != null) {
-                    try {
-                        crucibleDecayField.set(crucible, 0L);
-                    } catch (Exception e) {
-                        System.err.println("Failed to agitate Crucible: " + e.getMessage());
-                    }
-                }
+                crucible.resetDecayDelay();
             } else if (targetBE instanceof SmelterBlockEntity smelter) {
                 // The smelter handles its own scanning for speedup normally, but since we're porting and the smelter says "deferred to TileBellows integration", we just set it here.
                 smelter.setBellows(1);

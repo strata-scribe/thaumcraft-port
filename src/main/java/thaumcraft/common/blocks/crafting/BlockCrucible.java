@@ -2,7 +2,9 @@ package thaumcraft.common.blocks.crafting;
 
 import javax.annotation.Nullable;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -11,11 +13,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,6 +33,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import thaumcraft.common.blocks.entities.ThaumcraftBlockEntities;
 import thaumcraft.common.tiles.crafting.CrucibleBlockEntity;
+import thaumcraft.common.tiles.crafting.logic.CrucibleEnvironmentLogic;
 
 /**
  * The Crucible block — a cauldron-like vessel that dissolves items with magical aspects
@@ -38,7 +45,9 @@ import thaumcraft.common.tiles.crafting.CrucibleBlockEntity;
  * <p>MC 26.1.2 / NeoForge 26.1.x port of
  * {@code thaumcraft.common.blocks.crafting.BlockCrucible}.
  */
-public class BlockCrucible extends Block implements EntityBlock {
+public class BlockCrucible extends BaseEntityBlock {
+
+    public static final MapCodec<BlockCrucible> CODEC = simpleCodec(BlockCrucible::new);
 
     // -------------------------------------------------------------------------
     // VoxelShape definitions
@@ -74,15 +83,25 @@ public class BlockCrucible extends Block implements EntityBlock {
     );
 
     // -------------------------------------------------------------------------
-    // Constructor
+    // Constructor & Codec
     // -------------------------------------------------------------------------
 
     public BlockCrucible(BlockBehaviour.Properties properties) {
         super(properties);
     }
 
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
+    }
+
     // -------------------------------------------------------------------------
-    // EntityBlock
+    // EntityBlock / BaseEntityBlock
     // -------------------------------------------------------------------------
 
     @Nullable
@@ -92,7 +111,7 @@ public class BlockCrucible extends Block implements EntityBlock {
     }
 
     /**
-     * Returns a server-side-only ticker.  The crucible heat, aspect decay, and
+     * Returns a server-side-only ticker. The crucible heat, aspect decay, and
      * overflow logic all run server-side; client effects are handled by the
      * engine's random display-tick budget.
      */
@@ -104,16 +123,6 @@ public class BlockCrucible extends Block implements EntityBlock {
         return createTickerHelper(type,
                 ThaumcraftBlockEntities.CRUCIBLE.get(),
                 CrucibleBlockEntity::tick);
-    }
-
-    /** Safe cast helper — returns null when {@code actual} != {@code expected}. */
-    @SuppressWarnings("unchecked")
-    private static <E extends BlockEntity, A extends BlockEntity>
-    BlockEntityTicker<A> createTickerHelper(
-            BlockEntityType<A> actual,
-            BlockEntityType<E> expected,
-            BlockEntityTicker<? super E> ticker) {
-        return expected == actual ? (BlockEntityTicker<A>) ticker : null;
     }
 
     // -------------------------------------------------------------------------
@@ -140,6 +149,9 @@ public class BlockCrucible extends Block implements EntityBlock {
      * Handles:
      * <ul>
      *   <li>Water bucket → fills crucible to 1000 mB, gives back empty bucket.</li>
+     *   <li>Empty bucket → drains 1000 mB water, gives back water bucket.</li>
+     *   <li>Water bottle → fills crucible by 333 mB, gives back glass bottle.</li>
+     *   <li>Glass bottle → drains 333 mB water, gives back water bottle.</li>
      *   <li>Any item above boiling water → attempts alchemy smelt.</li>
      * </ul>
      */
@@ -154,15 +166,12 @@ public class BlockCrucible extends Block implements EntityBlock {
         CrucibleBlockEntity tile = getCrucible(level, pos);
         if (tile == null) return InteractionResult.PASS;
 
-        // --- Water bucket fill ---
+        // 1. Water bucket fill
         if (stack.is(Items.WATER_BUCKET)) {
-            if (tile.getWater() < CrucibleBlockEntity.TANK_CAPACITY) {
-                tile.setWater(CrucibleBlockEntity.TANK_CAPACITY);
+            if (CrucibleEnvironmentLogic.canFillWithBucket(tile.getWater())) {
+                tile.setWater(CrucibleEnvironmentLogic.fillWithBucket(tile.getWater()));
                 tile.setChanged();
-                if (!player.getAbilities().instabuild) {
-                    stack.shrink(1);
-                    player.getInventory().add(new ItemStack(Items.BUCKET));
-                }
+                player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.BUCKET)));
                 level.playSound(null, pos,
                         SoundEvents.BUCKET_EMPTY,
                         SoundSource.BLOCKS, 1.0f, 1.0f);
@@ -171,15 +180,61 @@ public class BlockCrucible extends Block implements EntityBlock {
             return InteractionResult.FAIL;
         }
 
-        // --- Alchemy smelt with held item (non-sneaking, boiling) ---
+        // 2. Empty bucket drain
+        if (stack.is(Items.BUCKET)) {
+            if (CrucibleEnvironmentLogic.canDrainWithBucket(tile.getWater(), tile.getAspects().visSize())) {
+                tile.setWater(CrucibleEnvironmentLogic.drainWithBucket(tile.getWater()));
+                tile.setChanged();
+                player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.WATER_BUCKET)));
+                level.playSound(null, pos,
+                        SoundEvents.BUCKET_FILL,
+                        SoundSource.BLOCKS, 1.0f, 1.0f);
+                return InteractionResult.CONSUME;
+            }
+            return InteractionResult.FAIL;
+        }
+
+        // 3. Water bottle fill
+        boolean isWaterBottle = stack.is(Items.POTION)
+                && stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).is(Potions.WATER);
+        if (isWaterBottle) {
+            if (CrucibleEnvironmentLogic.canFillWithBottle(tile.getWater())) {
+                tile.setWater(CrucibleEnvironmentLogic.fillWithBottle(tile.getWater()));
+                tile.setChanged();
+                player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
+                level.playSound(null, pos,
+                        SoundEvents.BOTTLE_EMPTY,
+                        SoundSource.BLOCKS, 1.0f, 1.0f);
+                return InteractionResult.CONSUME;
+            }
+            return InteractionResult.FAIL;
+        }
+
+        // 4. Glass bottle drain
+        if (stack.is(Items.GLASS_BOTTLE)) {
+            if (CrucibleEnvironmentLogic.canDrainWithBottle(tile.getWater(), tile.getAspects().visSize())) {
+                tile.setWater(CrucibleEnvironmentLogic.drainWithBottle(tile.getWater()));
+                tile.setChanged();
+                ItemStack waterBottle = PotionContents.createItemStack(Items.POTION, Potions.WATER);
+                player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, waterBottle));
+                level.playSound(null, pos,
+                        SoundEvents.BOTTLE_FILL,
+                        SoundSource.BLOCKS, 1.0f, 1.0f);
+                return InteractionResult.CONSUME;
+            }
+            return InteractionResult.FAIL;
+        }
+
+        // 5. Catalyst item alchemy smelt with held item (non-sneaking, boiling)
         if (!player.isShiftKeyDown()
-                && tile.getHeat() > 150
-                && tile.getWater() > 0) {
+                && CrucibleEnvironmentLogic.canSmelt(tile.getHeat(), tile.getWater())) {
             ItemStack single = stack.copyWithCount(1);
             ItemStack remainder = tile.attemptSmelt(single, player);
             if (remainder == null) {
                 // Item was fully consumed by a recipe or dissolved
-                stack.shrink(1);
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
                 return InteractionResult.CONSUME;
             }
         }
@@ -231,11 +286,11 @@ public class BlockCrucible extends Block implements EntityBlock {
         if (tile == null) return;
 
         if (entity instanceof ItemEntity itemEntity) {
-            if (tile.getHeat() > 150 && tile.getWater() > 0) {
+            if (CrucibleEnvironmentLogic.canSmelt(tile.getHeat(), tile.getWater())) {
                 tile.attemptSmelt(itemEntity);
             }
         } else if (entity instanceof LivingEntity living) {
-            if (tile.getHeat() > 150 && tile.getWater() > 0) {
+            if (CrucibleEnvironmentLogic.shouldHurtLivingEntity(tile.getHeat(), tile.getWater(), living.fireImmune())) {
                 living.hurt(level.damageSources().inFire(), 1.0f);
                 level.playSound(null, pos,
                         SoundEvents.FIRE_EXTINGUISH,
